@@ -7,7 +7,7 @@
     "react-native",
     "react-native-direct-fetch"
   ],
-  "homepage": "https://github.com/codex-relay/codex-relay#readme",
+  "homepage": "https://github.com/gronxb/codex-relay#readme",
   "license": "Apache-2.0",
   "author": "Codex Relay",
   "source": "src/index",
