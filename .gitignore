@@ -50,3 +50,5 @@ app-example
 apps/mobile/ios/
 apps/mobile/android/
 .omx/
+# hot-updater
+.hot-updater/output

@@ -1,5 +1,6 @@
 import { useSelector } from "@legendapp/state/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FontAwesome } from "@expo/vector-icons";
 import {
   CameraView,
   useCameraPermissions,
@@ -51,6 +52,7 @@ import {
 import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
 import { Colors, Spacing } from "@/constants/theme";
+import { codexRelayRepositoryLabel, codexRelayRepositoryUrl } from "@/constants/links";
 import {
   getCodexRelayServerUrl,
   hasCodexRelaySession,
@@ -2237,6 +2239,17 @@ export function ChatScreen() {
                 {scannerMessage}
               </ThemedText>
               <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Open Codex Relay GitHub repository"
+                onPress={() => void Linking.openURL(codexRelayRepositoryUrl)}
+                style={({ pressed }) => [styles.scannerRepositoryLink, pressed && styles.pressed]}
+              >
+                <FontAwesome name="github" size={15} color={Colors.dark.text} />
+                <ThemedText type="smallBold" style={styles.scannerRepositoryText}>
+                  {codexRelayRepositoryLabel}
+                </ThemedText>
+              </Pressable>
+              <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Paste QR payload instead"
                 onPress={() => {
@@ -2652,6 +2665,25 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
+  },
+  scannerRepositoryLink: {
+    alignItems: "center",
+    backgroundColor: "rgba(42, 42, 42, 0.78)",
+    borderColor: "rgba(255, 255, 255, 0.16)",
+    borderRadius: 18,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: Spacing.two,
+    maxWidth: "100%",
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+  },
+  scannerRepositoryText: {
+    color: Colors.dark.text,
+    flexShrink: 1,
+    fontSize: 12,
+    lineHeight: 16,
+    minWidth: 0,
   },
   manualScreen: {
     backgroundColor: Colors.dark.background,

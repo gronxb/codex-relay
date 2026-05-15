@@ -2,6 +2,7 @@ import type { ThreadSummary } from "codex-relay/api-schema";
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list/react-native";
 import { useSelector } from "@legendapp/state/react";
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import type { Drawer } from "expo-router/drawer";
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
@@ -10,6 +11,7 @@ import {
   Alert,
   InteractionManager,
   Keyboard,
+  Linking,
   Modal,
   Pressable,
   TextInput,
@@ -30,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { SheetActionRow } from "@/components/ui/bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { codexRelayRepositoryLabel, codexRelayRepositoryUrl } from "@/constants/links";
 import { useTheme } from "@/hooks/use-theme";
 import { hasCodexRelaySession } from "@/lib/codex-relay-api";
 import { hapticLightImpact, hapticSelection, hapticSuccess } from "@/lib/haptics";
@@ -671,6 +674,26 @@ function DrawerFooter({
 
   return (
     <View style={[styles.footerBlock, { paddingBottom: Math.max(bottomInset, 8) }]}>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="Open Codex Relay GitHub repository"
+        onPress={() => void Linking.openURL(codexRelayRepositoryUrl)}
+        style={styles.repositoryFooter}
+      >
+        {({ pressed }) => (
+          <>
+            <View style={[styles.rowIconSlot, pressed && styles.drawerPressedContent]}>
+              <FontAwesome name="github" size={16} color={theme.text} />
+            </View>
+            <View style={[styles.repositoryFooterCopy, pressed && styles.drawerPressedContent]}>
+              <Text style={styles.repositoryFooterTitle}>GitHub</Text>
+              <Text numberOfLines={1} style={styles.repositoryFooterUrl}>
+                {codexRelayRepositoryLabel}
+              </Text>
+            </View>
+          </>
+        )}
+      </Pressable>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Settings"
@@ -1667,6 +1690,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
     lineHeight: 16,
+  },
+  repositoryFooter: {
+    alignItems: "center",
+    borderRadius: 7,
+    flexDirection: "row",
+    minHeight: 48,
+    paddingHorizontal: 0,
+    paddingVertical: 4,
+  },
+  repositoryFooterCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  repositoryFooterTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    lineHeight: 16,
+  },
+  repositoryFooterUrl: {
+    fontSize: 10,
+    lineHeight: 14,
+    opacity: 0.62,
   },
   workspaceDisabled: {
     opacity: 0.42,
