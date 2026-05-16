@@ -1,6 +1,6 @@
 {
   "name": "codex-relay",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Local Codex Relay CLI bridge for the Codex Relay mobile app.",
   "license": "Apache-2.0",
   "repository": {
