@@ -35,10 +35,10 @@ export interface IconBaseProps extends SvgProps {
   color?: string;
 }
 
-export type IconType = (props: IconBaseProps) => JSX.Element;
+export type IconType = (props: IconBaseProps) => React.ReactElement;
 export function IconBase(
   props: IconBaseProps & { attr?: Record<string, string> }
-): JSX.Element {
+): React.ReactElement {
   const elem = (conf: IconContext) => {
     const { attr, size, ...svgProps } = props;
     const computedSize = size || conf.size || "1em";
