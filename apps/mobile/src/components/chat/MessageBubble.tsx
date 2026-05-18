@@ -421,11 +421,7 @@ function MessageFooter({
   variant: "assistant" | "user";
 }) {
   const isUser = variant === "user";
-  const iconTint = isCopied
-    ? "#8EE6A8"
-    : isUser
-      ? "rgba(255, 255, 255, 0.72)"
-      : "rgba(214, 222, 232, 0.62)";
+  const iconTint = isUser ? "rgba(255, 255, 255, 0.72)" : "rgba(214, 222, 232, 0.62)";
 
   return (
     <View style={[styles.messageFooter, isUser && styles.userMessageFooter]}>

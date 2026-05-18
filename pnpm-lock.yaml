@@ -39,8 +39,8 @@ importers:
         specifier: ^5
         version: 5.2.13(@types/react@19.2.14)(react-native-gesture-handler@2.31.2(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.3.1(react-native-worklets@0.8.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       '@hot-updater/react-native':
-        specifier: 0.31.2
-        version: 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(expo@56.0.0-preview.12)(hot-updater@https://pkg.pr.new/hot-updater@1008(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
+        specifier: 0.31.3
+        version: 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(expo@56.0.0-preview.12)(hot-updater@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       '@legendapp/list':
         specifier: 3.0.0-beta.49
         version: 3.0.0-beta.49(react-dom@19.2.3(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
@@ -232,11 +232,11 @@ importers:
         version: 1.6.3(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)(tailwindcss@4.2.4)
     devDependencies:
       '@hot-updater/cloudflare':
-        specifier: 0.31.2
-        version: 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))
+        specifier: 0.31.3
+        version: 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))
       '@hot-updater/expo':
-        specifier: 0.31.2
-        version: 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+        specifier: 0.31.3
+        version: 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@shikijs/monaco':
         specifier: 4.0.2
         version: 4.0.2
@@ -247,8 +247,8 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
       hot-updater:
-        specifier: https://pkg.pr.new/hot-updater@1008
-        version: https://pkg.pr.new/hot-updater@1008(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0))
+        specifier: 0.31.3
+        version: 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0))
       monaco-editor-core:
         specifier: 0.55.1
         version: 0.55.1
@@ -1645,69 +1645,44 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@57b4204':
-    resolution: {integrity: sha512-eTTDGwYoUxeqORygVfBv/gdJHhbQbNO5tdzV/Q6nocMoNvgA5j2pNwliKs3dDh24cBQZVlDlydTLHN9ysSFqMA==}
-    version: 0.31.2
+  '@hot-updater/android-helper@0.31.3':
+    resolution: {integrity: sha512-WJO637iHLAlpQ3b5I8Xu8awQsktDabOosDE/oq9II477Ptv5kUPWsIMWfHQJJqMOLecg7pQyt/uoggVYXvYe1Q==}
 
-  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@57b4204':
-    resolution: {integrity: sha512-lpwpGNjQ10ygiruIpwxxpW5yOStEWhjvnH/Das9xvNeSDe5X0wef5SBLfYIo4ROhW1zn/vce8PjkV0WvJt5MuQ==}
-    version: 0.31.2
+  '@hot-updater/apple-helper@0.31.3':
+    resolution: {integrity: sha512-5lmyAeWJCgGA877dUsKDr77/zu70CwkXe4Vj8xOee2kFoDxcxWV+6gcXHLSLIagOOrAL01gy7EGzsqp/oAIc2g==}
 
-  '@hot-updater/bare@0.31.2':
-    resolution: {integrity: sha512-eAoNcEe8OUIJ6fs9wcVlCLmZEHCpVNFYK5u6+1WpZPiNqaLLAJuWFvnrNGq44K/ZnrbPxfHE8BUsNfFHzCADJQ==}
+  '@hot-updater/bare@0.31.3':
+    resolution: {integrity: sha512-Rvl7w8V3eOIesfygEfnyKQlK3cADehSKEYloIY79Hg/pNlGaXEKOMcIbEwA9zaCzCw6nEHz21TGxohNZqe/3GQ==}
 
-  '@hot-updater/bsdiff@0.31.2':
-    resolution: {integrity: sha512-PZAd7Gct9bWPaJjD0SuVzLjBN0OosdH9LzY1mY1sHoFIMlJTGmVA0FKqFdWjTpskSHTImx+jxntdH/7v4p1T2g==}
+  '@hot-updater/bsdiff@0.31.3':
+    resolution: {integrity: sha512-ALZXTC1PiEb3C8+dRfMO2SDv//DXd7QBCTdy+jIzPqWX93elAETOz4+wavICTO7H05aZMbNMmntW1Md86Np3TQ==}
 
-  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@57b4204':
-    resolution: {integrity: sha512-PZAd7Gct9bWPaJjD0SuVzLjBN0OosdH9LzY1mY1sHoFIMlJTGmVA0FKqFdWjTpskSHTImx+jxntdH/7v4p1T2g==}
-    version: 0.31.2
-
-  '@hot-updater/cli-tools@0.31.2':
-    resolution: {integrity: sha512-qsW4S0K/FAWzMd3GQ5pvR0Cgc3MVJLEeEJV3naCXIOYPqM4wqtEMe/tVtTD+nc0OPeufZClVLSSTPLOtCkqufA==}
+  '@hot-updater/cli-tools@0.31.3':
+    resolution: {integrity: sha512-fHMS/lw3N7d5KieF6v7a7tvQW+IeKb/1eecC6upKN2n7tdNKNjcnkcgZen9MPkK5KmbHqsaz14ED0y3uxgYWzg==}
     engines: {node: '>=20.19.0'}
 
-  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@57b4204':
-    resolution: {integrity: sha512-sVTEY3xNVbDWY3iCQD2LGz+YKhM6UVpEmX50482Txl8PwC/6C3RbY69pFzsrQPx9YVul6C7+u6TZhvOy3V4Mwg==}
-    version: 0.31.2
-    engines: {node: '>=20.19.0'}
+  '@hot-updater/cloudflare@0.31.3':
+    resolution: {integrity: sha512-gAOH5UgMzXHLJbOzzK/dqpnfwGObofo0C9Vo9O+rIEVeNSIHfB+2TU9frVUKWuNKoeq08bsz7twdgFnBpeV32Q==}
 
-  '@hot-updater/cloudflare@0.31.2':
-    resolution: {integrity: sha512-0PKuVekBSRhmZb2rEptWYxWM6pavfUKHIgvdAlMThSK8HGSYGHX3iWjaLatI9T9eD7J8BQ+rVJOtyRTswYP7Dw==}
-
-  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@57b4204':
-    resolution: {integrity: sha512-xBNbzWR3dHvmmZEiNfrnhYKcVbl0s9022rqyhII3jfspxSfsZlexkz3g0iXPL+vDesom2FL3qBwclkItSbchAQ==}
-    version: 0.31.2
+  '@hot-updater/console@0.31.3':
+    resolution: {integrity: sha512-01xpcRsYOe77oR3vW6ed4acLbFXPYdWUfkFXuxX0txC7ZT3SSW9EhIYZMlLJ+7nfoDBDrqBOQx+tY5eeluFWgg==}
     peerDependencies:
       '@hot-updater/cli-tools': '*'
 
-  '@hot-updater/core@0.31.2':
-    resolution: {integrity: sha512-yulvAveoTv/FBYWNqOS3NGbi5ylzSRqzh/ZM5BeiYVR18bOs5rZbykUyGTG5QUWIkRws6hoPOxVW9XiY5TZbqg==}
+  '@hot-updater/core@0.31.3':
+    resolution: {integrity: sha512-aOLsMfYTQulF5TPz2G2IdQpH+6kWz8HqJmemW6j9jd7MkIYMRfYeLR8usfonGQ7DX3iXeZ727qSGXchHFyFtsA==}
 
-  '@hot-updater/core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204':
-    resolution: {integrity: sha512-yulvAveoTv/FBYWNqOS3NGbi5ylzSRqzh/ZM5BeiYVR18bOs5rZbykUyGTG5QUWIkRws6hoPOxVW9XiY5TZbqg==}
-    version: 0.31.2
+  '@hot-updater/expo@0.31.3':
+    resolution: {integrity: sha512-MbrQs2AZT9KNpNCJPKFThkKbhYEhCkBc6lVS9hL+gNOYG/Lxz4C/jutvvp2pZAe2DFvinPzsnO8NtWhwKyOrZA==}
 
-  '@hot-updater/expo@0.31.2':
-    resolution: {integrity: sha512-KL8RlCOn0rrUGUacYh+3aX+Oj2jy5IA7FBOfbs/Rj1VuTWZhs8tu87EEL7YwEhDN3AgxfCByzZ6dpogQhYFRrQ==}
+  '@hot-updater/js@0.31.3':
+    resolution: {integrity: sha512-OtR2rTw9dKl9AO2aRwR7XQDy6rBXSXgnhkXV4EO6p3z7rUCNjMFAXglHw+Z6ysz2p1Xt/+CY67fFYU8DSD02BQ==}
 
-  '@hot-updater/js@0.31.2':
-    resolution: {integrity: sha512-NiUV9EuCfaVYiwQ97yOXwJ57TT+mGimjjXyi/7VI96kZ9E8KBIY9F+b1QzeaO5KU8Dpgh46An9dySKubKkM6TA==}
+  '@hot-updater/plugin-core@0.31.3':
+    resolution: {integrity: sha512-j4Rdk6TChwfV8MOjP9/P9Q8+K7kIgPYLzub/bivvxL34Nwx9T496MTUNbM8X8pPBpTLBTZBmiuNIViiWiZhM4w==}
 
-  '@hot-updater/js@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/js@57b4204':
-    resolution: {integrity: sha512-nkFX9jjn165SPAAltJFUHlaGjbjNaT1PCsr8EzmVJI7C08tQdaEyGoAWpcsYQPQHSkSg3QkUGT2qiLFQ2CoxWQ==}
-    version: 0.31.2
-
-  '@hot-updater/plugin-core@0.31.2':
-    resolution: {integrity: sha512-r+uTSCiGHM4DaVKvoiKIX77dtRyDhJOmwO2ax4Ymp1HMRLLK9RNzlNwyVGP2Qj1lhR/DJ5xNAuHhTXVUHj5HTw==}
-
-  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204':
-    resolution: {integrity: sha512-iByHdapZ9YWtR7VtrnLo7iarCs4gMRGDIq9RyUjNkGprylSQDz0Djrhmcktr6ffSSvmaLzVandmnbAjW0vn0Gw==}
-    version: 0.31.2
-
-  '@hot-updater/react-native@0.31.2':
-    resolution: {integrity: sha512-8v9Nn8idtg/ETMgN5MVW/41IjZ+CJpq62zJng8SujiiyGs7MULIYWVA4gYqgMGUMIUVpsV0rNR4G7ckjoXrCiQ==}
-    version: 0.31.2
+  '@hot-updater/react-native@0.31.3':
+    resolution: {integrity: sha512-EpuxYzyhqK6DIxf4l372zYAb91aPL1lEwE6h5k0zqudGid2VUuXY5nsRmyetfJusi0O2TfV+50FpBa9aQhF6iQ==}
     peerDependencies:
       expo: '>=50.0.0'
       hot-updater: '*'
@@ -1719,12 +1694,8 @@ packages:
       hot-updater:
         optional: true
 
-  '@hot-updater/server@0.31.2':
-    resolution: {integrity: sha512-SlduldbgpoWydKPp4UW38KaMrTMKDXBzsrgOQmmql9slior0MwB3nBQLH+RbIaw6xrwYTd3v02dNPx6Tw5iSRg==}
-
-  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@57b4204':
-    resolution: {integrity: sha512-7v5Qo8fbNoX5ihMWqN1V4Xlip5a3QeC8BreudIseq6vYFWkuxITbKpjtB35TLqIltIdVswbN4lrKcCVbtJajbg==}
-    version: 0.31.2
+  '@hot-updater/server@0.31.3':
+    resolution: {integrity: sha512-PNTGICTFSyQdeGDlTCZWPVw+pc86NSMC2uUrnn90LhwB9G54WE900MnFnFgdFqV+oJN8H5H5mhc/IKsovMKzZA==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -4767,9 +4738,8 @@ packages:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  hot-updater@https://pkg.pr.new/hot-updater@1008:
-    resolution: {integrity: sha512-WbJI3FEriaP2wYas3LCvGBbZhOaHCnqv/Js8F5Y7kdg2xCpMIbC+5LrH3yzJisXxN0MPcDbU3PAVO+rLN/Wb0Q==}
-    version: 0.31.2
+  hot-updater@0.31.3:
+    resolution: {integrity: sha512-uS2UoafEOZcNNi4tJnQphMEn/hDlEBRgmbd7DtKr9hsoI1nQojVDdgMt8RqwxKgH3wtgq8cmVaSsEQTY+MQoXQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
@@ -8758,43 +8728,41 @@ snapshots:
     dependencies:
       hono: 4.12.15
 
-  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/android-helper@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
       execa: 9.5.2
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/apple-helper@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/plugin-core': 0.31.3
       execa: 9.5.2
       fast-xml-parser: 5.7.2
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@hot-updater/bare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/bare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@hot-updater/cli-tools': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/plugin-core': 0.31.2
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/plugin-core': 0.31.3
       uuidv7: 1.2.1
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@hot-updater/bsdiff@0.31.2': {}
+  '@hot-updater/bsdiff@0.31.3': {}
 
-  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@57b4204': {}
-
-  '@hot-updater/cli-tools@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/cli-tools@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@hot-updater/core': 0.31.2
-      '@hot-updater/plugin-core': 0.31.2
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
       oxc-transform: 0.121.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       typescript: 6.0.2
       unconfig: 7.5.0
@@ -8802,24 +8770,13 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))':
     dependencies:
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204
-      oxc-transform: 0.121.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      typescript: 6.0.2
-      unconfig: 7.5.0
-    transitivePeerDependencies:
-      - '@emnapi/core'
-      - '@emnapi/runtime'
-
-  '@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))':
-    dependencies:
-      '@hot-updater/cli-tools': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/core': 0.31.2
-      '@hot-updater/js': 0.31.2
-      '@hot-updater/plugin-core': 0.31.2
-      '@hot-updater/server': 0.31.2(typeorm@0.3.28(mongodb@6.20.0))
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/js': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
+      '@hot-updater/server': 0.31.3(typeorm@0.3.28(mongodb@6.20.0))
       cloudflare: 4.2.0
       hono: 4.12.9
       uuidv7: 1.2.1
@@ -8839,11 +8796,11 @@ snapshots:
       - socks
       - typeorm
 
-  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@57b4204(@hot-updater/cli-tools@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typeorm@0.3.28(mongodb@6.20.0))':
+  '@hot-updater/console@0.31.3(@hot-updater/cli-tools@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typeorm@0.3.28(mongodb@6.20.0))':
     dependencies:
-      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@57b4204
-      '@hot-updater/cli-tools': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@57b4204(typeorm@0.3.28(mongodb@6.20.0))
+      '@hot-updater/bsdiff': 0.31.3
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/server': 0.31.3(typeorm@0.3.28(mongodb@6.20.0))
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@mongodb-js/zstd'
@@ -8857,93 +8814,55 @@ snapshots:
       - socks
       - typeorm
 
-  '@hot-updater/core@0.31.2': {}
+  '@hot-updater/core@0.31.3': {}
 
-  '@hot-updater/core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204': {}
-
-  '@hot-updater/expo@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@hot-updater/expo@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/types': 7.26.0
-      '@hot-updater/bare': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/cli-tools': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/plugin-core': 0.31.2
+      '@hot-updater/bare': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/plugin-core': 0.31.3
       uuidv7: 1.2.1
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
       - supports-color
 
-  '@hot-updater/js@0.31.2':
+  '@hot-updater/js@0.31.3':
     dependencies:
-      '@hot-updater/core': 0.31.2
+      '@hot-updater/core': 0.31.3
 
-  '@hot-updater/js@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/js@57b4204':
+  '@hot-updater/plugin-core@0.31.3':
     dependencies:
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-
-  '@hot-updater/plugin-core@0.31.2':
-    dependencies:
-      '@hot-updater/core': 0.31.2
-      '@hot-updater/js': 0.31.2
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/js': 0.31.3
       es-toolkit: 1.46.1
       mime: 4.1.0
       semver: 7.7.4
 
-  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204':
+  '@hot-updater/react-native@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(expo@56.0.0-preview.12)(hot-updater@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-      '@hot-updater/js': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/js@57b4204
-      es-toolkit: 1.46.1
-      mime: 4.1.0
-      semver: 7.7.4
-
-  '@hot-updater/react-native@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(expo@56.0.0-preview.12)(hot-updater@https://pkg.pr.new/hot-updater@1008(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@hot-updater/cli-tools': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/core': 0.31.2
-      '@hot-updater/js': 0.31.2
-      '@hot-updater/plugin-core': 0.31.2
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/js': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
       react: 19.2.3
       react-native: 0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3)
       use-sync-external-store: 1.5.0(react@19.2.3)
     optionalDependencies:
       expo: 56.0.0-preview.12(@babel/core@7.29.0)(@expo/dom-webview@56.0.4)(@expo/metro-runtime@56.0.8)(expo-router@56.2.1)(react-dom@19.2.3(react@19.2.3))(react-native-web@0.21.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-native-webview@13.16.1(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-worklets@0.8.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)(typescript@6.0.3)
-      hot-updater: https://pkg.pr.new/hot-updater@1008(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0))
+      hot-updater: 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0))
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@hot-updater/server@0.31.2(typeorm@0.3.28(mongodb@6.20.0))':
+  '@hot-updater/server@0.31.3(typeorm@0.3.28(mongodb@6.20.0))':
     dependencies:
-      '@hot-updater/bsdiff': 0.31.2
-      '@hot-updater/core': 0.31.2
-      '@hot-updater/js': 0.31.2
-      '@hot-updater/plugin-core': 0.31.2
-      fumadb: 0.2.2(mongodb@6.20.0)(typeorm@0.3.28(mongodb@6.20.0))
-      kysely: 0.28.16
-      mongodb: 6.20.0
-      rou3: 0.7.9
-      semver: 7.7.4
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - convex
-      - drizzle-orm
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - prisma
-      - snappy
-      - socks
-      - typeorm
-
-  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@57b4204(typeorm@0.3.28(mongodb@6.20.0))':
-    dependencies:
-      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@57b4204
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-      '@hot-updater/js': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/js@57b4204
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204
+      '@hot-updater/bsdiff': 0.31.3
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/js': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
       fumadb: 0.2.2(mongodb@6.20.0)(typeorm@0.3.28(mongodb@6.20.0))
       kysely: 0.28.16
       mongodb: 6.20.0
@@ -11828,18 +11747,18 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
 
-  hot-updater@https://pkg.pr.new/hot-updater@1008(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)):
+  hot-updater@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@hot-updater/cloudflare@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0)))(typeorm@0.3.28(mongodb@6.20.0)):
     dependencies:
-      '@hot-updater/android-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/apple-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@57b4204(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      '@hot-updater/console': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@57b4204(@hot-updater/cli-tools@0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typeorm@0.3.28(mongodb@6.20.0))
-      '@hot-updater/core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/core@57b4204
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@57b4204
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@57b4204(typeorm@0.3.28(mongodb@6.20.0))
+      '@hot-updater/android-helper': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/apple-helper': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/cli-tools': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@hot-updater/console': 0.31.3(@hot-updater/cli-tools@0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typeorm@0.3.28(mongodb@6.20.0))
+      '@hot-updater/core': 0.31.3
+      '@hot-updater/plugin-core': 0.31.3
+      '@hot-updater/server': 0.31.3(typeorm@0.3.28(mongodb@6.20.0))
       jiti: 2.6.1
     optionalDependencies:
-      '@hot-updater/cloudflare': 0.31.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))
+      '@hot-updater/cloudflare': 0.31.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typeorm@0.3.28(mongodb@6.20.0))
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@emnapi/core'

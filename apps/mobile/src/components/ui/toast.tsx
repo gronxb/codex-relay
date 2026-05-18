@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, View } from "react-native";
+import { Check } from "lucide-react-native";
 import Animated, {
-  Easing,
+  Extrapolation,
+  interpolate,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
@@ -31,9 +33,9 @@ type AppToastProps = {
 };
 
 const defaultToastVisibleMs = 5600;
-const toastAnimationMs = 220;
 const toastBottomOffset = 64;
 const toastMinBottom = 84;
+const toastIconColor = "rgba(214, 222, 232, 0.72)";
 
 export function AppToast({
   action,
@@ -45,6 +47,8 @@ export function AppToast({
 }: AppToastProps) {
   const [isMounted, setMounted] = useState(visible);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const didDismissRef = useRef(false);
+  const onDismissRef = useRef(onDismiss);
   const visibleRef = useRef(visible);
   const insets = useSafeAreaInsets();
   const progress = useSharedValue(visible ? 1 : 0);
@@ -57,32 +61,27 @@ export function AppToast({
   }, []);
 
   const finishHideToast = useCallback(() => {
-    if (!visibleRef.current) {
+    if (!visibleRef.current && !didDismissRef.current) {
+      didDismissRef.current = true;
       setMounted(false);
+      onDismissRef.current();
     }
   }, []);
 
-  useEffect(() => {
-    visibleRef.current = visible;
+  const hideToast = useCallback(() => {
     clearHideTimer();
-
-    if (visible) {
-      setMounted(true);
-      progress.value = withTiming(1, {
-        duration: toastAnimationMs,
-        easing: Easing.out(Easing.cubic),
-      });
-      if (durationMs > 0) {
-        hideTimerRef.current = setTimeout(onDismiss, durationMs);
-      }
-      return clearHideTimer;
+    if (didDismissRef.current || !visibleRef.current) {
+      return;
     }
 
-    progress.value = withTiming(
+    visibleRef.current = false;
+    progress.value = withSpring(
       0,
       {
-        duration: toastAnimationMs,
-        easing: Easing.in(Easing.cubic),
+        damping: 22,
+        mass: 0.85,
+        overshootClamping: true,
+        stiffness: 260,
       },
       (finished) => {
         if (finished) {
@@ -90,12 +89,41 @@ export function AppToast({
         }
       },
     );
+  }, [clearHideTimer, finishHideToast, progress]);
+
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
+
+  useEffect(() => {
+    clearHideTimer();
+
+    if (visible) {
+      didDismissRef.current = false;
+      visibleRef.current = true;
+      setMounted(true);
+      progress.value = withSpring(1, {
+        damping: 14,
+        mass: 0.8,
+        overshootClamping: false,
+        stiffness: 230,
+      });
+      if (durationMs > 0) {
+        hideTimerRef.current = setTimeout(hideToast, durationMs);
+      }
+      return clearHideTimer;
+    }
+
+    hideToast();
     return clearHideTimer;
-  }, [clearHideTimer, durationMs, finishHideToast, onDismiss, progress, visible]);
+  }, [clearHideTimer, durationMs, hideToast, progress, visible]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [{ translateY: (1 - progress.value) * 18 }],
+    opacity: interpolate(progress.value, [0, 1], [0, 1], Extrapolation.CLAMP),
+    transform: [
+      { translateY: interpolate(progress.value, [0, 0.72, 1], [22, -2, 0]) },
+      { scale: interpolate(progress.value, [0, 0.72, 1], [0.94, 1.018, 1]) },
+    ],
   }));
 
   if (!isMounted) {
@@ -115,6 +143,9 @@ export function AppToast({
         ]}
       >
         <View style={styles.toast}>
+          <View style={styles.iconShell}>
+            <Check color={toastIconColor} size={15} strokeWidth={2.25} />
+          </View>
           <View style={styles.copy}>
             <Text style={styles.title}>{title}</Text>
             {message ? (
@@ -149,28 +180,38 @@ export function AppToast({
 
 const styles = StyleSheet.create({
   toastHost: {
-    left: Spacing.three,
+    left: Spacing.four,
     position: "absolute",
-    right: Spacing.three,
+    right: Spacing.four,
   },
   toast: {
     alignItems: "center",
     alignSelf: "center",
-    backgroundColor: "#303232",
-    borderColor: "rgba(255, 255, 255, 0.26)",
-    borderRadius: 8,
+    backgroundColor: "rgba(31, 34, 34, 0.96)",
+    borderColor: "rgba(255, 255, 255, 0.14)",
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: "row",
     gap: Spacing.two,
     maxWidth: 520,
-    minHeight: 58,
+    minHeight: 52,
     paddingHorizontal: Spacing.three,
-    paddingVertical: 10,
+    paddingVertical: 9,
     shadowColor: "#000",
     shadowOffset: { height: 12, width: 0 },
-    shadowOpacity: 0.34,
-    shadowRadius: 22,
+    shadowOpacity: 0.28,
+    shadowRadius: 24,
     width: "100%",
+  },
+  iconShell: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.07)",
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 28,
+    justifyContent: "center",
+    width: 28,
   },
   copy: {
     flex: 1,
@@ -180,8 +221,8 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.dark.text,
     fontFamily: Fonts.sansSemiBold,
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: 14,
+    lineHeight: 18,
   },
   message: {
     color: Colors.dark.textSecondary,
@@ -191,10 +232,10 @@ const styles = StyleSheet.create({
   },
   action: {
     alignItems: "center",
-    backgroundColor: "#F2F2F2",
-    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    borderRadius: 999,
     justifyContent: "center",
-    minHeight: 34,
+    minHeight: 32,
     minWidth: 82,
     paddingHorizontal: 12,
   },
@@ -205,7 +246,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   actionText: {
-    color: "#191919",
+    color: Colors.dark.text,
     fontFamily: Fonts.sansSemiBold,
     fontSize: 12,
     lineHeight: 16,
