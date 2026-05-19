@@ -1,6 +1,6 @@
+import { Check } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, View } from "react-native";
-import { Check } from "lucide-react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -32,7 +32,7 @@ type AppToastProps = {
   onDismiss: () => void;
 };
 
-const defaultToastVisibleMs = 5600;
+const defaultToastVisibleMs = 5300;
 const toastBottomOffset = 64;
 const toastMinBottom = 84;
 const toastIconColor = "rgba(214, 222, 232, 0.72)";

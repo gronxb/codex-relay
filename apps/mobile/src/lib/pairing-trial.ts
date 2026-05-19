@@ -1,8 +1,9 @@
-import * as SecureStore from "expo-secure-store";
+import { createMMKV } from "react-native-mmkv";
 
 export const pairingTrialDurationMs = 2 * 24 * 60 * 60 * 1000;
 
 const pairingTrialStartedAtStorageKey = "codex-relay.pairing-trial-started-at";
+const storage = createMMKV({ id: "codex-relay-pairing-trial" });
 
 export type PairingTrialAccess = {
   hasTrialAccess: boolean;
@@ -17,14 +18,12 @@ export async function startPairingTrialIfNeeded(now = Date.now()): Promise<Pairi
     return currentTrial;
   }
 
-  await SecureStore.setItemAsync(pairingTrialStartedAtStorageKey, String(now));
+  storage.set(pairingTrialStartedAtStorageKey, String(now));
   return pairingTrialAccessFromStartedAt(now, now);
 }
 
 export async function getPairingTrialAccess(now = Date.now()): Promise<PairingTrialAccess> {
-  const startedAt = parseStoredTimestamp(
-    await SecureStore.getItemAsync(pairingTrialStartedAtStorageKey),
-  );
+  const startedAt = parseStoredTimestamp(storage.getString(pairingTrialStartedAtStorageKey));
   if (startedAt === undefined) {
     return {
       hasTrialAccess: false,
@@ -47,7 +46,7 @@ function pairingTrialAccessFromStartedAt(startedAt: number, now: number): Pairin
   };
 }
 
-function parseStoredTimestamp(value: string | null) {
+function parseStoredTimestamp(value: string | null | undefined) {
   if (!value) {
     return undefined;
   }

@@ -54,6 +54,7 @@ import { Button } from "@/components/ui/button";
 import { AppToast } from "@/components/ui/toast";
 import { codexRelayRepositoryUrl } from "@/constants/links";
 import { Colors, Spacing } from "@/constants/theme";
+import { activeThreadAfterRefresh } from "@/lib/active-thread-selection";
 import {
   getCodexRelayServerUrl,
   hasCodexRelaySession,
@@ -523,7 +524,8 @@ export function ChatScreen() {
   }, []);
 
   const syncThreadSnapshot = useCallback(
-    async (threadId: string) => {
+    async (threadId: string, options: { setOfflineOnError?: boolean } = {}) => {
+      const setOfflineOnError = options.setOfflineOnError ?? true;
       setThreadMessagesLoading(threadId, true);
       try {
         const response = await fetchThreadState(queryClient, threadId);
@@ -545,7 +547,7 @@ export function ChatScreen() {
         return response.thread.state;
       } catch (caught) {
         syncPairedSessionState();
-        if (chatStore$.activeThreadId.peek() === threadId) {
+        if (setOfflineOnError && chatStore$.activeThreadId.peek() === threadId) {
           setConnection("offline", errorMessage(caught));
         }
         return undefined;
@@ -635,16 +637,30 @@ export function ChatScreen() {
         setConnection("connected");
 
         const currentActiveThreadId = chatStore$.activeThreadId.peek();
-        const nextActiveThreadId =
-          currentActiveThreadId &&
-          response.threads.some((thread) => thread.id === currentActiveThreadId)
-            ? currentActiveThreadId
-            : response.threads[0]?.id;
+        const hasCurrentActiveThread =
+          !!currentActiveThreadId &&
+          response.threads.some((thread) => thread.id === currentActiveThreadId);
+        const missingActiveThreadState =
+          currentActiveThreadId && !hasCurrentActiveThread
+            ? await syncThreadSnapshot(currentActiveThreadId, { setOfflineOnError: false })
+            : undefined;
+        if (chatStore$.activeThreadId.peek() !== currentActiveThreadId) {
+          return;
+        }
+        const missingActiveThreadRestored = Boolean(missingActiveThreadState);
+        const nextActiveThreadId = activeThreadAfterRefresh({
+          currentActiveThreadId,
+          missingActiveThreadRestored,
+          threads: response.threads,
+        });
+
         if (nextActiveThreadId !== currentActiveThreadId) {
           setActiveThread(nextActiveThreadId);
         }
-        if (nextActiveThreadId) {
+        if (nextActiveThreadId && !missingActiveThreadRestored) {
           await loadThread(nextActiveThreadId);
+        } else if (nextActiveThreadId && missingActiveThreadState === "running") {
+          requestThreadStreamReconnect(nextActiveThreadId);
         }
       } catch (caught) {
         syncPairedSessionState();
@@ -658,7 +674,7 @@ export function ChatScreen() {
       }
     });
     return request;
-  }, [applyStatusFromServer, loadThread, queryClient, syncPairedSessionState]);
+  }, [applyStatusFromServer, loadThread, queryClient, syncPairedSessionState, syncThreadSnapshot]);
 
   const keepConnectionIfSessionIsValid = useCallback(
     async (fallbackError: string) => {

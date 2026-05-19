@@ -106,7 +106,7 @@ function formatDiffFiles(
     .map((file) => {
       const percent = Math.round(file.progress * 100);
       const bytes = formatByteSummary(file.downloadedBytes, file.totalBytes);
-      return `${file.status.toUpperCase()} ${truncatePath(file.path)} · ${percent}%${
+      return `${file.status.toUpperCase()} ${truncatePath(file.downloadPath)} · ${percent}%${
         bytes ? ` · ${bytes}` : ""
       }`;
     })
