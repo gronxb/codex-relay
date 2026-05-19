@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: Colors.dark.text,
     flex: 1,
-    fontFamily: "GeistMono",
+    fontFamily: Fonts.mono,
     fontSize: 12,
     minHeight: 40,
     paddingHorizontal: Spacing.three,

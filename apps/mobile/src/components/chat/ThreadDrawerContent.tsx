@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { codexRelayRepositoryUrl } from "@/constants/links";
+import { Fonts } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { hasCodexRelaySession } from "@/lib/codex-relay-api";
 import { hapticLightImpact, hapticSelection, hapticSuccess } from "@/lib/haptics";
@@ -1529,7 +1530,7 @@ const styles = StyleSheet.create({
   versionNoticeCommand: {
     backgroundColor: "rgba(0, 0, 0, 0.18)",
     borderRadius: 6,
-    fontFamily: "GeistMono",
+    fontFamily: Fonts.mono,
     fontSize: 10,
     lineHeight: 14,
     overflow: "hidden",

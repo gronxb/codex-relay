@@ -53,7 +53,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
 import { AppToast } from "@/components/ui/toast";
 import { codexRelayRepositoryUrl } from "@/constants/links";
-import { Colors, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { activeThreadAfterRefresh } from "@/lib/active-thread-selection";
 import {
   getCodexRelayServerUrl,
@@ -2773,13 +2773,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     color: Colors.dark.text,
-    fontFamily: "GeistMono",
+    fontFamily: Fonts.mono,
     fontSize: 14,
     minHeight: 48,
     paddingHorizontal: Spacing.three,
   },
   manualPayloadInput: {
-    fontFamily: "GeistMono-Medium",
+    fontFamily: Fonts.monoMedium,
     fontSize: 12,
     minHeight: 160,
     paddingVertical: Spacing.three,
@@ -2804,13 +2804,13 @@ const styles = StyleSheet.create({
   },
   manualApprovalCode: {
     color: Colors.dark.text,
-    fontFamily: "GeistMono-Medium",
+    fontFamily: Fonts.monoMedium,
     fontSize: 24,
     lineHeight: 30,
   },
   manualApprovalCommand: {
     color: Colors.dark.text,
-    fontFamily: "GeistMono-Medium",
+    fontFamily: Fonts.monoMedium,
     fontSize: 13,
     lineHeight: 18,
   },

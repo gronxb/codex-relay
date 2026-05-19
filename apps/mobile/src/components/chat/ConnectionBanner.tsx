@@ -7,6 +7,7 @@ import { FaGithub } from "@/assets/icons/fa";
 import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
 import { codexRelayRepositoryUrl } from "@/constants/links";
+import { Fonts } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
 export function ConnectionBanner({
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   commandText: {
-    fontFamily: "GeistMono",
+    fontFamily: Fonts.mono,
     fontSize: 13,
     lineHeight: 17,
   },

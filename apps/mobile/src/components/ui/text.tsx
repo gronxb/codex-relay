@@ -3,7 +3,7 @@ import * as Slot from "@rn-primitives/slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { use } from "react";
 import * as React from "react";
-import { Platform, Text as RNText, type Role } from "react-native";
+import { Platform, Text as RNText, type Role, type TextStyle } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
 import { Fonts } from "@/constants/theme";
@@ -98,42 +98,56 @@ const styles = StyleSheet.create({
   },
 });
 
-const fontStyles = StyleSheet.create<Record<TextVariant, { fontFamily: string }>>({
+const fontStyles = StyleSheet.create<
+  Record<TextVariant, Pick<TextStyle, "fontFamily" | "fontWeight">>
+>({
   default: {
     fontFamily: Fonts.sans,
+    fontWeight: "400",
   },
   h1: {
     fontFamily: Fonts.sansBold,
+    fontWeight: "800",
   },
   h2: {
     fontFamily: Fonts.sansSemiBold,
+    fontWeight: "600",
   },
   h3: {
     fontFamily: Fonts.sansSemiBold,
+    fontWeight: "600",
   },
   h4: {
     fontFamily: Fonts.sansSemiBold,
+    fontWeight: "600",
   },
   p: {
     fontFamily: Fonts.sans,
+    fontWeight: "400",
   },
   blockquote: {
     fontFamily: Fonts.sans,
+    fontWeight: "400",
   },
   code: {
     fontFamily: Fonts.mono,
+    fontWeight: "600",
   },
   lead: {
     fontFamily: Fonts.sans,
+    fontWeight: "400",
   },
   large: {
     fontFamily: Fonts.sansSemiBold,
+    fontWeight: "600",
   },
   small: {
     fontFamily: Fonts.sansMedium,
+    fontWeight: "500",
   },
   muted: {
     fontFamily: Fonts.sans,
+    fontWeight: "400",
   },
 });
 
