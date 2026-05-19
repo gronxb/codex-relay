@@ -1,6 +1,6 @@
 ---
 name: deploy-ios
-description: Deploy the Modex/Codex Relay mobile app iOS OTA update with Hot Updater. Use when the user invokes $deploy-ios or asks to deploy from apps/mobile with `pnpm hot-updater deploy -p ios -t 1.0.0`.
+description: Deploy the Modex/Codex Relay mobile app iOS OTA update with Hot Updater. Use when the user invokes $deploy-ios or asks to deploy the current iOS app version from apps/mobile.
 allowed-tools: Bash(pnpm:*)
 ---
 
@@ -16,15 +16,23 @@ Deploy the iOS Hot Updater OTA bundle for the mobile app.
 cd apps/mobile
 ```
 
-2. Run the deploy command exactly:
+2. Read the current native app versions:
 
 ```bash
-pnpm hot-updater deploy -p ios -t 1.0.0
+pnpm hot-updater app-version --json
 ```
 
-3. Wait for the command to finish. Do not stop at the build spinner.
+3. Extract the current `ios` app version from the output. If `--json` is not supported, run `pnpm hot-updater app-version` and parse the iOS version from the human-readable output.
 
-4. Report the deployment result:
+4. Deploy iOS with the current iOS app version:
+
+```bash
+pnpm hot-updater deploy -p ios -t <ios-app-version>
+```
+
+5. Wait for the command to finish. Do not stop at the build spinner.
+
+6. Report the deployment result:
 
 - Success requires build complete, storage upload complete, database update complete, and `Deployment Successful (...)`.
 - Include the deployment id from the success line.
@@ -33,5 +41,6 @@ pnpm hot-updater deploy -p ios -t 1.0.0
 ## Notes
 
 - `apps/mobule` in user prompts means `apps/mobile` for this repo.
-- This command deploys to the configured Hot Updater production channel and uses target app version `1.0.0`.
-- Do not change platform, target version, rollout, channel, or environment unless the user explicitly asks.
+- This command deploys to the configured Hot Updater production channel and targets the current iOS native app version.
+- Do not hardcode an app version in this skill. Always read the current iOS version at deploy time.
+- Do not change platform, rollout, channel, or environment unless the user explicitly asks.
