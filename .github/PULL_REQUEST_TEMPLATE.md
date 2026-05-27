@@ -2,11 +2,6 @@
 
 <!-- What changed, and why? -->
 
-## Language
-
-- [ ] This pull request is written in English, or includes a concise English
-      summary before any additional language.
-
 ## Validation
 
 - [ ] I ran the relevant tests, typecheck, lint, or manual checks.
