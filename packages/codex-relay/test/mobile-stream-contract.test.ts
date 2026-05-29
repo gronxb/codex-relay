@@ -167,6 +167,141 @@ describe("mobile stream contract", () => {
     expect(messages.find((message) => message.role === "assistant")?.state).toBe("completed");
   });
 
+  it("does not duplicate image prompt user messages when app-server echoes the turn item", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    const imagePath = join(workspacePath, "screenshot.png");
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      startThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: "app-thread-image-contract",
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Image contract",
+        preview: "Image contract",
+        source: "app",
+        status: { type: "idle" },
+        turns: [],
+        updatedAt: now,
+      })),
+      startTurn: vi.fn<() => Promise<unknown>>(async () => {
+        queueMicrotask(() => {
+          for (const handler of notificationHandlers) {
+            handler({
+              method: "thread/status/changed",
+              params: { status: { type: "active" }, threadId: "app-thread-image-contract" },
+            });
+            handler({
+              method: "turn/started",
+              params: {
+                threadId: "app-thread-image-contract",
+                turn: {
+                  id: "turn-image-contract",
+                  status: "inProgress",
+                  startedAt: now,
+                  completedAt: null,
+                },
+              },
+            });
+            handler({
+              method: "item/started",
+              params: {
+                item: {
+                  id: "user-image-contract",
+                  type: "userMessage",
+                  content: [
+                    { type: "text", text: "Describe this image", text_elements: [] },
+                    { type: "localImage", path: imagePath },
+                  ],
+                },
+                threadId: "app-thread-image-contract",
+                turnId: "turn-image-contract",
+              },
+            });
+            handler({
+              method: "item/completed",
+              params: {
+                item: {
+                  id: "assistant-image-contract",
+                  text: "image noted",
+                  type: "agentMessage",
+                },
+                threadId: "app-thread-image-contract",
+                turnId: "turn-image-contract",
+              },
+            });
+            handler({
+              method: "turn/completed",
+              params: {
+                threadId: "app-thread-image-contract",
+                turn: {
+                  id: "turn-image-contract",
+                  items: [],
+                  status: "completed",
+                  error: null,
+                  startedAt: now,
+                  completedAt: now,
+                  durationMs: 1,
+                },
+              },
+            });
+          }
+        });
+        return {
+          id: "turn-image-contract",
+          items: [],
+          status: "inProgress",
+          startedAt: now,
+          completedAt: null,
+        };
+      }),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      workspacePath,
+    });
+
+    await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "Image contract" }),
+      headers: { "content-type": "application/json" },
+    });
+    const response = await app.request("/v1/threads/app-thread-image-contract/runs/stream", {
+      method: "POST",
+      body: JSON.stringify({
+        attachments: [
+          {
+            mimeType: "image/png",
+            name: "screenshot.png",
+            path: imagePath,
+            type: "image",
+          },
+        ],
+        prompt: "Describe this image",
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.text();
+    const consumed = consumeAsMobileChatStream(body, "app-thread-image-contract");
+    const messages = chatStore$.messagesByThreadId["app-thread-image-contract"].peek() ?? [];
+    const userMessages = messages.filter((message) => message.role === "user");
+
+    expect(response.status).toBe(200);
+    expect(consumed.errors).toEqual([]);
+    expect(userMessages).toHaveLength(1);
+    expect(userMessages[0]?.content).toContain("Describe this image");
+    expect(userMessages[0]?.content).toContain("Attached image 1");
+    expect(messages.map((message) => message.role)).toEqual(["user", "assistant"]);
+  });
+
   it("keeps app-server modelProvider out of one-word mobile replies", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const notificationHandlers = new Set<(notification: unknown) => void>();

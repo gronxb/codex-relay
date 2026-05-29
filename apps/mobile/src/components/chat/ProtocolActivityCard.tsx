@@ -1036,15 +1036,15 @@ function patchSectionDisplayPath(
   }>,
 ) {
   const paths = patchSectionPaths(section);
-  const patchPath = paths[1] ?? paths[0];
-  if (patchPath) {
-    return patchPath;
-  }
-
   for (const change of changes) {
     if (patchSectionMatchesPath(section, change.path)) {
       return change.path;
     }
+  }
+
+  const patchPath = paths[1] ?? paths[0];
+  if (patchPath) {
+    return patchPath;
   }
   return undefined;
 }

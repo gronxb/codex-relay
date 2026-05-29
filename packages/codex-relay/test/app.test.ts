@@ -4990,6 +4990,92 @@ describe("Codex Relay server routes", () => {
     }
   });
 
+  it("loads rollout patch_apply_end bare hunks without duplicate apply_patch output cards", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsDir = join(codexHome, "sessions", "2026", "05", "02");
+    await mkdir(sessionsDir, { recursive: true });
+    const threadId = "app-thread-rollout-bare-patch-hunks";
+    const readmePath = join(workspacePath, "README.md");
+    const trademarkPath = join(workspacePath, "TRADEMARKS.md");
+    await writeFile(
+      join(sessionsDir, `rollout-2026-05-02T00-00-00-${threadId}.jsonl`),
+      [
+        JSON.stringify({
+          payload: {
+            call_id: "call_apply_patch",
+            changes: {
+              [readmePath]: {
+                type: "update",
+                unified_diff: ["@@ -1 +1,2 @@", " hello", "+world"].join("\n"),
+              },
+              [trademarkPath]: {
+                type: "update",
+                unified_diff: ["@@ -3,2 +3 @@", "-old", " kept"].join("\n"),
+              },
+            },
+            type: "patch_apply_end",
+          },
+          timestamp: "2026-05-02T00:00:00.000Z",
+          type: "event_msg",
+        }),
+        JSON.stringify({
+          payload: {
+            call_id: "call_apply_patch",
+            output: JSON.stringify({
+              output: [
+                "Success. Updated the following files:",
+                `M ${readmePath}`,
+                `M ${trademarkPath}`,
+              ].join("\n"),
+            }),
+            type: "custom_tool_call_output",
+          },
+          timestamp: "2026-05-02T00:00:01.000Z",
+          type: "response_item",
+        }),
+        JSON.stringify({
+          payload: { type: "task_complete" },
+          timestamp: "2026-05-02T00:00:02.000Z",
+          type: "event_msg",
+        }),
+      ].join("\n"),
+    );
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const app = createApp({
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const response = await app.request(`/v1/threads/${threadId}`);
+      const body = await response.json();
+      const fileChanges = body.messages.filter(
+        (message: { kind: string }) => message.kind === "fileChange",
+      );
+
+      expect(response.status).toBe(200);
+      expect(fileChanges).toHaveLength(1);
+      expect(fileChanges[0].details.changes).toEqual([
+        {
+          kind: "modified",
+          path: "README.md",
+        },
+        {
+          kind: "modified",
+          path: "TRADEMARKS.md",
+        },
+      ]);
+      expect(fileChanges[0].details.patch).toContain("*** Update File: README.md");
+      expect(fileChanges[0].details.patch).toContain("*** Update File: TRADEMARKS.md");
+      expect(fileChanges[0].details.patch).toContain("+world");
+      expect(fileChanges[0].details.patch).toContain("-old");
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
   it("loads rollout apply_patch output as a file change card after the final answer", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));

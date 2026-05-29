@@ -3499,7 +3499,7 @@ async function runAppServerPromptStreamed(input: {
               firstString(params, ["turnId"]) ?? activeTurnId,
               item as AppServerThreadItem,
               userMessage.id,
-              prompt,
+              displayPrompt,
             );
             if (canonicalUserMessage) {
               userMessage = canonicalUserMessage;
@@ -4328,10 +4328,12 @@ function isDuplicateInitialUserMessage(
     .get(threadId)
     ?.find((message) => message.id === localMessageId);
   const skills = appServerUserMessageSkills(item);
-  const normalizedPrompt = stripPromptSkillMentions(prompt, skills);
+  const normalizeContent = (content: string) =>
+    stripPromptSkillMentions(normalizeImageMessageContent(content), skills);
+  const normalizedPrompt = normalizeContent(prompt);
   return (
-    stripPromptSkillMentions(localMessage?.content ?? "", skills) === normalizedPrompt &&
-    stripPromptSkillMentions(appServerUserMessageText(item), skills) === normalizedPrompt
+    normalizeContent(localMessage?.content ?? "") === normalizedPrompt &&
+    normalizeContent(appServerUserMessageText(item)) === normalizedPrompt
   );
 }
 
@@ -5651,6 +5653,7 @@ function readRolloutThreadMessages(threadId: string, workspacePath = defaultWork
 
   const collected: ChatMessage[] = [];
   const applyPatchInputs = new Map<string, string>();
+  const handledApplyPatchCallIds = new Set<string>();
   const pendingApplyPatchChanges: RolloutPatchChange[] = [];
   const lines = readFileSync(rolloutPath, "utf8").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
@@ -5673,6 +5676,7 @@ function readRolloutThreadMessages(threadId: string, workspacePath = defaultWork
         record,
         workspacePath,
         applyPatchInputs,
+        handledApplyPatchCallIds,
         pendingApplyPatchChanges,
       );
       if (isRolloutTaskComplete(record) && pendingApplyPatchChanges.length > 0) {
@@ -5697,6 +5701,15 @@ function readRolloutThreadMessages(threadId: string, workspacePath = defaultWork
         continue;
       }
       collected.push(message);
+      const patchApplyEndCallId = rolloutPatchApplyEndCallId(record);
+      if (patchApplyEndCallId) {
+        handledApplyPatchCallIds.add(patchApplyEndCallId);
+        pendingApplyPatchChanges.splice(
+          0,
+          pendingApplyPatchChanges.length,
+          ...pendingApplyPatchChanges.filter((change) => change.callId !== patchApplyEndCallId),
+        );
+      }
     } catch {
       // Ignore corrupt/incomplete JSONL lines; the active writer can append while we read.
     }
@@ -5735,6 +5748,7 @@ function isRolloutTaskComplete(record: { payload?: Record<string, unknown>; type
 }
 
 type RolloutPatchChange = {
+  callId?: string;
   kind: string;
   patch?: string;
   path: string;
@@ -5791,12 +5805,7 @@ function rolloutRecordMessage(
     if (changes.length === 0) {
       return undefined;
     }
-    const patchPreview = largeTextPreview(
-      changes
-        .map((change) => change.patch)
-        .filter((patch): patch is string => Boolean(patch))
-        .join("\n"),
-    );
+    const patchPreview = largeTextPreview(rolloutPatchPreview(changes));
     return ChatMessageSchema.parse({
       id: `${messageKey}:patch:${firstString(payload, ["call_id"]) ?? ""}`,
       threadId,
@@ -5806,7 +5815,7 @@ function rolloutRecordMessage(
       createdAt: timestamp,
       state: "completed",
       details: {
-        changes: changes.map(({ patch: _patch, ...change }) => change),
+        changes: changes.map(publicRolloutPatchChange),
         patch: patchPreview?.text,
         patchOriginalLength: patchPreview?.originalLength,
         patchTruncated: patchPreview?.truncated,
@@ -5903,13 +5912,16 @@ function collectRolloutApplyPatchOutput(
   record: { payload?: Record<string, unknown>; timestamp?: unknown; type?: unknown },
   workspacePath: string,
   applyPatchInputs: Map<string, string>,
+  handledApplyPatchCallIds: ReadonlySet<string>,
   pendingApplyPatchChanges: RolloutPatchChange[],
 ) {
   const payload = record.payload;
+  const callId = firstString(payload, ["call_id"]);
   if (
     record.type !== "response_item" ||
     payload?.type !== "custom_tool_call_output" ||
-    !firstString(payload, ["call_id"])
+    !callId ||
+    handledApplyPatchCallIds.has(callId)
   ) {
     return;
   }
@@ -5920,11 +5932,11 @@ function collectRolloutApplyPatchOutput(
     return;
   }
 
-  const callId = firstString(payload, ["call_id"]);
   const patch = callId ? applyPatchInputs.get(callId) : undefined;
   for (const change of changes) {
     pendingApplyPatchChanges.push({
       ...change,
+      callId,
       patch,
     });
   }
@@ -5951,12 +5963,52 @@ function rolloutApplyPatchSummaryMessage(
     createdAt: timestamp,
     state: "completed",
     details: {
-      changes: pendingApplyPatchChanges.map(({ patch: _patch, ...change }) => change),
+      changes: pendingApplyPatchChanges.map(publicRolloutPatchChange),
       patch: patchPreview?.text,
       patchOriginalLength: patchPreview?.originalLength,
       patchTruncated: patchPreview?.truncated,
     },
   });
+}
+
+function rolloutPatchApplyEndCallId(record: { payload?: Record<string, unknown>; type?: unknown }) {
+  if (record.type !== "event_msg" || record.payload?.type !== "patch_apply_end") {
+    return undefined;
+  }
+  return firstString(record.payload, ["call_id"]);
+}
+
+function publicRolloutPatchChange(change: RolloutPatchChange) {
+  const { callId: _callId, patch: _patch, ...publicChange } = change;
+  return publicChange;
+}
+
+function rolloutPatchPreview(changes: RolloutPatchChange[]) {
+  return changes
+    .flatMap((change) => {
+      if (!change.patch) {
+        return [];
+      }
+      if (hasPatchFileHeader(change.patch)) {
+        return [change.patch];
+      }
+      return [`*** ${patchHeaderChangeKind(change.kind)} File: ${change.path}\n${change.patch}`];
+    })
+    .join("\n");
+}
+
+function hasPatchFileHeader(patch: string) {
+  return /^(?:diff --git |\*\*\* (?:Add|Update|Delete) File: )/m.test(patch);
+}
+
+function patchHeaderChangeKind(kind: string) {
+  if (kind === "added") {
+    return "Add";
+  }
+  if (kind === "deleted") {
+    return "Delete";
+  }
+  return "Update";
 }
 
 function rolloutCustomToolOutputText(payload: Record<string, unknown>) {
