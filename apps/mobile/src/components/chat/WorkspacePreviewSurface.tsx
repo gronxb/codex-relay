@@ -82,6 +82,7 @@ export function WorkspacePreviewSurface({
   markdownPreviewTarget,
   webPreviewTarget,
   onClose,
+  showCloseButton = true,
   onCheckoutBranch,
   onCommitPush,
   onCreatePullRequest,
@@ -97,6 +98,7 @@ export function WorkspacePreviewSurface({
   markdownPreviewTarget?: WorkspaceMarkdownPreviewTarget;
   webPreviewTarget?: WebPreviewTarget;
   onClose: () => void;
+  showCloseButton?: boolean;
   onCheckoutBranch: (branch: string) => Promise<void> | void;
   onCommitPush: () => Promise<void> | void;
   onCreatePullRequest: () => Promise<void> | void;
@@ -209,14 +211,16 @@ export function WorkspacePreviewSurface({
   return (
     <SafeAreaView edges={["top", "left", "right", "bottom"]} style={styles.screen}>
       <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back from workspace preview"
-          onPress={onClose}
-          style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
-        >
-          <Icon name="back" size={18} tintColor={Colors.dark.text} />
-        </Pressable>
+        {showCloseButton ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back from workspace preview"
+            onPress={onClose}
+            style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
+          >
+            <Icon name="back" size={18} tintColor={Colors.dark.text} />
+          </Pressable>
+        ) : null}
         <View style={styles.titleGroup}>
           <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>
             Preview

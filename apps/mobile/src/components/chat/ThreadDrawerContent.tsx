@@ -17,6 +17,7 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -106,7 +107,12 @@ type ThreadDrawerUiAction =
 
 type ThreadDrawerContentProps = Parameters<
   NonNullable<ComponentProps<typeof Drawer>["drawerContent"]>
->[0];
+>[0] & {
+  isPermanent?: boolean;
+  onSidebarResize?: (translationX: number) => void;
+  onSidebarResizeStart?: () => void;
+  showResizeHandle?: boolean;
+};
 
 type ThreadDrawerNavigation = ThreadDrawerContentProps["navigation"];
 
@@ -157,6 +163,7 @@ function threadDrawerUiReducer(
 
 export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   const drawerStatus = getDrawerStatus(props.state);
+  const isDrawerVisible = props.isPermanent || drawerStatus === "open";
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const createThreadMutation = useMutation({
@@ -208,7 +215,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   const versionQuery = useQuery({
     queryKey: serverStateKeys.version(),
     queryFn: serverStateQueryFns.version,
-    enabled: drawerStatus === "open",
+    enabled: isDrawerVisible,
     retry: false,
     staleTime: 60_000,
   });
@@ -263,24 +270,37 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     opacity: searchProgress.value,
     transform: [{ translateY: (1 - searchProgress.value) * -4 }],
   }));
+  const sidebarResizeGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .runOnJS(true)
+        .onBegin(() => {
+          props.onSidebarResizeStart?.();
+          hapticSelection();
+        })
+        .onUpdate((event) => {
+          props.onSidebarResize?.(event.translationX);
+        }),
+    [props],
+  );
 
   useEffect(() => {
     const idleTask = requestIdleTask(
       () =>
         dispatchUi({
           type: "set-can-render-thread-list",
-          value: drawerStatus === "open",
+          value: isDrawerVisible,
         }),
       drawerListIdleTimeoutMs,
     );
     return () => cancelIdleTask(idleTask);
-  }, [drawerStatus]);
+  }, [isDrawerVisible]);
 
   useEffect(() => {
-    if (drawerStatus === "open") {
+    if (isDrawerVisible) {
       Keyboard.dismiss();
     }
-  }, [drawerStatus]);
+  }, [isDrawerVisible]);
 
   useEffect(() => {
     searchProgress.value = withTiming(normalizedSearchQuery ? 1 : 0, {
@@ -346,6 +366,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         hapticSelection();
         props.navigation.closeDrawer();
       }}
+      showCloseButton={!props.isPermanent}
       onNewChat={() => void openNewThreadWorkspacePicker()}
       onRefreshProjects={() => void refreshProjects()}
       onSearchChange={(value) => dispatchUi({ type: "set-search-query", value })}
@@ -404,6 +425,16 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         workspaceBrowser={workspaceBrowser}
         workspaceRows={workspaceRows}
       />
+      {props.showResizeHandle ? (
+        <GestureDetector gesture={sidebarResizeGesture}>
+          <Animated.View
+            accessibilityLabel="Resize threads sidebar"
+            style={styles.sidebarResizeHandle}
+          >
+            <View style={styles.sidebarResizeGrip} />
+          </Animated.View>
+        </GestureDetector>
+      ) : null}
     </View>
   );
 }
@@ -878,6 +909,7 @@ function DrawerListHeader({
   onSearchClear,
   searchClearAnimatedStyle,
   searchQuery,
+  showCloseButton,
   versionCompatibility,
 }: {
   isRefreshingProjects: boolean;
@@ -888,6 +920,7 @@ function DrawerListHeader({
   onSearchClear: () => void;
   searchClearAnimatedStyle: ReturnType<typeof useAnimatedStyle<ViewStyle>>;
   searchQuery: string;
+  showCloseButton: boolean;
   versionCompatibility: RelayVersionCompatibility | undefined;
 }) {
   const theme = useTheme();
@@ -896,15 +929,17 @@ function DrawerListHeader({
     <View style={styles.header}>
       <View style={styles.brandRow}>
         <Text style={styles.brandText}>Codex Relay</Text>
-        <Button
-          accessibilityLabel="Close menu"
-          onPress={onCloseMenu}
-          size="icon"
-          variant="ghost"
-          className="ml-auto size-8 rounded-md active:bg-accent/70"
-        >
-          <Icon name="closeMenu" size={17} tintColor={theme.textSecondary} />
-        </Button>
+        {showCloseButton ? (
+          <Button
+            accessibilityLabel="Close menu"
+            onPress={onCloseMenu}
+            size="icon"
+            variant="ghost"
+            className="ml-auto size-8 rounded-md active:bg-accent/70"
+          >
+            <Icon name="closeMenu" size={17} tintColor={theme.textSecondary} />
+          </Button>
+        ) : null}
       </View>
       <View style={styles.searchShell}>
         <Icon name="search" size={14} tintColor={theme.textSecondary} />
@@ -1417,6 +1452,7 @@ function formatRelativeTime(value: string) {
 const styles = StyleSheet.create({
   drawerRoot: {
     flex: 1,
+    position: "relative",
   },
   listContent: {
     flexGrow: 1,
@@ -1448,6 +1484,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     height: 32,
+    marginHorizontal: 4,
     paddingHorizontal: 9,
   },
   searchInput: {
@@ -1543,7 +1580,7 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     flexDirection: "row",
     minHeight: 36,
-    paddingHorizontal: 0,
+    paddingHorizontal: 8,
   },
   newChatIcon: {
     alignItems: "center",
@@ -1561,12 +1598,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 2,
     marginLeft: "auto",
+    marginRight: 10,
   },
   sectionHeader: {
     alignItems: "center",
     flexDirection: "row",
     marginTop: 8,
     minHeight: 28,
+    paddingLeft: 8,
   },
   sectionTitle: {
     fontSize: 11,
@@ -1635,6 +1674,23 @@ const styles = StyleSheet.create({
   },
   drawerPressedContent: {
     opacity: 0.68,
+  },
+  sidebarResizeGrip: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 1,
+    height: 44,
+    opacity: 0.72,
+    width: 2,
+  },
+  sidebarResizeHandle: {
+    alignItems: "center",
+    bottom: 0,
+    justifyContent: "center",
+    position: "absolute",
+    right: -8,
+    top: 0,
+    width: 16,
+    zIndex: 40,
   },
   emptySearchState: {
     alignItems: "center",

@@ -24,7 +24,10 @@ import {
   LogOut,
   Menu,
   Mic,
+  PanelRightClose,
   PanelRightOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   RefreshCw,
   Search,
@@ -69,12 +72,15 @@ export type AppIconName =
   | "permissionsDefault"
   | "permissionsFull"
   | "preview"
+  | "previewHide"
   | "pullRequest"
   | "refresh"
   | "running"
   | "search"
   | "send"
   | "sendToLine"
+  | "sidebarHide"
+  | "sidebarShow"
   | "back"
   | "forward"
   | "settings"
@@ -117,12 +123,15 @@ const iconComponents: Record<AppIconName, LucideComponent> = {
   permissionsDefault: Hand,
   permissionsFull: ShieldCheck,
   preview: PanelRightOpen,
+  previewHide: PanelRightClose,
   pullRequest: GitPullRequest,
   refresh: RefreshCw,
   running: LoaderCircle,
   search: Search,
   send: ArrowUp,
   sendToLine: ArrowRightToLine,
+  sidebarHide: PanelLeftClose,
+  sidebarShow: PanelLeftOpen,
   back: ArrowLeft,
   forward: ArrowRight,
   settings: Settings,

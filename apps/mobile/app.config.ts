@@ -12,6 +12,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      supportsTablet: true,
       infoPlist: {
         NSAppTransportSecurity: {
           NSAllowsArbitraryLoads: true,
@@ -20,6 +21,12 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
         ITSAppUsesNonExemptEncryption: false,
         NSLocalNetworkUsageDescription:
           "Codex Relay uses the local network to connect this device to the Codex Relay server running on your computer.",
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight",
+        ],
       },
     },
     android: {

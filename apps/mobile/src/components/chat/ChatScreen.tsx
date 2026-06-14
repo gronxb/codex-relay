@@ -30,7 +30,18 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, AppState, Keyboard, Linking, Modal, Pressable, View } from "react-native";
+import {
+  Alert,
+  AppState,
+  Keyboard,
+  Linking,
+  Modal,
+  Pressable,
+  type LayoutChangeEvent,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { KeyboardController } from "react-native-keyboard-controller";
 import PagerView from "react-native-pager-view";
 import Animated, { LinearTransition } from "react-native-reanimated";
@@ -130,6 +141,11 @@ import { addWorkspacePreviewTab } from "@/state/workspace-preview-store";
 import { ChatControls } from "./ChatControls";
 import { ChatShell } from "./ChatShell";
 import { ConnectionBanner } from "./ConnectionBanner";
+import {
+  EXPANDED_DRAWER_BREAKPOINT,
+  THREE_PANE_LAYOUT_BREAKPOINT,
+  useIpadSplitLayout,
+} from "./ipad-split-layout";
 import { WorkspacePreviewSurface } from "./WorkspacePreviewSurface";
 import type { WorkspaceMarkdownPreviewTarget } from "./workspace-preview/markdown-target";
 
@@ -142,12 +158,18 @@ const STREAM_STALL_RECONNECT_MS = 45_000;
 const STREAM_WATCHDOG_INTERVAL_MS = 10_000;
 const SCANNER_TO_APPROVAL_SHEET_DELAY_MS = 450;
 const COPY_TOAST_VISIBLE_MS = 1800;
+const PREVIEW_RESIZE_HANDLE_WIDTH = 14;
+const DEFAULT_PREVIEW_PANE_WIDTH = 540;
+const MIN_CHAT_PANE_WIDTH = 420;
+const MIN_PREVIEW_PANE_WIDTH = 360;
 const EMPTY_SKILLS: AgentSkill[] = [];
 const EMPTY_THREADS: ThreadSummary[] = [];
 let isHandlingPairingLink = false;
 let lastHandledPairingUrl: string | undefined;
 
 export function ChatScreen() {
+  const { width } = useWindowDimensions();
+  const { isSidebarVisible, toggleSidebar } = useIpadSplitLayout();
   const [pasteApprovalCode, setPasteApprovalCode] = useState<string | undefined>(undefined);
   const [pasteApprovalServerUrl, setPasteApprovalServerUrl] = useState<string | undefined>(
     undefined,
@@ -174,10 +196,15 @@ export function ChatScreen() {
   >(undefined);
   const [isHandlingScan, setHandlingScan] = useState(false);
   const [activePagerPage, setActivePagerPage] = useState(0);
+  const [isWidePreviewVisible, setWidePreviewVisible] = useState(true);
+  const [wideLayoutWidth, setWideLayoutWidth] = useState(0);
+  const [previewPaneWidth, setPreviewPaneWidth] = useState(DEFAULT_PREVIEW_PANE_WIDTH);
   const [scannerMessage, setScannerMessage] = useState("Point the camera at the connection QR.");
   const copyToastIdRef = useRef(0);
   const [copyToast, setCopyToast] = useState<{ id: number } | undefined>(undefined);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const usesExpandedSidebar = width >= EXPANDED_DRAWER_BREAKPOINT;
+  const usesWideLayout = width >= THREE_PANE_LAYOUT_BREAKPOINT;
   const drawerNavigation = useNavigation<{
     openDrawer?: () => void;
   }>();
@@ -319,6 +346,7 @@ export function ChatScreen() {
   const isAttachingImagesRef = useRef(false);
   const isHandlingScanRef = useRef(false);
   const isModernScannerOpenRef = useRef(false);
+  const previewResizeStartWidthRef = useRef(DEFAULT_PREVIEW_PANE_WIDTH);
   const scanPairingGenerationRef = useRef(0);
   const closeStreamRef = useRef<(() => void) | undefined>(undefined);
   const refreshPromiseRef = useRef<Promise<void> | undefined>(undefined);
@@ -950,11 +978,16 @@ export function ChatScreen() {
       dismissKeyboardForWorkspacePreview();
       addWorkspacePreviewTab(workspacePath, previewRequest.tab);
       hapticMediumImpact();
-      requestAnimationFrame(() => {
-        showPagerPage(1);
-      });
+      if (usesWideLayout) {
+        setWidePreviewVisible(true);
+        setActivePagerPage(1);
+      } else {
+        requestAnimationFrame(() => {
+          showPagerPage(1);
+        });
+      }
     },
-    [activeThreadId, activeWorkspacePath, showPagerPage],
+    [activeThreadId, activeWorkspacePath, showPagerPage, usesWideLayout],
   );
 
   const openMarkdownAttachmentPreview = useCallback(
@@ -971,8 +1004,13 @@ export function ChatScreen() {
 
   const closeWorkspacePreview = useCallback(() => {
     hapticSelection();
+    if (usesWideLayout) {
+      setWidePreviewVisible(false);
+      setActivePagerPage(0);
+      return;
+    }
     showPagerPage(0);
-  }, [showPagerPage]);
+  }, [showPagerPage, usesWideLayout]);
 
   const checkoutBranch = useCallback(
     async (branch: string) => {
@@ -1983,132 +2021,246 @@ export function ChatScreen() {
     hapticMediumImpact();
   }
 
+  function toggleThreadSidebar() {
+    Keyboard.dismiss();
+    toggleSidebar();
+    hapticMediumImpact();
+  }
+
+  function toggleWorkspacePreview() {
+    Keyboard.dismiss();
+    const nextVisible = !isWidePreviewVisible;
+    setWidePreviewVisible(nextVisible);
+    setActivePagerPage(nextVisible ? 1 : 0);
+    hapticMediumImpact();
+  }
+
+  const onWideLayout = useCallback((event: LayoutChangeEvent) => {
+    const nextWidth = Math.round(event.nativeEvent.layout.width);
+    setWideLayoutWidth((current) => (current === nextWidth ? current : nextWidth));
+  }, []);
+
+  useEffect(() => {
+    if (wideLayoutWidth <= 0) {
+      return;
+    }
+
+    setPreviewPaneWidth((current) => clampPreviewPaneWidth(current, wideLayoutWidth));
+  }, [wideLayoutWidth]);
+
+  const clampedPreviewPaneWidth = clampPreviewPaneWidth(previewPaneWidth, wideLayoutWidth);
+  const showsWidePreviewPane = usesWideLayout && isWidePreviewVisible;
+  const wideChatPaneWidth =
+    wideLayoutWidth > 0
+      ? Math.max(
+          MIN_CHAT_PANE_WIDTH,
+          wideLayoutWidth -
+            (showsWidePreviewPane ? clampedPreviewPaneWidth + PREVIEW_RESIZE_HANDLE_WIDTH : 0),
+        )
+      : 0;
+
+  const beginPreviewResize = useCallback(() => {
+    previewResizeStartWidthRef.current = clampedPreviewPaneWidth;
+    hapticSelection();
+  }, [clampedPreviewPaneWidth]);
+
+  const resizePreview = useCallback(
+    (translationX: number) => {
+      setPreviewPaneWidth(
+        clampPreviewPaneWidth(previewResizeStartWidthRef.current - translationX, wideLayoutWidth),
+      );
+    },
+    [wideLayoutWidth],
+  );
+
+  const previewResizeGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .runOnJS(true)
+        .onBegin(beginPreviewResize)
+        .onUpdate((event) => resizePreview(event.translationX)),
+    [beginPreviewResize, resizePreview],
+  );
+
   const showMessageCopiedToast = useCallback(() => {
     copyToastIdRef.current += 1;
     setCopyToast({ id: copyToastIdRef.current });
   }, []);
 
   const isPairing = isPastePairing || isHandlingScan;
+  const isWorkspacePreviewVisible = usesWideLayout ? showsWidePreviewPane : activePagerPage === 1;
+  const chatPane = (
+    <ChatShell
+      banner={
+        <Animated.View layout={chatBannerLayoutTransition} style={styles.bannerStack}>
+          <ConnectionBanner
+            connection={connection}
+            error={error}
+            hasPairedSession={hasPairedSession}
+            serverUrl={serverUrl}
+            workspacePath={workspacePath}
+            onRefresh={refresh}
+            onScanConnect={openScanner}
+          />
+        </Animated.View>
+      }
+      composerDisabled={connection === "offline"}
+      composerInputEditable={connection !== "offline" || hasPairedSession}
+      composerFocusRecoveryKey={connection}
+      collaborationMode={collaborationMode}
+      composerFocusRequestKey={composerFocusRequestKey}
+      composerFooter={
+        <ChatControls
+          models={models}
+          runtimeMode={runtimeMode}
+          selectedReasoningEffort={selectedReasoningEffort}
+          selectedServiceTier={selectedServiceTier}
+          selectedModel={selectedModel}
+          onRuntimeModeChange={changeRuntimeMode}
+          onSelectedReasoningEffortChange={changeSelectedReasoningEffort}
+          onSelectedServiceTierChange={changeSelectedServiceTier}
+          onSelectedModelChange={changeSelectedModel}
+        />
+      }
+      contextWindowUsage={contextWindowUsage}
+      goal={activeThread?.goal ?? null}
+      inputNativeID={CHAT_INPUT_NATIVE_ID}
+      isAttachingImage={isAttachingImages}
+      isLoadingMessages={isLoadingMessages}
+      isRunning={isRunning}
+      leadingAction={{
+        icon: usesExpandedSidebar ? (isSidebarVisible ? "sidebarHide" : "sidebarShow") : "menu",
+        label: usesExpandedSidebar
+          ? isSidebarVisible
+            ? "Hide threads"
+            : "Show threads"
+          : "Open threads",
+        onPress: usesExpandedSidebar ? toggleThreadSidebar : openThreadDrawer,
+      }}
+      messages={messages}
+      onAttachImage={attachImagesFromGallery}
+      onCancel={stopRun}
+      onCollaborationModeChange={changeCollaborationMode}
+      onAddPlanContext={addPlanContext}
+      onImplementPlan={implementPlan}
+      onIgnoreInputRequest={(request) => void ignoreInputRequest(request)}
+      onMessageCopied={showMessageCopiedToast}
+      onOpenMarkdownAttachment={openMarkdownAttachmentPreview}
+      onRefreshUsageStatus={() => refreshUsageStatus()}
+      onSubmitInputRequest={(request, answers) => void submitInputRequest(request, answers)}
+      onRemoveQueuedPrompt={(item) => void removeQueuedPrompt(item)}
+      onRestoreQueuedPrompt={(item) => void restoreQueuedPrompt(item)}
+      onSend={() => sendPrompt()}
+      onSteerQueuedPrompt={(item) => void steerQueuedPrompt(item)}
+      onClearGoal={clearThreadGoal}
+      onSaveGoal={saveThreadGoalObjective}
+      onToggleGoalPause={toggleThreadGoalPause}
+      pendingInputRequest={pendingInputRequest}
+      queuedPrompts={queuedPrompts}
+      rateLimitBuckets={rateLimitBuckets}
+      skills={skills}
+      skillsLoadState={skillsLoadState}
+      subtitle={activeWorkspacePath ?? "codex-relay"}
+      threadId={activeThreadId}
+      title={activeThread?.title ?? "Codex Relay"}
+      trailingActions={[
+        {
+          disabled: isRunning,
+          icon: "newThread",
+          label: "New thread",
+          onPress: createNewThread,
+        },
+        {
+          icon: usesWideLayout ? (isWidePreviewVisible ? "previewHide" : "preview") : "preview",
+          label: usesWideLayout
+            ? isWidePreviewVisible
+              ? "Hide workspace preview"
+              : "Show workspace preview"
+            : "Workspace preview",
+          onPress: usesWideLayout
+            ? toggleWorkspacePreview
+            : () =>
+                openWorkspacePreview({
+                  protocol: WORKSPACE_PREVIEW_OPEN_PROTOCOL,
+                  tab: "git",
+                  workspacePath: activeWorkspacePath,
+                }),
+        },
+      ]}
+      workspacePath={activeWorkspacePath}
+    />
+  );
+  const workspacePreviewPane = (
+    <WorkspacePreviewSurface
+      key={activeThreadId ?? "no-thread"}
+      isFocused={isWorkspacePreviewVisible}
+      isRunning={isRunning}
+      isLoadingChanges={isLoadingChanges}
+      serverUrl={serverUrl}
+      workspaceChanges={workspaceChanges}
+      workspaceChangesError={workspaceChangesError}
+      workspacePath={activeWorkspacePath}
+      markdownPreviewTarget={markdownPreviewTarget}
+      webPreviewTarget={activeWebPreviewTarget}
+      onClose={closeWorkspacePreview}
+      showCloseButton
+      onCheckoutBranch={checkoutBranch}
+      onCommitPush={commitPush}
+      onCreatePullRequest={createPullRequest}
+      onRefreshChanges={loadWorkspaceChanges}
+    />
+  );
 
   return (
     <>
-      <PagerView
-        ref={pagerRef}
-        initialPage={0}
-        onPageSelected={(event) => setActivePagerPage(event.nativeEvent.position)}
-        style={styles.pager}
-      >
-        <View key="chat" collapsable={false} style={styles.pagerPage}>
-          <ChatShell
-            banner={
-              <Animated.View layout={chatBannerLayoutTransition} style={styles.bannerStack}>
-                <ConnectionBanner
-                  connection={connection}
-                  error={error}
-                  hasPairedSession={hasPairedSession}
-                  serverUrl={serverUrl}
-                  workspacePath={workspacePath}
-                  onRefresh={refresh}
-                  onScanConnect={openScanner}
-                />
-              </Animated.View>
-            }
-            composerDisabled={connection === "offline"}
-            composerInputEditable={connection !== "offline" || hasPairedSession}
-            composerFocusRecoveryKey={connection}
-            collaborationMode={collaborationMode}
-            composerFocusRequestKey={composerFocusRequestKey}
-            composerFooter={
-              <ChatControls
-                models={models}
-                runtimeMode={runtimeMode}
-                selectedReasoningEffort={selectedReasoningEffort}
-                selectedServiceTier={selectedServiceTier}
-                selectedModel={selectedModel}
-                onRuntimeModeChange={changeRuntimeMode}
-                onSelectedReasoningEffortChange={changeSelectedReasoningEffort}
-                onSelectedServiceTierChange={changeSelectedServiceTier}
-                onSelectedModelChange={changeSelectedModel}
-              />
-            }
-            contextWindowUsage={contextWindowUsage}
-            goal={activeThread?.goal ?? null}
-            inputNativeID={CHAT_INPUT_NATIVE_ID}
-            isAttachingImage={isAttachingImages}
-            isLoadingMessages={isLoadingMessages}
-            isRunning={isRunning}
-            leadingAction={{
-              icon: "menu",
-              label: "Open threads",
-              onPress: openThreadDrawer,
-            }}
-            messages={messages}
-            onAttachImage={attachImagesFromGallery}
-            onCancel={stopRun}
-            onCollaborationModeChange={changeCollaborationMode}
-            onAddPlanContext={addPlanContext}
-            onImplementPlan={implementPlan}
-            onIgnoreInputRequest={(request) => void ignoreInputRequest(request)}
-            onMessageCopied={showMessageCopiedToast}
-            onOpenMarkdownAttachment={openMarkdownAttachmentPreview}
-            onRefreshUsageStatus={() => refreshUsageStatus()}
-            onSubmitInputRequest={(request, answers) => void submitInputRequest(request, answers)}
-            onRemoveQueuedPrompt={(item) => void removeQueuedPrompt(item)}
-            onRestoreQueuedPrompt={(item) => void restoreQueuedPrompt(item)}
-            onSend={() => sendPrompt()}
-            onSteerQueuedPrompt={(item) => void steerQueuedPrompt(item)}
-            onClearGoal={clearThreadGoal}
-            onSaveGoal={saveThreadGoalObjective}
-            onToggleGoalPause={toggleThreadGoalPause}
-            pendingInputRequest={pendingInputRequest}
-            queuedPrompts={queuedPrompts}
-            rateLimitBuckets={rateLimitBuckets}
-            skills={skills}
-            skillsLoadState={skillsLoadState}
-            subtitle={activeWorkspacePath ?? "codex-relay"}
-            threadId={activeThreadId}
-            title={activeThread?.title ?? "Codex Relay"}
-            trailingActions={[
-              {
-                disabled: isRunning,
-                icon: "newThread",
-                label: "New thread",
-                onPress: createNewThread,
-              },
-              {
-                icon: "preview",
-                label: "Workspace preview",
-                onPress: () =>
-                  openWorkspacePreview({
-                    protocol: WORKSPACE_PREVIEW_OPEN_PROTOCOL,
-                    tab: "git",
-                    workspacePath: activeWorkspacePath,
-                  }),
-              },
+      {usesWideLayout ? (
+        <View onLayout={onWideLayout} style={styles.wideLayout}>
+          <View
+            style={[
+              styles.wideChatPane,
+              wideLayoutWidth > 0 ? { width: wideChatPaneWidth } : styles.wideChatPaneInitial,
             ]}
-            workspacePath={activeWorkspacePath}
-          />
+          >
+            {chatPane}
+          </View>
+          {showsWidePreviewPane ? (
+            <>
+              <GestureDetector gesture={previewResizeGesture}>
+                <Animated.View
+                  accessibilityLabel="Resize workspace preview"
+                  style={styles.previewResizeHandle}
+                >
+                  <View style={styles.previewResizeGrip} />
+                </Animated.View>
+              </GestureDetector>
+              <View
+                style={[
+                  styles.widePreviewPane,
+                  wideLayoutWidth > 0
+                    ? { width: clampedPreviewPaneWidth }
+                    : styles.widePreviewPaneInitial,
+                ]}
+              >
+                {workspacePreviewPane}
+              </View>
+            </>
+          ) : null}
         </View>
-        <View key="changes" collapsable={false} style={styles.pagerPage}>
-          <WorkspacePreviewSurface
-            key={activeThreadId ?? "no-thread"}
-            isFocused={activePagerPage === 1}
-            isRunning={isRunning}
-            isLoadingChanges={isLoadingChanges}
-            serverUrl={serverUrl}
-            workspaceChanges={workspaceChanges}
-            workspaceChangesError={workspaceChangesError}
-            workspacePath={activeWorkspacePath}
-            markdownPreviewTarget={markdownPreviewTarget}
-            webPreviewTarget={activeWebPreviewTarget}
-            onClose={closeWorkspacePreview}
-            onCheckoutBranch={checkoutBranch}
-            onCommitPush={commitPush}
-            onCreatePullRequest={createPullRequest}
-            onRefreshChanges={loadWorkspaceChanges}
-          />
-        </View>
-      </PagerView>
+      ) : (
+        <PagerView
+          ref={pagerRef}
+          initialPage={activePagerPage}
+          onPageSelected={(event) => setActivePagerPage(event.nativeEvent.position)}
+          style={styles.pager}
+        >
+          <View key="chat" collapsable={false} style={styles.pagerPage}>
+            {chatPane}
+          </View>
+          <View key="changes" collapsable={false} style={styles.pagerPage}>
+            {workspacePreviewPane}
+          </View>
+        </PagerView>
+      )}
       {copyToast ? (
         <AppToast
           key={copyToast.id}
@@ -2546,6 +2698,18 @@ function isBarcodeScannerCancellation(error: unknown) {
   return error instanceof Error && error.message.toLowerCase().includes("cancel");
 }
 
+function clampPreviewPaneWidth(value: number, layoutWidth: number) {
+  if (layoutWidth <= 0) {
+    return value;
+  }
+
+  const availableWidth = Math.max(0, layoutWidth - PREVIEW_RESIZE_HANDLE_WIDTH);
+  const minPreviewWidth = Math.min(MIN_PREVIEW_PANE_WIDTH, availableWidth * 0.45);
+  const minChatWidth = Math.min(MIN_CHAT_PANE_WIDTH, availableWidth * 0.55);
+  const maxPreviewWidth = Math.max(minPreviewWidth, availableWidth - minChatWidth);
+  return Math.min(maxPreviewWidth, Math.max(minPreviewWidth, value));
+}
+
 const chatBannerLayoutTransition = LinearTransition.duration(180);
 
 const styles = StyleSheet.create({
@@ -2557,6 +2721,38 @@ const styles = StyleSheet.create({
   },
   pagerPage: {
     flex: 1,
+  },
+  wideLayout: {
+    backgroundColor: Colors.dark.background,
+    flex: 1,
+    flexDirection: "row",
+  },
+  wideChatPane: {
+    minWidth: 0,
+  },
+  wideChatPaneInitial: {
+    flex: 1,
+  },
+  widePreviewPane: {
+    minWidth: 0,
+  },
+  widePreviewPaneInitial: {
+    flex: 1.08,
+  },
+  previewResizeGrip: {
+    backgroundColor: "rgba(255, 255, 255, 0.22)",
+    borderRadius: 1,
+    height: 44,
+    marginLeft: -1,
+    opacity: 0.72,
+    width: 2,
+  },
+  previewResizeHandle: {
+    alignItems: "flex-start",
+    borderLeftColor: "rgba(255, 255, 255, 0.08)",
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    justifyContent: "center",
+    width: PREVIEW_RESIZE_HANDLE_WIDTH,
   },
   bannerStack: {
     flexShrink: 0,
