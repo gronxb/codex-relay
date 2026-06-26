@@ -219,7 +219,10 @@ function formatBlockScalar(marker: string, lines: string[]) {
   if (marker.startsWith("|")) {
     return trimmedLines.join("\n").trim();
   }
-  return trimmedLines.map((line) => line.trim()).filter(Boolean).join(" ");
+  return trimmedLines
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join(" ");
 }
 
 function markdownBody(markdown: string) {
