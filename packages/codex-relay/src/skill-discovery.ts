@@ -1,5 +1,5 @@
 import type { Dirent } from "node:fs";
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 
@@ -67,11 +67,23 @@ export async function listAvailableSkills(
 
 async function findSkillFiles(root: SkillSearchRoot) {
   const found: Array<SkillSearchRoot & { path: string }> = [];
+  const visitedDirectories = new Set<string>();
 
   async function walk(path: string, depth: number) {
     if (depth < 0) {
       return;
     }
+
+    let realDirectoryPath: string;
+    try {
+      realDirectoryPath = await realpath(path);
+    } catch {
+      return;
+    }
+    if (visitedDirectories.has(realDirectoryPath)) {
+      return;
+    }
+    visitedDirectories.add(realDirectoryPath);
 
     let entries: Dirent[];
     try {
@@ -82,11 +94,12 @@ async function findSkillFiles(root: SkillSearchRoot) {
 
     for (const entry of entries) {
       const entryPath = join(path, entry.name);
-      if (entry.isFile() && entry.name === "SKILL.md") {
+      const kind = await directoryEntryKind(entry, entryPath);
+      if (kind === "file" && entry.name === "SKILL.md") {
         found.push({ ...root, path: entryPath });
         continue;
       }
-      if (!entry.isDirectory() || entry.name === "node_modules") {
+      if (kind !== "directory" || entry.name === "node_modules") {
         continue;
       }
       await walk(entryPath, depth - 1);
@@ -95,6 +108,31 @@ async function findSkillFiles(root: SkillSearchRoot) {
 
   await walk(root.path, root.maxDepth);
   return found;
+}
+
+async function directoryEntryKind(entry: Dirent, entryPath: string) {
+  if (entry.isFile()) {
+    return "file";
+  }
+  if (entry.isDirectory()) {
+    return "directory";
+  }
+  if (!entry.isSymbolicLink()) {
+    return null;
+  }
+
+  try {
+    const target = await stat(entryPath);
+    if (target.isFile()) {
+      return "file";
+    }
+    if (target.isDirectory()) {
+      return "directory";
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 async function readSkill(entry: SkillSearchRoot & { path: string }): Promise<AgentSkill | null> {

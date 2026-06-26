@@ -5,7 +5,7 @@ import { hkdf } from "@noble/hashes/hkdf.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { fromByteArray, toByteArray } from "base64-js";
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
@@ -583,6 +583,47 @@ describe("Codex Relay server routes", () => {
           name: "agent-device",
           displayName: "Agent Device",
           description: "Automates interactions for mobile devices.",
+          source: "workspace",
+          sourceLabel: basename(workspacePath),
+        }),
+      ]),
+    );
+  });
+
+  it("lists workspace skills from symlinked skill directories", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const vendorPath = await mkdtemp(join(tmpdir(), "codex-relay-vendor-skills-"));
+    const vendorSkillPath = join(vendorPath, "marimo-notebook");
+    const workspaceSkillsPath = join(workspacePath, ".agents", "skills");
+    const workspaceSkillLink = join(workspaceSkillsPath, "marimo-notebook");
+    await mkdir(vendorSkillPath, { recursive: true });
+    await mkdir(workspaceSkillsPath, { recursive: true });
+    await writeFile(
+      join(vendorSkillPath, "SKILL.md"),
+      [
+        "---",
+        "name: marimo-notebook",
+        "description: Write marimo notebooks.",
+        "---",
+        "",
+        "# Marimo Notebook",
+        "",
+      ].join("\n"),
+    );
+    await symlink(vendorSkillPath, workspaceSkillLink, "dir");
+    const app = createApp({ codex: createMockCodex(), workspacePath });
+
+    const response = await app.request("/v1/skills");
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.skills).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "marimo-notebook",
+          displayName: "Marimo Notebook",
+          description: "Write marimo notebooks.",
+          path: join(workspaceSkillLink, "SKILL.md"),
           source: "workspace",
           sourceLabel: basename(workspacePath),
         }),
