@@ -165,7 +165,7 @@ async function readSkill(entry: SkillSearchRoot & { path: string }): Promise<Age
 
 function parseSkillMarkdown(markdown: string): ParsedSkill {
   const frontmatter = parseFrontmatter(markdown);
-  const heading = markdown.match(/^#\s+(.+)$/m)?.[1]?.trim();
+  const heading = firstMarkdownHeading(markdownBody(markdown));
   return {
     description: frontmatter.description,
     displayName: heading ? cleanHeading(heading) : undefined,
@@ -184,14 +184,72 @@ function parseFrontmatter(markdown: string) {
   }
 
   const fields: Record<string, string> = {};
-  for (const line of markdown.slice(4, end).split("\n")) {
+  const lines = markdown.slice(4, end).split("\n");
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     const match = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (!match) {
       continue;
     }
-    fields[match[1]] = unquoteYamlScalar(match[2].trim());
+    const key = match[1];
+    const value = match[2].trim();
+    if (isBlockScalar(value)) {
+      const blockLines: string[] = [];
+      while (
+        index + 1 < lines.length &&
+        (lines[index + 1].trim() === "" || /^\s/.test(lines[index + 1]))
+      ) {
+        index += 1;
+        blockLines.push(lines[index].replace(/^\s+/, ""));
+      }
+      fields[key] = formatBlockScalar(value, blockLines);
+      continue;
+    }
+    fields[key] = unquoteYamlScalar(value);
   }
   return fields;
+}
+
+function isBlockScalar(value: string) {
+  return ["|", "|-", "|+", ">", ">-", ">+"].includes(value);
+}
+
+function formatBlockScalar(marker: string, lines: string[]) {
+  const trimmedLines = lines.map((line) => line.trimEnd());
+  if (marker.startsWith("|")) {
+    return trimmedLines.join("\n").trim();
+  }
+  return trimmedLines.map((line) => line.trim()).filter(Boolean).join(" ");
+}
+
+function markdownBody(markdown: string) {
+  if (!markdown.startsWith("---\n")) {
+    return markdown;
+  }
+  const end = markdown.indexOf("\n---", 4);
+  if (end < 0) {
+    return markdown;
+  }
+  return markdown.slice(end + 4).replace(/^\r?\n/, "");
+}
+
+function firstMarkdownHeading(markdown: string) {
+  let fence: string | undefined;
+  for (const line of markdown.split("\n")) {
+    const fenceMatch = line.match(/^\s*(```|~~~)/);
+    if (fenceMatch) {
+      fence = fence ? undefined : fenceMatch[1];
+      continue;
+    }
+    if (fence) {
+      continue;
+    }
+    const heading = line.match(/^#\s+(.+)$/)?.[1]?.trim();
+    if (heading) {
+      return heading;
+    }
+  }
+  return undefined;
 }
 
 function unquoteYamlScalar(value: string) {

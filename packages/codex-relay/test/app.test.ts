@@ -631,6 +631,46 @@ describe("Codex Relay server routes", () => {
     );
   });
 
+  it("parses folded descriptions and ignores headings inside code fences", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const skillPath = join(workspacePath, ".agents", "skills", "marimo-pair");
+    await mkdir(skillPath, { recursive: true });
+    await writeFile(
+      join(skillPath, "SKILL.md"),
+      [
+        "---",
+        "name: marimo-pair",
+        "description: >-",
+        "  Drive a live marimo notebook as a workspace.",
+        "  Inspect live notebook state.",
+        "---",
+        "",
+        "Introductory text without a top-level heading.",
+        "",
+        "```python",
+        "# Public definitions: values, total, i, value, mean",
+        "values = [1, 2, 3]",
+        "```",
+        "",
+      ].join("\n"),
+    );
+    const app = createApp({ codex: createMockCodex(), workspacePath });
+
+    const response = await app.request("/v1/skills");
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.skills).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "marimo-pair",
+          displayName: "Marimo Pair",
+          description: "Drive a live marimo notebook as a workspace. Inspect live notebook state.",
+        }),
+      ]),
+    );
+  });
+
   it("lists directories outside the configured workspace when a cwd points there", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const externalPath = await mkdtemp(join(tmpdir(), "codex-relay-external-"));
