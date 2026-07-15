@@ -1,7 +1,16 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { access } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { createInterface, type Interface } from "node:readline";
+import { setTimeout } from "node:timers/promises";
+import WebSocket from "ws";
 
-import { resolveCodexAppServerSpawn } from "./codex-binary.js";
+import {
+  resolveCodexAppServerMode,
+  resolveCodexAppServerSpawn,
+  resolveCodexSharedAppServerSpawn,
+} from "./codex-binary.js";
 
 type JsonRpcServerMessage = {
   id?: number;
@@ -242,6 +251,12 @@ export class CodexAppServerClient {
   private pending = new Map<number, PendingRequest>();
   private requestHandlers = new Set<(request: AppServerRequest) => void>();
   private readline: Interface | undefined;
+  private sharedServer: ChildProcessWithoutNullStreams | undefined;
+  private socket: WebSocket | undefined;
+
+  initialize() {
+    return this.ensureInitialized();
+  }
 
   async listThreads(limit = 80) {
     const response = await this.request<{ data: AppServerThread[] }>("thread/list", {
@@ -339,8 +354,12 @@ export class CodexAppServerClient {
     this.pending.clear();
     this.readline?.close();
     this.child?.kill();
+    this.socket?.close();
+    this.sharedServer?.kill();
     this.readline = undefined;
     this.child = undefined;
+    this.socket = undefined;
+    this.sharedServer = undefined;
     this.initialized = undefined;
   }
 
@@ -350,9 +369,8 @@ export class CodexAppServerClient {
     debugAppServer("request", method, id);
     return new Promise<T>((resolve, reject) => {
       this.pending.set(id, { method, resolve: (value) => resolve(value as T), reject });
-      this.child!.stdin.write(`${JSON.stringify({ id, method, params })}\n`, (error) => {
-        if (error) {
-          this.pending.delete(id);
+      void this.writeJson({ id, method, params }).catch((error: Error) => {
+        if (this.pending.delete(id)) {
           reject(error);
         }
       });
@@ -366,7 +384,38 @@ export class CodexAppServerClient {
     return this.initialized;
   }
 
-  private start() {
+  private async start() {
+    try {
+      if (resolveCodexAppServerMode() === "socket") {
+        this.sharedServer = await startSharedCodexAppServer();
+        await this.connectSharedCodexAppServer();
+      } else {
+        this.startStdioCodexAppServer();
+      }
+      await this.requestRaw("initialize", {
+        clientInfo: {
+          name: "codex-relay",
+          title: "Codex Relay Mobile Server",
+          version: "1.2.0",
+        },
+        capabilities: {
+          experimentalApi: true,
+        },
+      });
+    } catch (error) {
+      this.readline?.close();
+      this.readline = undefined;
+      this.child?.kill();
+      this.child = undefined;
+      this.socket?.close();
+      this.socket = undefined;
+      this.sharedServer?.kill();
+      this.sharedServer = undefined;
+      throw error;
+    }
+  }
+
+  private startStdioCodexAppServer() {
     const spawnConfig = resolveCodexAppServerSpawn();
     this.child = spawn(spawnConfig.command, spawnConfig.args, {
       env: process.env,
@@ -386,17 +435,38 @@ export class CodexAppServerClient {
       this.child = undefined;
       this.initialized = undefined;
     });
+  }
 
-    return this.requestRaw("initialize", {
-      clientInfo: {
-        name: "codex-relay",
-        title: "Codex Relay Mobile Server",
-        version: "1.2.0",
-      },
-      capabilities: {
-        experimentalApi: true,
-      },
-    }).then(() => undefined);
+  private async connectSharedCodexAppServer() {
+    const socket = new WebSocket(`ws+unix://${sharedCodexAppServerSocketPath()}:/`, {
+      perMessageDeflate: false,
+    });
+    this.socket = socket;
+    await new Promise<void>((resolve, reject) => {
+      const handleOpen = () => {
+        socket.off("error", handleInitialError);
+        resolve();
+      };
+      const handleInitialError = (error: Error) => {
+        socket.off("open", handleOpen);
+        reject(error);
+      };
+      socket.once("open", handleOpen);
+      socket.once("error", handleInitialError);
+    });
+    socket.on("message", (data) => this.handleLine(String(data)));
+    socket.on("error", (error) => this.rejectAll(error));
+    socket.once("close", (code, reason) => {
+      this.rejectAll(
+        new Error(
+          `Codex app-server socket closed with ${code}${reason.length > 0 ? `: ${String(reason)}` : "."}`,
+        ),
+      );
+      this.socket = undefined;
+      this.sharedServer?.kill();
+      this.sharedServer = undefined;
+      this.initialized = undefined;
+    });
   }
 
   private requestRaw<T>(method: string, params: unknown): Promise<T> {
@@ -405,9 +475,8 @@ export class CodexAppServerClient {
     debugAppServer("request", method, id);
     return new Promise<T>((resolve, reject) => {
       this.pending.set(id, { method, resolve: (value) => resolve(value as T), reject });
-      this.child!.stdin.write(`${request}\n`, (error) => {
-        if (error) {
-          this.pending.delete(id);
+      void this.writeSerializedJson(request).catch((error: Error) => {
+        if (this.pending.delete(id)) {
           reject(error);
         }
       });
@@ -464,12 +533,26 @@ export class CodexAppServerClient {
   }
 
   private writeJson(payload: unknown) {
+    return this.writeSerializedJson(JSON.stringify(payload));
+  }
+
+  private writeSerializedJson(payload: string) {
     return new Promise<void>((resolve, reject) => {
+      if (this.socket) {
+        this.socket.send(payload, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+        return;
+      }
       if (!this.child?.stdin) {
         reject(new Error("Codex app-server is not running."));
         return;
       }
-      this.child.stdin.write(`${JSON.stringify(payload)}\n`, (error) => {
+      this.child.stdin.write(`${payload}\n`, (error) => {
         if (error) {
           reject(error);
         } else {
@@ -485,6 +568,60 @@ export class CodexAppServerClient {
     }
     this.pending.clear();
   }
+}
+
+async function startSharedCodexAppServer() {
+  const spawnConfig = resolveCodexSharedAppServerSpawn();
+  const child = spawn(spawnConfig.command, spawnConfig.args, {
+    env: process.env,
+    shell: spawnConfig.shell,
+    windowsHide: spawnConfig.windowsHide,
+  });
+  let spawnError: Error | undefined;
+  let exitReason: NodeJS.Signals | number | undefined;
+  let stderr = "";
+  child.stdout.resume();
+  child.stderr.on("data", (chunk) => {
+    if (stderr.length < 8_192) {
+      stderr += String(chunk).slice(0, 8_192 - stderr.length);
+    }
+  });
+  child.once("error", (error) => {
+    spawnError = error;
+  });
+  child.once("exit", (code, signal) => {
+    exitReason = signal ?? code ?? 1;
+  });
+
+  const socketPath = sharedCodexAppServerSocketPath();
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if (spawnError) {
+      throw new Error(`Failed to start the shared Codex app-server: ${spawnError.message}`);
+    }
+    try {
+      await access(socketPath);
+      return child;
+    } catch {
+      if (exitReason !== undefined) {
+        const detail = stderr.trim();
+        throw new Error(
+          `Failed to start the shared Codex app-server (exit ${exitReason})${detail ? `: ${detail}` : "."}`,
+        );
+      }
+      await setTimeout(25);
+    }
+  }
+
+  child.kill();
+  throw new Error(`Timed out waiting for the shared Codex app-server socket at ${socketPath}.`);
+}
+
+function sharedCodexAppServerSocketPath() {
+  return join(
+    process.env.CODEX_HOME?.trim() || join(homedir(), ".codex"),
+    "app-server-control",
+    "app-server-control.sock",
+  );
 }
 
 function debugAppServer(kind: string, method: string | undefined, id?: number, detail?: string) {

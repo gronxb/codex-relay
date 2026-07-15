@@ -28,6 +28,26 @@ npx codex-relay@latest approve XXXX-XXXX
 
 After approval, the phone can list Codex threads, start new work, stream messages, and handle approval prompts from the local Codex runtime.
 
+## Shared Terminal and Mobile Sessions
+
+By default, Codex Relay starts a private app-server process. A terminal TUI that was started separately can resume the same saved thread, but it does not receive the relay process's live events.
+
+On macOS, Linux, or WSL, opt in to Codex's shared app-server socket:
+
+```sh
+npx codex-relay@latest --shared-app-server
+```
+
+Then connect a new terminal TUI to the shared app-server socket:
+
+```sh
+codex resume --remote unix://
+```
+
+Pass a thread ID after `unix://` to open a specific thread. The relay prints the attach command at startup. Mobile and the connected terminal can then observe the same live sessions through one socket-backed app-server. An already-running standalone TUI cannot be converted in place; exit it and reconnect with `--remote`.
+
+Shared mode requires a recent Codex CLI with Unix-socket app-server and `resume --remote` support. If those features are unavailable, update Codex or omit `--shared-app-server` to keep the existing private mode. Native Windows is not currently supported; use WSL or private mode there.
+
 ## Background Mode
 
 To keep the relay running after the command returns:
@@ -70,6 +90,12 @@ npx codex-relay@latest --bg
 Start the relay in the background.
 
 ```sh
+npx codex-relay@latest --shared-app-server
+```
+
+Start the relay through Codex's shared app-server socket.
+
+```sh
 npx codex-relay@latest qr
 ```
 
@@ -99,6 +125,7 @@ The relay listens on `0.0.0.0:8787` by default. Configure it with environment va
 | `CODEX_RELAY_AUTH_DB_PATH`             | Pairing and session database path. Defaults to `.codex-relay/auth.db`.                             |
 | `CODEX_RELAY_APPROVAL_SECRET`          | Secret used by the local approve command. Usually generated automatically.                         |
 | `CODEX_RELAY_DANGEROUSLY_AUTO_APPROVE` | Set to `1` to auto-approve mobile pairing requests. Prefer the CLI flag for local use.             |
+| `CODEX_RELAY_APP_SERVER_MODE`          | Set to `socket` for shared terminal/mobile sessions. Defaults to `stdio`.                          |
 | `CODEX_HOME`                           | Codex home directory, used when reading Codex session metadata.                                    |
 | `CODEX_BIN`                            | Codex CLI executable path.                                                                         |
 

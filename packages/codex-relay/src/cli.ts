@@ -38,6 +38,10 @@ const program = new Command()
   .option("--bg", "run the Codex Relay server in the background")
   .option("--debug", "write verbose relay diagnostics to debug.log")
   .option(
+    "--shared-app-server",
+    "use a shared Codex app-server socket so terminal and mobile can share live sessions",
+  )
+  .option(
     "--dangerously-auto-approve",
     "automatically approve mobile pairing requests without a local approval command",
   )
@@ -47,6 +51,7 @@ const program = new Command()
 
 Examples:
   ${npxCommand}              Start the relay and print a pairing QR
+  ${npxCommand} --shared-app-server Share live sessions with a connected terminal
   ${npxCommand} --bg         Start the relay in the background
   ${npxCommand} qr           Print the current pairing QR
   ${npxCommand} clear        Sign out every paired mobile app
@@ -58,6 +63,9 @@ Examples:
     }
     if (options.dangerouslyAutoApprove) {
       process.env.CODEX_RELAY_DANGEROUSLY_AUTO_APPROVE = "1";
+    }
+    if (options.sharedAppServer) {
+      process.env.CODEX_RELAY_APP_SERVER_MODE = "socket";
     }
 
     if (options.bg) {

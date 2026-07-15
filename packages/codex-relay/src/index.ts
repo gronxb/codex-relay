@@ -7,6 +7,8 @@ import pc from "picocolors";
 import qrcode from "qrcode-terminal";
 
 import { createApp } from "./app.js";
+import { CodexAppServerClient } from "./app-server.js";
+import { resolveCodexAppServerMode } from "./codex-binary.js";
 import { isRelayDebugEnabled, relayDebugLog } from "./debug-log.js";
 import {
   createPairingQrPayload,
@@ -55,10 +57,19 @@ const sessionStore = await createTursoPairingSessionStore(
 const preferencesStore = createFileRuntimePreferencesStore(
   process.env.CODEX_RELAY_PREFERENCES_PATH ?? (await prepareCodexRelayDataPath("preferences.json")),
 );
+const appServerMode = resolveCodexAppServerMode();
+const sharedAppServer = appServerMode === "socket" ? new CodexAppServerClient() : undefined;
+if (sharedAppServer) {
+  await sharedAppServer.initialize();
+  process.once("SIGINT", () => stopSharedAppServer(130));
+  process.once("SIGTERM", () => stopSharedAppServer(143));
+  process.once("exit", () => sharedAppServer.close());
+}
 
 serve(
   {
     fetch: createApp({
+      appServer: sharedAppServer,
       pairing: {
         approvalSecret,
         dangerouslyAutoApprove,
@@ -152,10 +163,16 @@ serve(
         listenUrl,
         pairingPayload,
         port: info.port,
+        sharedAppServer: appServerMode === "socket",
       }),
     );
   },
 );
+
+function stopSharedAppServer(exitCode: number) {
+  sharedAppServer?.close();
+  process.exit(exitCode);
+}
 
 function formatStartupInstructions(details: {
   connectUrl: string;
@@ -164,6 +181,7 @@ function formatStartupInstructions(details: {
   listenUrl: string;
   pairingPayload: string;
   port: number;
+  sharedAppServer: boolean;
 }) {
   const lines = [
     `${color.prompt("›")} Scan the QR code above to pair ${color.brand("Codex Relay mobile")}.`,
@@ -174,6 +192,13 @@ function formatStartupInstructions(details: {
     `${color.prompt("›")} Server: ${color.muted(details.listenUrl)}`,
     "",
     `${color.prompt("›")} Pairing: ${color.url(details.pairingPayload)}`,
+    ...(details.sharedAppServer
+      ? [
+          "",
+          `${color.prompt("›")} Terminal: ${color.command("codex resume --remote unix://")}`,
+          `  ${color.muted("Connect through the shared Codex app-server to follow and steer the same live sessions.")}`,
+        ]
+      : []),
     "",
     `${color.prompt("›")} Commands`,
     `  ${color.command(npxCommand)}              Start and print a pairing QR`,

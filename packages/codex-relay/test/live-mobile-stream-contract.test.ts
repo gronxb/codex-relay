@@ -1,7 +1,7 @@
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../src/app.js";
 import { CodexAppServerClient } from "../src/app-server.js";
@@ -21,6 +21,7 @@ const liveDescribe = runLiveAppServerTest ? describe : describe.skip;
 
 liveDescribe("live mobile stream contract", () => {
   let appServer: CodexAppServerClient | undefined;
+  let secondAppServer: CodexAppServerClient | undefined;
 
   beforeEach(() => {
     resetChatSessionState();
@@ -28,8 +29,42 @@ liveDescribe("live mobile stream contract", () => {
 
   afterEach(() => {
     appServer?.close();
+    secondAppServer?.close();
     appServer = undefined;
+    secondAppServer = undefined;
+    vi.unstubAllEnvs();
   });
+
+  it("shares a socket-backed thread between independent app-server clients", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-shared-workspace-"));
+    vi.stubEnv("CODEX_RELAY_APP_SERVER_MODE", "socket");
+    appServer = new CodexAppServerClient();
+    secondAppServer = new CodexAppServerClient();
+    await Promise.all([appServer.initialize(), secondAppServer.initialize()]);
+    const secondClientNotifications: string[] = [];
+    const unsubscribe = secondAppServer.onNotification((notification) => {
+      secondClientNotifications.push(notification.method);
+    });
+
+    const thread = await appServer.startThread({
+      approvalPolicy: "never",
+      cwd: workspacePath,
+      experimentalRawEvents: false,
+      model: null,
+      persistExtendedHistory: true,
+      sandbox: "read-only",
+      serviceTier: null,
+    });
+
+    try {
+      await vi.waitFor(() => expect(secondClientNotifications).toContain("thread/started"));
+      const sharedThread = await secondAppServer.readThread(thread.id, { includeTurns: false });
+      expect(sharedThread.id).toBe(thread.id);
+      expect(sharedThread.cwd).toBe(workspacePath);
+    } finally {
+      unsubscribe();
+    }
+  }, 30_000);
 
   it("round-trips a real app-server turn through the server SSE and mobile stream reducer", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-live-workspace-"));

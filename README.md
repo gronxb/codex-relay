@@ -90,6 +90,22 @@ npx codex-relay@latest approve XXXX-XXXX
 
 Your phone can now talk to your local Codex session.
 
+### 3. Optional: share a live session with your terminal
+
+The default relay uses its own Codex app-server process. To make mobile and a terminal TUI use the same socket-backed app-server on macOS, Linux, or WSL, start the relay with:
+
+```sh
+npx codex-relay@latest --shared-app-server
+```
+
+Then attach a new terminal TUI:
+
+```sh
+codex resume --remote unix://
+```
+
+An already-running standalone TUI cannot be converted in place. Exit it and reconnect with `--remote`. Shared mode requires a recent Codex CLI with Unix-socket app-server and remote-resume support; native Windows should use WSL or the default private mode.
+
 ## Network Setup
 
 Your phone must be able to open the `Mobile:` URL printed by Codex Relay.
@@ -135,26 +151,28 @@ URL printed by the computer.
 
 ## Common Commands
 
-| Command                                    | What it does                                        |
-| ------------------------------------------ | --------------------------------------------------- |
-| `npx codex-relay@latest`                   | Start the relay and print a pairing QR.             |
-| `npx codex-relay@latest --bg`              | Keep the relay running in the background.           |
-| `npx codex-relay@latest qr`                | Print the current pairing QR for an existing relay. |
-| `npx codex-relay@latest approve XXXX-XXXX` | Approve a pending mobile pairing request.           |
-| `npx codex-relay@latest clear`             | Sign out every paired mobile app.                   |
+| Command                                      | What it does                                        |
+| -------------------------------------------- | --------------------------------------------------- |
+| `npx codex-relay@latest`                     | Start the relay and print a pairing QR.             |
+| `npx codex-relay@latest --bg`                | Keep the relay running in the background.           |
+| `npx codex-relay@latest --shared-app-server` | Share live sessions with an attached terminal TUI.  |
+| `npx codex-relay@latest qr`                  | Print the current pairing QR for an existing relay. |
+| `npx codex-relay@latest approve XXXX-XXXX`   | Approve a pending mobile pairing request.           |
+| `npx codex-relay@latest clear`               | Sign out every paired mobile app.                   |
 
 ## Configuration
 
 The relay listens on `0.0.0.0:8787` by default.
 
-| Variable                     | Purpose                                                             |
-| ---------------------------- | ------------------------------------------------------------------- |
-| `PORT`                       | Server port. Defaults to `8787`.                                    |
-| `HOST`                       | Listen host. Defaults to `0.0.0.0`.                                 |
-| `CODEX_RELAY_WORKSPACE_PATH` | Workspace path Codex should use. Defaults to the current directory. |
-| `CODEX_RELAY_AUTH_DB_PATH`   | Pairing and session database path.                                  |
-| `CODEX_BIN`                  | Codex CLI executable path.                                          |
-| `CODEX_HOME`                 | Codex home directory for reading local session metadata.            |
+| Variable                      | Purpose                                                             |
+| ----------------------------- | ------------------------------------------------------------------- |
+| `PORT`                        | Server port. Defaults to `8787`.                                    |
+| `HOST`                        | Listen host. Defaults to `0.0.0.0`.                                 |
+| `CODEX_RELAY_WORKSPACE_PATH`  | Workspace path Codex should use. Defaults to the current directory. |
+| `CODEX_RELAY_AUTH_DB_PATH`    | Pairing and session database path.                                  |
+| `CODEX_RELAY_APP_SERVER_MODE` | `socket` for shared terminal/mobile sessions; defaults to `stdio`.  |
+| `CODEX_BIN`                   | Codex CLI executable path.                                          |
+| `CODEX_HOME`                  | Codex home directory for reading local session metadata.            |
 
 Background mode writes runtime files under `.codex-relay/` in the current
 workspace, including server logs, process state, and pairing data.
