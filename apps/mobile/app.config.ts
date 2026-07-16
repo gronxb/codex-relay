@@ -37,7 +37,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       },
       predictiveBackGestureEnabled: false,
       package: "com.gronstudio.codexrelay",
-      permissions: ["android.permission.CAMERA"],
+      permissions: ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
     },
     web: {
       output: "static",
@@ -83,6 +83,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       ],
       "expo-font",
       "expo-image",
+      "expo-notifications",
       "expo-system-ui",
       "expo-web-browser",
       "@hot-updater/react-native",

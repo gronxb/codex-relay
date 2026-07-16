@@ -8,7 +8,8 @@ import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import * as Notifications from "expo-notifications";
+import { router, Stack } from "expo-router";
 import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
@@ -20,6 +21,11 @@ import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { AppToast } from "@/components/ui/toast";
 import { addHotUpdaterLog, formatHotUpdaterProgress } from "@/lib/hot-updater-logs";
 import {
+  configurePushNotificationPresentation,
+  notificationResponseThreadId,
+  supportsPushNotifications,
+} from "@/lib/push-notifications";
+import {
   persistedQueryMaxAgeMs,
   queryClientPersister,
   shouldPersistQuery,
@@ -30,8 +36,10 @@ import {
   inactiveSessionExpiredToastCopy,
   subscribeInactiveSessionExpired,
 } from "@/lib/session-expiration";
+import { setActiveThread } from "@/state/chat-store";
 
 void SplashScreen.preventAutoHideAsync();
+configurePushNotificationPresentation();
 
 const appTheme = {
   ...DarkTheme,
@@ -152,6 +160,29 @@ function TabLayout() {
 
     showInactiveSessionExpiredToast();
     return subscribeInactiveSessionExpired(showInactiveSessionExpiredToast);
+  }, []);
+
+  useEffect(() => {
+    if (!supportsPushNotifications()) {
+      return;
+    }
+    const openNotificationThread = (response: Notifications.NotificationResponse) => {
+      const threadId = notificationResponseThreadId(response);
+      if (!threadId) {
+        return;
+      }
+      setActiveThread(threadId);
+      router.replace("/");
+      Notifications.clearLastNotificationResponse();
+    };
+
+    const mostRecentResponse = Notifications.getLastNotificationResponse();
+    if (mostRecentResponse) {
+      openNotificationThread(mostRecentResponse);
+    }
+    const subscription =
+      Notifications.addNotificationResponseReceivedListener(openNotificationThread);
+    return () => subscription.remove();
   }, []);
 
   if (!fontsLoaded) {

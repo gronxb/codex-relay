@@ -50,6 +50,72 @@ describe("pairing session store", () => {
     expect(await memoryDatabaseEntries()).toEqual(temporaryEntriesBefore);
   });
 
+  it("keeps push subscriptions with a stable paired device across token rotation", async () => {
+    const sessions = await createTursoPairingSessionStore(":memory:");
+    const expiresAt = Date.now() + 60_000;
+    await sessions.createSession("old-client-token", {
+      clientSessionId: "phone-session",
+      expiresAt,
+    });
+    await sessions.upsertPushNotificationSubscription({
+      actionRequired: true,
+      clientSessionId: "phone-session",
+      expoPushToken: "ExponentPushToken[phone-token]",
+      platform: "ios",
+      turnTerminal: true,
+    });
+
+    await sessions.rotateSession("old-client-token", "new-client-token", {
+      clientSessionId: "phone-session",
+      expiresAt,
+    });
+
+    expect(await sessions.getPushNotificationSubscription("phone-session")).toEqual({
+      actionRequired: true,
+      clientSessionId: "phone-session",
+      expoPushToken: "ExponentPushToken[phone-token]",
+      platform: "ios",
+      turnTerminal: true,
+    });
+    expect(await sessions.listActivePushNotificationSubscriptions(Date.now())).toEqual([
+      expect.objectContaining({ clientSessionId: "phone-session" }),
+    ]);
+  });
+
+  it("does not dispatch push subscriptions for expired pairings and clears them with sessions", async () => {
+    const sessions = await createTursoPairingSessionStore(":memory:");
+    await sessions.createSession("expired-client-token", {
+      clientSessionId: "expired-phone",
+      expiresAt: Date.now() - 1,
+    });
+    await sessions.upsertPushNotificationSubscription({
+      actionRequired: true,
+      clientSessionId: "expired-phone",
+      expoPushToken: "ExponentPushToken[expired-phone]",
+      platform: "android",
+      turnTerminal: true,
+    });
+
+    expect(await sessions.listActivePushNotificationSubscriptions(Date.now())).toEqual([]);
+    await sessions.pruneExpired(Date.now());
+    expect(await sessions.getPushNotificationSubscription("expired-phone")).toBeUndefined();
+
+    await sessions.createSession("active-client-token", {
+      clientSessionId: "active-phone",
+      expiresAt: Date.now() + 60_000,
+    });
+    await sessions.upsertPushNotificationSubscription({
+      actionRequired: false,
+      clientSessionId: "active-phone",
+      expoPushToken: "ExponentPushToken[active-phone]",
+      platform: "android",
+      turnTerminal: true,
+    });
+    await sessions.clearAll();
+
+    expect(await sessions.getPushNotificationSubscription("active-phone")).toBeUndefined();
+  });
+
   it("rolls back a token rotation when the replacement token already exists", async () => {
     const sessions = await createTursoPairingSessionStore(":memory:");
     const expiresAt = Date.now() + 60_000;

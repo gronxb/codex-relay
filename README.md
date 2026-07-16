@@ -55,6 +55,7 @@ run.
 - Review active threads, queued inputs, approvals, and workspace state.
 - Preview git changes, local web output, files, and terminal surfaces from
   mobile.
+- Choose separate turn-complete and action-required push notifications.
 - Keep pairing and session data under your local relay state.
 
 ## Quick Start
@@ -105,6 +106,15 @@ codex resume --remote unix://
 ```
 
 An already-running standalone TUI cannot be converted in place. Exit it and reconnect with `--remote`. Shared mode requires a recent Codex CLI with Unix-socket app-server and remote-resume support; native Windows should use WSL or the default private mode.
+
+### Push notifications
+
+After pairing, open **Settings > Notifications** in the mobile app and enable either or both alerts:
+
+- **Turn complete** for completed or failed Codex turns
+- **Action required** for approval and input requests
+
+The relay sends only a generic alert plus opaque thread and turn identifiers needed to open the conversation. It does not send prompts, responses, commands, or approval text through the push service. Push support requires a native mobile build that includes `expo-notifications`; an OTA update alone cannot add that native module.
 
 ## Network Setup
 

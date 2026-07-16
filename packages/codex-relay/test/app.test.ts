@@ -15,6 +15,7 @@ import { createApp } from "../src/app.js";
 import type { CodexClient, CodexThread } from "../src/codex.js";
 import { createTursoPairingSessionStore } from "../src/pairing-store.js";
 import { createFileRuntimePreferencesStore } from "../src/preferences-store.js";
+import type { PushNotificationSender, RelayPushNotification } from "../src/push-notifications.js";
 import { createServerIdentity } from "../src/secure-transport.js";
 
 const execFileAsync = promisify(execFile);
@@ -1141,6 +1142,153 @@ describe("Codex Relay server routes", () => {
       clientName: "test phone",
       clientSessionId: "phone-session",
     });
+  });
+
+  it("registers and removes push notifications through the paired device session", async () => {
+    const sessions = await createTursoPairingSessionStore(":memory:");
+    await sessions.createSession("client-token", {
+      clientSessionId: "phone-session",
+      expiresAt: Date.now() + 60_000,
+    });
+    const app = createApp({
+      codex: createMockCodex(),
+      pairing: {
+        createClientToken: () => "unused-client-token",
+        hashClientToken: (token) => token,
+        sessions,
+        tokenTtlMs: 60_000,
+      },
+    });
+
+    const registration = await app.request("/v1/notifications/push", {
+      method: "PUT",
+      body: JSON.stringify({
+        expoPushToken: "ExponentPushToken[phone-token]",
+        platform: "ios",
+        preferences: { actionRequired: true, turnTerminal: false },
+      }),
+      headers: {
+        authorization: "Bearer client-token",
+        "content-type": "application/json",
+      },
+    });
+
+    expect(registration.status).toBe(200);
+    await expect(registration.json()).resolves.toEqual({
+      preferences: { actionRequired: true, turnTerminal: false },
+      registered: true,
+    });
+    expect(await sessions.getPushNotificationSubscription("phone-session")).toEqual({
+      actionRequired: true,
+      clientSessionId: "phone-session",
+      expoPushToken: "ExponentPushToken[phone-token]",
+      platform: "ios",
+      turnTerminal: false,
+    });
+
+    const settings = await app.request("/v1/notifications/push", {
+      headers: { authorization: "Bearer client-token" },
+    });
+    await expect(settings.json()).resolves.toEqual({
+      preferences: { actionRequired: true, turnTerminal: false },
+      registered: true,
+    });
+
+    const removal = await app.request("/v1/notifications/push", {
+      method: "DELETE",
+      headers: { authorization: "Bearer client-token" },
+    });
+    expect(removal.status).toBe(200);
+    await expect(removal.json()).resolves.toEqual({
+      preferences: { actionRequired: false, turnTerminal: false },
+      registered: false,
+    });
+    expect(await sessions.getPushNotificationSubscription("phone-session")).toBeUndefined();
+  });
+
+  it("observes app-server terminal turns and action requests without handling the request", async () => {
+    const sessions = await createTursoPairingSessionStore(":memory:");
+    await sessions.createSession("client-token", {
+      clientSessionId: "phone-session",
+      expiresAt: Date.now() + 60_000,
+    });
+    await sessions.upsertPushNotificationSubscription({
+      actionRequired: true,
+      clientSessionId: "phone-session",
+      expoPushToken: "ExponentPushToken[phone-token]",
+      platform: "ios",
+      turnTerminal: true,
+    });
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const requestHandlers = new Set<(request: unknown) => void>();
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest(handler: (request: unknown) => void) {
+        requestHandlers.add(handler);
+        return () => requestHandlers.delete(handler);
+      },
+    };
+    const sent: RelayPushNotification[][] = [];
+    const sender: PushNotificationSender = {
+      async send(notifications) {
+        sent.push([...notifications]);
+        return { invalidExpoPushTokens: [] };
+      },
+    };
+    createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      pairing: {
+        createClientToken: () => "unused-client-token",
+        hashClientToken: (token) => token,
+        sessions,
+        tokenTtlMs: 60_000,
+      },
+      pushNotificationSender: sender,
+    });
+
+    for (const handler of notificationHandlers) {
+      handler({
+        method: "turn/completed",
+        params: { status: "completed", threadId: "thread-1", turnId: "turn-1" },
+      });
+      handler({
+        method: "turn/completed",
+        params: { status: "completed", threadId: "thread-1", turnId: "turn-1" },
+      });
+      handler({
+        method: "turn/completed",
+        params: { status: "cancelled", threadId: "thread-cancelled", turnId: "turn-2" },
+      });
+    }
+    for (const handler of requestHandlers) {
+      handler({
+        id: 7,
+        method: "item/tool/requestUserInput",
+        params: {
+          questions: [{ id: "scope", question: "What should Codex do next?" }],
+          threadId: "thread-1",
+          turnId: "turn-1",
+        },
+      });
+    }
+
+    await waitUntil(() => expect(sent).toHaveLength(2));
+    expect(sent).toEqual([
+      [
+        expect.objectContaining({
+          data: { intent: "turn_terminal", threadId: "thread-1", turnId: "turn-1" },
+        }),
+      ],
+      [
+        expect.objectContaining({
+          data: { intent: "action_required", threadId: "thread-1", turnId: "turn-1" },
+        }),
+      ],
+    ]);
   });
 
   it("rejects secure tokens when the in-process e2ee session is gone", async () => {

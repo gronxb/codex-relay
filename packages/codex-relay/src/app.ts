@@ -15,6 +15,7 @@ import {
   ListWorkspaceDirectoriesResponseSchema,
   PairRequestSchema,
   PairResponseSchema,
+  PushNotificationSettingsResponseSchema,
   QueuedThreadInputActionResponseSchema,
   RateLimitsResponseSchema,
   KnownReasoningEffortSchema,
@@ -23,6 +24,7 @@ import {
   ResolveApprovalResponseSchema,
   RunThreadRequestSchema,
   RuntimePreferencesResponseSchema,
+  RegisterPushNotificationRequestSchema,
   StatusResponseSchema,
   StreamThreadRunEventSchema,
   StreamThreadRunRequestSchema,
@@ -140,6 +142,13 @@ import { codexRelayDataPath } from "./paths.js";
 import { relayDebugLog } from "./debug-log.js";
 import type { PairingSessionStore } from "./pairing-store.js";
 import {
+  createExpoPushNotificationSender,
+  createPushNotificationDispatcher,
+  type PushNotificationDispatcher,
+  type PushNotificationEvent,
+  type PushNotificationSender,
+} from "./push-notifications.js";
+import {
   createMemoryRuntimePreferencesStore,
   type RuntimePreferencesStore,
 } from "./preferences-store.js";
@@ -179,6 +188,7 @@ type AppOptions = {
   codex?: CodexClient;
   pairing?: PairingOptions;
   preferences?: RuntimePreferencesStore;
+  pushNotificationSender?: PushNotificationSender;
   tailscaleServeForPreviewUrl?: (input: {
     readonly url: string;
   }) => Promise<WorkspaceTailscaleServeResponse>;
@@ -322,6 +332,15 @@ export function createApp(options: AppOptions = {}) {
   const secureSessionsByTokenHash = new Map<string, SecureSession>();
   const activeStreamControllers = new Set<ReadableStreamDefaultController<Uint8Array>>();
   const threadOptions = { workingDirectory: workspacePath };
+  const pushNotificationDispatcher = options.pairing
+    ? createPushNotificationDispatcher({
+        sender: options.pushNotificationSender ?? createExpoPushNotificationSender(),
+        sessions: options.pairing.sessions,
+      })
+    : undefined;
+  if (appServer && pushNotificationDispatcher) {
+    observeAppServerPushNotifications(appServer, pushNotificationDispatcher);
+  }
   const scheduleAppServerHistoryLoad = (threadId: string, cachedMessages: ChatMessage[]) => {
     if (!appServer || appServerHistoryLoadsByThreadId.has(threadId)) {
       return;
@@ -670,6 +689,121 @@ export function createApp(options: AppOptions = {}) {
       preferences: await preferences.update(parsed.data, workspacePath),
       runtimePreferencesByWorkspacePath: await preferences.readByWorkspacePath(),
       workspacePath,
+    });
+    return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
+  });
+
+  app.get(apiPaths.pushNotifications, async (c) => {
+    const clientSessionId = await pairedClientSessionIdForAuthorization(
+      c.req.header("authorization"),
+      options.pairing,
+    );
+    if (!clientSessionId) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError(
+          "push_notifications_unavailable",
+          "Pair this device again to manage notifications.",
+        ),
+        401,
+      );
+    }
+
+    const subscription =
+      await options.pairing!.sessions.getPushNotificationSubscription(clientSessionId);
+    const response = PushNotificationSettingsResponseSchema.parse({
+      preferences: subscription
+        ? {
+            actionRequired: subscription.actionRequired,
+            turnTerminal: subscription.turnTerminal,
+          }
+        : defaultPushNotificationPreferences(),
+      registered: Boolean(subscription),
+    });
+    return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
+  });
+
+  app.put(apiPaths.pushNotifications, async (c) => {
+    if (!options.pairing) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError("pairing_required", "Pair this device before registering notifications."),
+        404,
+      );
+    }
+    const parsed = await parseRequestJson(
+      c,
+      options.pairing,
+      secureSessionsByTokenHash,
+      RegisterPushNotificationRequestSchema,
+    );
+    if (!parsed.success) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        validationError(parsed.error),
+        400,
+      );
+    }
+
+    const clientSessionId = await pairedClientSessionIdForAuthorization(
+      c.req.header("authorization"),
+      options.pairing,
+    );
+    if (!clientSessionId) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError(
+          "push_notifications_unavailable",
+          "Pair this device again to manage notifications.",
+        ),
+        401,
+      );
+    }
+
+    await options.pairing.sessions.upsertPushNotificationSubscription({
+      actionRequired: parsed.data.preferences.actionRequired,
+      clientSessionId,
+      expoPushToken: parsed.data.expoPushToken,
+      platform: parsed.data.platform,
+      turnTerminal: parsed.data.preferences.turnTerminal,
+    });
+    const response = PushNotificationSettingsResponseSchema.parse({
+      preferences: parsed.data.preferences,
+      registered: true,
+    });
+    return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
+  });
+
+  app.delete(apiPaths.pushNotifications, async (c) => {
+    const clientSessionId = await pairedClientSessionIdForAuthorization(
+      c.req.header("authorization"),
+      options.pairing,
+    );
+    if (!clientSessionId) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError(
+          "push_notifications_unavailable",
+          "Pair this device again to manage notifications.",
+        ),
+        401,
+      );
+    }
+
+    await options.pairing!.sessions.deletePushNotificationSubscription(clientSessionId);
+    const response = PushNotificationSettingsResponseSchema.parse({
+      preferences: defaultPushNotificationPreferences(),
+      registered: false,
     });
     return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
   });
@@ -2643,6 +2777,28 @@ export function createApp(options: AppOptions = {}) {
 function parseBearerToken(value: string | undefined) {
   const match = value?.match(/^Bearer\s+(.+)$/i);
   return match?.[1];
+}
+
+async function pairedClientSessionIdForAuthorization(
+  authorization: string | undefined,
+  pairing: PairingOptions | undefined,
+) {
+  if (!pairing) {
+    return undefined;
+  }
+  const token = parseBearerToken(authorization);
+  if (!token) {
+    return undefined;
+  }
+  const session = await pairing.sessions.getValidSession(
+    pairing.hashClientToken(token),
+    Date.now(),
+  );
+  return session?.clientSessionId;
+}
+
+function defaultPushNotificationPreferences() {
+  return { actionRequired: false, turnTerminal: false };
 }
 
 function normalizeApprovalCode(value: string) {
@@ -7101,6 +7257,86 @@ function isApprovalServerRequest(method: string) {
     method === "execCommandApproval" ||
     method === "applyPatchApproval"
   );
+}
+
+function observeAppServerPushNotifications(
+  appServer: CodexAppServerClient,
+  dispatcher: PushNotificationDispatcher,
+) {
+  const dispatchedEventIds = new Set<string>();
+  const dispatch = (event: PushNotificationEvent, eventId: string) => {
+    if (dispatchedEventIds.has(eventId)) {
+      return;
+    }
+    if (dispatchedEventIds.size >= 1000) {
+      dispatchedEventIds.clear();
+    }
+    dispatchedEventIds.add(eventId);
+    void dispatcher.dispatch(event).catch((error) => {
+      relayDebugLog("push_notification.dispatch_failed", {
+        error: errorMessage(error),
+        intent: event.intent,
+        threadId: event.threadId,
+        turnId: event.turnId,
+      });
+    });
+  };
+
+  appServer.onNotification((notification) => {
+    const event = pushNotificationEventFromTerminalNotification(notification);
+    if (!event) {
+      return;
+    }
+    dispatch(event, `${event.intent}:${event.threadId}:${event.turnId ?? ""}`);
+  });
+
+  appServer.onRequest((request) => {
+    const event = pushNotificationEventFromApprovalRequest(request);
+    if (!event) {
+      return;
+    }
+    dispatch(event, `${event.intent}:${event.threadId}:${event.turnId ?? ""}:${request.id}`);
+  });
+}
+
+function pushNotificationEventFromTerminalNotification(notification: AppServerNotification) {
+  if (notification.method !== "turn/completed" && notification.method !== "turn/failed") {
+    return undefined;
+  }
+  const params = recordParams(notification);
+  const status = turnStatus(params);
+  if (
+    status === "aborted" ||
+    status === "cancelled" ||
+    status === "canceled" ||
+    status === "interrupted"
+  ) {
+    return undefined;
+  }
+  const threadId = firstString(params, ["threadId", "conversationId"]);
+  if (!threadId) {
+    return undefined;
+  }
+  return {
+    intent: "turn_terminal" as const,
+    threadId,
+    turnId: firstString(params, ["turnId"]) ?? turnIdFromParams(params),
+  };
+}
+
+function pushNotificationEventFromApprovalRequest(request: AppServerRequest) {
+  if (!isApprovalServerRequest(request.method)) {
+    return undefined;
+  }
+  const approval = approvalMessageFromRequest(request);
+  if (!approval) {
+    return undefined;
+  }
+  return {
+    intent: "action_required" as const,
+    threadId: approval.threadId,
+    turnId: approval.turnId,
+  };
 }
 
 function approvalMessageFromRequest(request: AppServerRequest) {

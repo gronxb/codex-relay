@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Heart } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, Switch, View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
@@ -21,9 +21,12 @@ import {
 import { Colors, Fonts, MaxContentWidth, Spacing } from "@/constants/theme";
 import {
   getCodexRelayServerUrlCandidates,
+  getPushNotificationSettings,
+  registerPushNotifications,
   refreshSession,
   setCodexRelayServerUrl,
   signOutCodexRelaySession,
+  unregisterPushNotifications,
   type CodexRelayServerUrlCandidate,
 } from "@/lib/codex-relay-api";
 import { hapticSelection, hapticWarning } from "@/lib/haptics";
@@ -32,6 +35,11 @@ import {
   formatHotUpdaterLogTime,
   useHotUpdaterLogs,
 } from "@/lib/hot-updater-logs";
+import {
+  getExpoPushToken,
+  pushNotificationPlatform,
+  supportsPushNotifications,
+} from "@/lib/push-notifications";
 import { formatRateLimitRemaining, visibleRateLimitRows } from "@/lib/rate-limits";
 import {
   clearServerState,
@@ -45,6 +53,16 @@ import { chatStore$, resetChatSessionState, setConnection, setServerUrl } from "
 
 const hotUpdaterBaseUrl = process.env.EXPO_PUBLIC_HOT_UPDATER_BASE_URL?.trim();
 const hotUpdaterBaseUrlStatus = hotUpdaterBaseUrl ? "configured" : "missing";
+const defaultPushNotificationPreferences = {
+  actionRequired: false,
+  turnTerminal: false,
+};
+const pushNotificationTrackColor = {
+  false: "rgba(255, 255, 255, 0.16)",
+  true: "#2CA36F",
+};
+
+type PushNotificationPreference = keyof typeof defaultPushNotificationPreferences;
 
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
@@ -78,6 +96,12 @@ export default function SettingsScreen() {
     status: "checking",
     updateInfo: null,
   });
+  const [pushNotificationPreferences, setPushNotificationPreferences] = useState(
+    defaultPushNotificationPreferences,
+  );
+  const [pushNotificationsLoading, setPushNotificationsLoading] = useState(false);
+  const [pushNotificationsUpdating, setPushNotificationsUpdating] = useState(false);
+  const pushNotificationsSupported = supportsPushNotifications();
   const rateLimitRows = visibleRateLimitRows(rateLimitsQuery.data?.buckets ?? []);
   const isAppUpdatePending =
     appUpdate.status === "downloading" ||
@@ -146,6 +170,39 @@ export default function SettingsScreen() {
     setServerUrlCandidates(getCodexRelayServerUrlCandidates());
   }, [serverUrl]);
 
+  useEffect(() => {
+    let isActive = true;
+    if (!hasPairedSession || !pushNotificationsSupported) {
+      setPushNotificationPreferences(defaultPushNotificationPreferences);
+      setPushNotificationsLoading(false);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    setPushNotificationsLoading(true);
+    void getPushNotificationSettings()
+      .then((settings) => {
+        if (isActive) {
+          setPushNotificationPreferences(settings.preferences);
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setPushNotificationPreferences(defaultPushNotificationPreferences);
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setPushNotificationsLoading(false);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [hasPairedSession, pushNotificationsSupported, serverUrl]);
+
   function closeSettings() {
     hapticSelection();
     if (router.canGoBack()) {
@@ -161,6 +218,39 @@ export default function SettingsScreen() {
     clearServerState(queryClient);
     resetChatSessionState();
     router.replace("/");
+  }
+
+  async function updatePushNotificationPreference(
+    preference: PushNotificationPreference,
+    value: boolean,
+  ) {
+    if (pushNotificationsUpdating || !pushNotificationsSupported) {
+      return;
+    }
+
+    const previousPreferences = pushNotificationPreferences;
+    const nextPreferences = { ...previousPreferences, [preference]: value };
+    hapticSelection();
+    setPushNotificationPreferences(nextPreferences);
+    setPushNotificationsUpdating(true);
+
+    try {
+      const settings =
+        nextPreferences.actionRequired || nextPreferences.turnTerminal
+          ? await registerPushNotifications({
+              expoPushToken: await getExpoPushToken(),
+              platform: pushNotificationPlatform(),
+              preferences: nextPreferences,
+            })
+          : await unregisterPushNotifications();
+      setPushNotificationPreferences(settings.preferences);
+    } catch (caught) {
+      setPushNotificationPreferences(previousPreferences);
+      hapticWarning();
+      Alert.alert("Notifications unavailable", settingsErrorMessage(caught));
+    } finally {
+      setPushNotificationsUpdating(false);
+    }
   }
 
   async function selectServerAddress(candidate: CodexRelayServerUrlCandidate) {
@@ -444,6 +534,56 @@ export default function SettingsScreen() {
           {hasPairedSession ? (
             <Animated.View layout={settingsLayoutTransition} style={styles.section}>
               <ThemedText type="small" themeColor="textSecondary" style={styles.sectionLabel}>
+                Notifications
+              </ThemedText>
+              <Animated.View layout={settingsLayoutTransition} style={styles.notificationPanel}>
+                {pushNotificationsSupported ? (
+                  <>
+                    <ThemedText
+                      type="small"
+                      themeColor="textSecondary"
+                      style={styles.notificationIntro}
+                    >
+                      Generic alerts only. Chat content stays on your paired computer.
+                    </ThemedText>
+                    <PushNotificationToggle
+                      accessibilityLabel="Notify when a Codex turn ends"
+                      disabled={pushNotificationsLoading || pushNotificationsUpdating}
+                      onValueChange={(value) =>
+                        void updatePushNotificationPreference("turnTerminal", value)
+                      }
+                      subtitle="When Codex completes or fails a turn"
+                      title="Turn complete"
+                      value={pushNotificationPreferences.turnTerminal}
+                    />
+                    <PushNotificationToggle
+                      accessibilityLabel="Notify when Codex needs action"
+                      disabled={pushNotificationsLoading || pushNotificationsUpdating}
+                      onValueChange={(value) =>
+                        void updatePushNotificationPreference("actionRequired", value)
+                      }
+                      showDivider={false}
+                      subtitle="When Codex needs approval or input"
+                      title="Action required"
+                      value={pushNotificationPreferences.actionRequired}
+                    />
+                  </>
+                ) : (
+                  <ThemedText
+                    type="small"
+                    themeColor="textSecondary"
+                    style={styles.notificationIntro}
+                  >
+                    Push notifications are available in the iOS and Android apps.
+                  </ThemedText>
+                )}
+              </Animated.View>
+            </Animated.View>
+          ) : null}
+
+          {hasPairedSession ? (
+            <Animated.View layout={settingsLayoutTransition} style={styles.section}>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.sectionLabel}>
                 Session
               </ThemedText>
               <Pressable
@@ -623,6 +763,50 @@ export default function SettingsScreen() {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+function PushNotificationToggle({
+  accessibilityLabel,
+  disabled,
+  onValueChange,
+  showDivider = true,
+  subtitle,
+  title,
+  value,
+}: {
+  accessibilityLabel: string;
+  disabled: boolean;
+  onValueChange: (value: boolean) => void;
+  showDivider?: boolean;
+  subtitle: string;
+  title: string;
+  value: boolean;
+}) {
+  return (
+    <Animated.View
+      entering={settingsEnterTransition}
+      exiting={settingsExitTransition}
+      layout={settingsLayoutTransition}
+      style={[styles.notificationRow, showDivider && styles.notificationRowDivider]}
+    >
+      <View style={styles.notificationCopy}>
+        <ThemedText type="smallBold" style={styles.notificationTitle}>
+          {title}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.notificationSubtitle}>
+          {subtitle}
+        </ThemedText>
+      </View>
+      <Switch
+        accessibilityLabel={accessibilityLabel}
+        disabled={disabled}
+        onValueChange={onValueChange}
+        thumbColor={value ? "#DDF7E7" : "#BEC5C3"}
+        trackColor={pushNotificationTrackColor}
+        value={value}
+      />
+    </Animated.View>
   );
 }
 
@@ -1054,6 +1238,44 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: Spacing.two,
     padding: Spacing.three,
+  },
+  notificationPanel: {
+    backgroundColor: Colors.dark.backgroundElement,
+    borderColor: "rgba(255, 255, 255, 0.09)",
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  notificationIntro: {
+    fontSize: 12,
+    lineHeight: 17,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
+  },
+  notificationRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: Spacing.two,
+    minHeight: 70,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 10,
+  },
+  notificationRowDivider: {
+    borderBottomColor: "rgba(255, 255, 255, 0.08)",
+    borderBottomWidth: 1,
+  },
+  notificationCopy: {
+    flex: 1,
+    gap: 2,
+    minWidth: 0,
+  },
+  notificationTitle: {
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  notificationSubtitle: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   usageCard: {
     backgroundColor: Colors.dark.backgroundElement,
