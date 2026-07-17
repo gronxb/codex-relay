@@ -99,6 +99,8 @@ The default relay uses its own Codex app-server process. To make mobile and a te
 npx codex-relay@latest --shared-app-server
 ```
 
+When a shared app-server is already running, the relay attaches to it instead of starting another one. If the relay's own socket connection resets, it reconnects without deliberately stopping the shared app-server.
+
 Then attach a new terminal TUI:
 
 ```sh
@@ -115,6 +117,11 @@ After pairing, open **Settings > Notifications** in the mobile app and enable ei
 - **Action required** for approval and input requests
 
 The relay sends only a generic alert plus opaque thread and turn identifiers needed to open the conversation. It does not send prompts, responses, commands, or approval text through the push service. Push support requires a native mobile build that includes `expo-notifications`; an OTA update alone cannot add that native module.
+Shared mode uses Codex's experimental app-server transport. A directly connected terminal TUI has its own WebSocket connection, which the relay cannot observe or reconnect. If that terminal reports a socket reset while the thread continues on mobile, reconnect it with:
+
+```sh
+codex resume --remote unix:// <thread-id>
+```
 
 ## Network Setup
 

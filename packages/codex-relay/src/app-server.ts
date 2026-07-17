@@ -11,6 +11,7 @@ import {
   resolveCodexAppServerSpawn,
   resolveCodexSharedAppServerSpawn,
 } from "./codex-binary.js";
+import { relayDebugLog } from "./debug-log.js";
 
 type JsonRpcServerMessage = {
   id?: number;
@@ -28,6 +29,14 @@ type PendingRequest = {
   reject(error: Error): void;
   resolve(value: unknown): void;
 };
+
+type SharedAppServerOwnership = "attached" | "relay-owned";
+
+export type CodexAppServerClientOptions = {
+  startSharedServer?: () => Promise<ChildProcessWithoutNullStreams>;
+};
+
+const sharedSocketReconnectDelaysMs = [50, 100, 250, 500, 1_000, 2_000] as const;
 
 export type AppServerThread = {
   id: string;
@@ -245,14 +254,21 @@ export type AppServerThreadGoalClearParams = {
 
 export class CodexAppServerClient {
   private child: ChildProcessWithoutNullStreams | undefined;
+  private closed = false;
   private initialized: Promise<void> | undefined;
   private notificationHandlers = new Set<(notification: AppServerNotification) => void>();
   private nextId = 1;
   private pending = new Map<number, PendingRequest>();
+  private reconnecting: Promise<void> | undefined;
   private requestHandlers = new Set<(request: AppServerRequest) => void>();
   private readline: Interface | undefined;
   private sharedServer: ChildProcessWithoutNullStreams | undefined;
   private socket: WebSocket | undefined;
+  private startSharedServer: () => Promise<ChildProcessWithoutNullStreams>;
+
+  constructor(options: CodexAppServerClientOptions = {}) {
+    this.startSharedServer = options.startSharedServer ?? startSharedCodexAppServer;
+  }
 
   initialize() {
     return this.ensureInitialized();
@@ -348,17 +364,22 @@ export class CodexAppServerClient {
   }
 
   close() {
+    if (this.closed) {
+      return;
+    }
+    this.closed = true;
     for (const pending of this.pending.values()) {
       pending.reject(new Error("Codex app-server was closed."));
     }
     this.pending.clear();
     this.readline?.close();
     this.child?.kill();
-    this.socket?.close();
+    const socket = this.socket;
+    this.socket = undefined;
+    socket?.close();
     this.sharedServer?.kill();
     this.readline = undefined;
     this.child = undefined;
-    this.socket = undefined;
     this.sharedServer = undefined;
     this.initialized = undefined;
   }
@@ -378,41 +399,49 @@ export class CodexAppServerClient {
   }
 
   private ensureInitialized() {
+    if (this.closed) {
+      return Promise.reject(new Error("Codex app-server was closed."));
+    }
     if (!this.initialized) {
-      this.initialized = this.start();
+      const initialized = this.start();
+      this.initialized = initialized;
+      void initialized.catch(() => {
+        if (this.initialized === initialized) {
+          this.initialized = undefined;
+        }
+      });
     }
     return this.initialized;
   }
 
   private async start() {
+    const mode = resolveCodexAppServerMode();
     try {
-      if (resolveCodexAppServerMode() === "socket") {
-        this.sharedServer = await startSharedCodexAppServer();
-        await this.connectSharedCodexAppServer();
+      if (mode === "socket") {
+        await this.startOrAttachSharedCodexAppServer();
       } else {
         this.startStdioCodexAppServer();
       }
-      await this.requestRaw("initialize", {
-        clientInfo: {
-          name: "codex-relay",
-          title: "Codex Relay Mobile Server",
-          version: "1.2.0",
-        },
-        capabilities: {
-          experimentalApi: true,
-        },
-      });
+      await this.initializeAppServer();
     } catch (error) {
-      this.readline?.close();
-      this.readline = undefined;
-      this.child?.kill();
-      this.child = undefined;
-      this.socket?.close();
-      this.socket = undefined;
-      this.sharedServer?.kill();
-      this.sharedServer = undefined;
+      if (mode === "stdio") {
+        this.stopStdioCodexAppServer();
+      }
       throw error;
     }
+  }
+
+  private async initializeAppServer() {
+    await this.requestRaw("initialize", {
+      clientInfo: {
+        name: "codex-relay",
+        title: "Codex Relay Mobile Server",
+        version: "1.2.0",
+      },
+      capabilities: {
+        experimentalApi: true,
+      },
+    });
   }
 
   private startStdioCodexAppServer() {
@@ -437,36 +466,192 @@ export class CodexAppServerClient {
     });
   }
 
+  private stopStdioCodexAppServer() {
+    this.readline?.close();
+    this.readline = undefined;
+    this.child?.kill();
+    this.child = undefined;
+  }
+
+  private async startOrAttachSharedCodexAppServer() {
+    try {
+      await this.connectSharedCodexAppServer();
+      relayDebugLog("app_server.shared_socket.attached", {
+        ownership: "attached",
+        socketPath: sharedCodexAppServerSocketPath(),
+      });
+      return;
+    } catch (error) {
+      const attachError = asError(error);
+      relayDebugLog("app_server.shared_socket.attach_failed", {
+        message: attachError.message,
+        socketPath: sharedCodexAppServerSocketPath(),
+      });
+      if (this.sharedServer) {
+        throw attachError;
+      }
+    }
+
+    const sharedServer = await this.startSharedServer();
+    this.sharedServer = sharedServer;
+    this.observeSharedCodexAppServer(sharedServer);
+    relayDebugLog("app_server.shared_process.started", {
+      ownership: "relay-owned",
+      socketPath: sharedCodexAppServerSocketPath(),
+    });
+    try {
+      await this.connectSharedCodexAppServer();
+    } catch (error) {
+      if (this.sharedServer === sharedServer) {
+        sharedServer.kill();
+        this.sharedServer = undefined;
+      }
+      throw error;
+    }
+  }
+
+  private observeSharedCodexAppServer(sharedServer: ChildProcessWithoutNullStreams) {
+    sharedServer.on("error", (error) => {
+      relayDebugLog("app_server.shared_process.error", {
+        message: error.message,
+        ownership: "relay-owned",
+      });
+      if (this.sharedServer === sharedServer) {
+        this.sharedServer = undefined;
+      }
+    });
+    sharedServer.once("exit", (code, signal) => {
+      if (this.sharedServer !== sharedServer) {
+        return;
+      }
+      this.sharedServer = undefined;
+      const error = new Error(`Codex shared app-server exited with ${signal ?? code ?? 1}.`);
+      relayDebugLog("app_server.shared_process.exited", {
+        message: error.message,
+        ownership: "relay-owned",
+      });
+      if (this.socket) {
+        this.handleSharedSocketFailure(this.socket, error);
+      }
+    });
+  }
+
   private async connectSharedCodexAppServer() {
     const socket = new WebSocket(`ws+unix://${sharedCodexAppServerSocketPath()}:/`, {
       perMessageDeflate: false,
     });
     this.socket = socket;
-    await new Promise<void>((resolve, reject) => {
-      const handleOpen = () => {
-        socket.off("error", handleInitialError);
-        resolve();
-      };
-      const handleInitialError = (error: Error) => {
-        socket.off("open", handleOpen);
-        reject(error);
-      };
-      socket.once("open", handleOpen);
-      socket.once("error", handleInitialError);
-    });
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const handleOpen = () => {
+          socket.off("error", handleInitialError);
+          resolve();
+        };
+        const handleInitialError = (error: Error) => {
+          socket.off("open", handleOpen);
+          reject(error);
+        };
+        socket.once("open", handleOpen);
+        socket.once("error", handleInitialError);
+      });
+    } catch (error) {
+      if (this.socket === socket) {
+        this.socket = undefined;
+      }
+      socket.close();
+      throw error;
+    }
     socket.on("message", (data) => this.handleLine(String(data)));
-    socket.on("error", (error) => this.rejectAll(error));
+    socket.on("error", (error) => this.handleSharedSocketFailure(socket, error));
     socket.once("close", (code, reason) => {
-      this.rejectAll(
+      this.handleSharedSocketFailure(
+        socket,
         new Error(
           `Codex app-server socket closed with ${code}${reason.length > 0 ? `: ${String(reason)}` : "."}`,
         ),
       );
-      this.socket = undefined;
-      this.sharedServer?.kill();
-      this.sharedServer = undefined;
-      this.initialized = undefined;
     });
+    relayDebugLog("app_server.shared_socket.connected", {
+      ownership: this.sharedAppServerOwnership(),
+      socketPath: sharedCodexAppServerSocketPath(),
+    });
+  }
+
+  private handleSharedSocketFailure(socket: WebSocket, error: Error) {
+    if (this.socket !== socket) {
+      return;
+    }
+    this.socket = undefined;
+    this.rejectAll(error);
+    this.initialized = undefined;
+    relayDebugLog("app_server.shared_socket.disconnected", {
+      message: error.message,
+      ownership: this.sharedAppServerOwnership(),
+    });
+    this.scheduleSharedSocketReconnect();
+  }
+
+  private sharedAppServerOwnership(): SharedAppServerOwnership {
+    return this.sharedServer ? "relay-owned" : "attached";
+  }
+
+  private scheduleSharedSocketReconnect() {
+    if (this.closed || this.reconnecting) {
+      return;
+    }
+    const reconnecting = this.reconnectSharedCodexAppServer();
+    this.reconnecting = reconnecting;
+    this.initialized = reconnecting;
+    void reconnecting.then(
+      () => {
+        if (this.reconnecting === reconnecting) {
+          this.reconnecting = undefined;
+        }
+      },
+      (error: unknown) => {
+        const reconnectError = asError(error);
+        relayDebugLog("app_server.shared_socket.reconnect_failed", {
+          message: reconnectError.message,
+          ownership: this.sharedAppServerOwnership(),
+        });
+        if (this.initialized === reconnecting) {
+          this.initialized = undefined;
+        }
+        if (this.reconnecting === reconnecting) {
+          this.reconnecting = undefined;
+        }
+      },
+    );
+  }
+
+  private async reconnectSharedCodexAppServer() {
+    let lastError: Error | undefined;
+    for (const delayMs of sharedSocketReconnectDelaysMs) {
+      await setTimeout(delayMs);
+      if (this.closed) {
+        return;
+      }
+      try {
+        await this.connectSharedCodexAppServer();
+        await this.initializeAppServer();
+        relayDebugLog("app_server.shared_socket.reconnected", {
+          ownership: this.sharedAppServerOwnership(),
+          socketPath: sharedCodexAppServerSocketPath(),
+        });
+        return;
+      } catch (error) {
+        lastError = asError(error);
+        const socket = this.socket;
+        this.socket = undefined;
+        socket?.close();
+        relayDebugLog("app_server.shared_socket.reconnect_retry", {
+          delayMs,
+          message: lastError.message,
+          ownership: this.sharedAppServerOwnership(),
+        });
+      }
+    }
+    throw lastError ?? new Error("Unable to reconnect to the shared Codex app-server.");
   }
 
   private requestRaw<T>(method: string, params: unknown): Promise<T> {
@@ -622,6 +807,10 @@ function sharedCodexAppServerSocketPath() {
     "app-server-control",
     "app-server-control.sock",
   );
+}
+
+function asError(error: unknown) {
+  return error instanceof Error ? error : new Error(String(error));
 }
 
 function debugAppServer(kind: string, method: string | undefined, id?: number, detail?: string) {
