@@ -78,12 +78,17 @@ describe("Codex app-server spawn resolution", () => {
     );
   });
 
-  it("rejects shared socket mode on native Windows", () => {
-    expect(() =>
+  it("listens on a loopback WebSocket in shared mode on native Windows", () => {
+    expect(
       resolveCodexSharedAppServerSpawn({
         env: { CODEX_RELAY_APP_SERVER_MODE: "socket" },
         platform: "win32",
       }),
-    ).toThrow("requires macOS, Linux, or WSL");
+    ).toEqual({
+      command: "codex",
+      args: ["app-server", "--listen", "ws://127.0.0.1:8788"],
+      shell: true,
+      windowsHide: true,
+    });
   });
 });
