@@ -18,11 +18,15 @@
     "format": "oxfmt . --write",
     "format:check": "oxfmt . --check",
     "build": "pnpm -r --if-present build",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter codex-relay test",
     "test:live:mobile-stream": "CODEX_RELAY_LIVE_APP_SERVER_TEST=1 pnpm --filter codex-relay test -- live-mobile-stream-contract.test.ts"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "node-addon-api": "^8.7.0",
     "node-gyp": "^12.3.0",
     "oxfmt": "^0.47.0",

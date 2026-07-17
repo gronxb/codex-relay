@@ -159,6 +159,16 @@ Before opening a connection issue, confirm the network checklist in the issue
 template. Most pairing failures happen because the phone cannot reach the relay
 URL printed by the computer.
 
+Changes to the published `codex-relay` package should include a changeset:
+
+```sh
+pnpm changeset
+```
+
+Commit the generated file with the change. The release workflow maintains a
+release pull request and publishes it after that pull request is merged. See
+[the Changesets guide](./.changeset/README.md) for the release process.
+
 ## Common Commands
 
 | Command                                      | What it does                                        |
