@@ -8,7 +8,10 @@ import qrcode from "qrcode-terminal";
 
 import { createApp } from "./app.js";
 import { CodexAppServerClient } from "./app-server.js";
-import { resolveCodexAppServerMode } from "./codex-binary.js";
+import {
+  resolveCodexAppServerMode,
+  resolveCodexSharedAppServerRemoteAddress,
+} from "./codex-binary.js";
 import { isRelayDebugEnabled, relayDebugLog } from "./debug-log.js";
 import {
   createPairingQrPayload,
@@ -163,7 +166,8 @@ serve(
         listenUrl,
         pairingPayload,
         port: info.port,
-        sharedAppServer: appServerMode === "socket",
+        sharedAppServerRemoteAddress:
+          appServerMode === "socket" ? resolveCodexSharedAppServerRemoteAddress() : undefined,
       }),
     );
   },
@@ -181,7 +185,7 @@ function formatStartupInstructions(details: {
   listenUrl: string;
   pairingPayload: string;
   port: number;
-  sharedAppServer: boolean;
+  sharedAppServerRemoteAddress?: string;
 }) {
   const lines = [
     `${color.prompt("›")} Scan the QR code above to pair ${color.brand("Codex Relay mobile")}.`,
@@ -192,10 +196,10 @@ function formatStartupInstructions(details: {
     `${color.prompt("›")} Server: ${color.muted(details.listenUrl)}`,
     "",
     `${color.prompt("›")} Pairing: ${color.url(details.pairingPayload)}`,
-    ...(details.sharedAppServer
+    ...(details.sharedAppServerRemoteAddress
       ? [
           "",
-          `${color.prompt("›")} Terminal: ${color.command("codex resume --remote unix://")}`,
+          `${color.prompt("›")} Terminal: ${color.command(`codex resume --remote ${details.sharedAppServerRemoteAddress}`)}`,
           `  ${color.muted("Connect through the shared Codex app-server to follow and steer the same live sessions.")}`,
         ]
       : []),

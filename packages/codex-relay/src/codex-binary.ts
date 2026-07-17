@@ -2,7 +2,7 @@ import { platform as currentPlatform } from "node:os";
 import { extname } from "node:path";
 
 const stdioAppServerArgs = ["app-server", "--listen", "stdio://"] as const;
-const sharedServerArgs = ["app-server", "--listen", "unix://"] as const;
+const sharedWindowsServerUrl = "ws://127.0.0.1:8788";
 const windowsShellExtensions = new Set([".bat", ".cmd"]);
 
 type CodexSpawnPlatform = NodeJS.Platform;
@@ -56,22 +56,21 @@ export function resolveCodexSharedAppServerSpawn(
   input: CodexAppServerSpawnInput = {},
 ): CodexAppServerSpawn {
   const platform = input.platform ?? currentPlatform();
-  assertAppServerModeSupported("socket", platform);
   const command = resolveCodexBinary(input.env ?? process.env);
   const isWindows = platform === "win32";
 
   return {
     command,
-    args: [...sharedServerArgs],
+    args: ["app-server", "--listen", resolveCodexSharedAppServerRemoteAddress(platform)],
     shell: isWindows && shouldUseWindowsShell(command),
     windowsHide: isWindows,
   };
 }
 
-function assertAppServerModeSupported(mode: CodexAppServerMode, platform: CodexSpawnPlatform) {
-  if (mode === "socket" && platform === "win32") {
-    throw new Error("Shared Codex app-server mode requires macOS, Linux, or WSL.");
-  }
+export function resolveCodexSharedAppServerRemoteAddress(
+  platform: CodexSpawnPlatform = currentPlatform(),
+) {
+  return platform === "win32" ? sharedWindowsServerUrl : "unix://";
 }
 
 function resolveCodexBinary(env: NodeJS.ProcessEnv) {

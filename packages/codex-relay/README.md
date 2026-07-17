@@ -32,7 +32,7 @@ After approval, the phone can list Codex threads, start new work, stream message
 
 By default, Codex Relay starts a private app-server process. A terminal TUI that was started separately can resume the same saved thread, but it does not receive the relay process's live events.
 
-On macOS, Linux, or WSL, opt in to Codex's shared app-server socket:
+Opt in to Codex's shared app-server:
 
 ```sh
 npx codex-relay@latest --shared-app-server
@@ -40,21 +40,23 @@ npx codex-relay@latest --shared-app-server
 
 When a shared app-server is already running, the relay attaches to it instead of starting another one. If the relay's own socket connection resets, it reconnects without deliberately stopping the shared app-server.
 
-Then connect a new terminal TUI to the shared app-server socket:
+Then connect a new terminal TUI to the shared app-server. On macOS, Linux, or WSL:
 
 ```sh
 codex resume --remote unix://
 ```
 
-Pass a thread ID after `unix://` to open a specific thread. The relay prints the attach command at startup. Mobile and the connected terminal can then observe the same live sessions through one socket-backed app-server. An already-running standalone TUI cannot be converted in place; exit it and reconnect with `--remote`.
+On native Windows, use the loopback WebSocket endpoint:
 
-Shared mode uses Codex's experimental app-server transport. A directly connected terminal TUI has its own WebSocket connection, which the relay cannot observe or reconnect. If that terminal reports a socket reset while the thread continues on mobile, reconnect it with:
-
-```sh
-codex resume --remote unix:// <thread-id>
+```powershell
+codex resume --remote ws://127.0.0.1:8788
 ```
 
-Shared mode requires a recent Codex CLI with Unix-socket app-server and `resume --remote` support. If those features are unavailable, update Codex or omit `--shared-app-server` to keep the existing private mode. Native Windows is not currently supported; use WSL or private mode there.
+Pass a thread ID after the remote endpoint to open a specific thread. The relay prints the attach command at startup. Mobile and the connected terminal can then observe the same live sessions through one socket-backed app-server. An already-running standalone TUI cannot be converted in place; exit it and reconnect with `--remote`.
+
+Shared mode uses Codex's experimental app-server transport. A directly connected terminal TUI has its own WebSocket connection, which the relay cannot observe or reconnect. If that terminal reports a socket reset while the thread continues on mobile, reconnect it with the matching remote endpoint above and append the thread ID if needed.
+
+Shared mode requires a recent Codex CLI with app-server and `resume --remote` support. It uses a Unix socket on macOS, Linux, and WSL, or a loopback-only WebSocket on Windows. If those features are unavailable, update Codex or omit `--shared-app-server` to keep the existing private mode.
 
 ## Background Mode
 
