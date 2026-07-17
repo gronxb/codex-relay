@@ -98,10 +98,9 @@ The default relay uses its own Codex app-server process. To make mobile and a te
 npx codex-relay@latest --shared-app-server
 ```
 
-Then attach a new terminal TUI. On macOS, Linux, or WSL:
 When a shared app-server is already running, the relay attaches to it instead of starting another one. If the relay's own socket connection resets, it reconnects without deliberately stopping the shared app-server.
 
-Then attach a new terminal TUI:
+Then attach a new terminal TUI. On macOS, Linux, or WSL:
 
 ```sh
 codex resume --remote unix://
@@ -115,11 +114,7 @@ codex resume --remote ws://127.0.0.1:8788
 
 An already-running standalone TUI cannot be converted in place. Exit it and reconnect with `--remote`. Shared mode requires a recent Codex CLI with app-server and remote-resume support. It uses a Unix socket on macOS, Linux, and WSL, or a loopback-only WebSocket on Windows.
 
-Shared mode uses Codex's experimental app-server transport. A directly connected terminal TUI has its own WebSocket connection, which the relay cannot observe or reconnect. If that terminal reports a socket reset while the thread continues on mobile, reconnect it with:
-
-```sh
-codex resume --remote unix:// <thread-id>
-```
+Shared mode uses Codex's experimental app-server transport. A directly connected terminal TUI has its own WebSocket connection, which the relay cannot observe or reconnect. If that terminal reports a socket reset while the thread continues on mobile, reconnect it with the matching remote endpoint above and append the thread ID if needed.
 
 ## Network Setup
 
