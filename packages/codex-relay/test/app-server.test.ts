@@ -5,7 +5,12 @@ import { dirname, join } from "node:path";
 import { WebSocketServer, type WebSocket } from "ws";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("../src/debug-log.js", () => ({
+  relayDebugLog: vi.fn<(event: string, fields?: Record<string, unknown>) => void>(),
+}));
+
 import { CodexAppServerClient } from "../src/app-server.js";
+import { relayDebugLog } from "../src/debug-log.js";
 
 type JsonRpcRequest = {
   id: number;
@@ -20,6 +25,7 @@ type SharedSocketServer = {
 
 describe("CodexAppServerClient shared socket mode", () => {
   afterEach(() => {
+    vi.clearAllMocks();
     vi.unstubAllEnvs();
   });
 
@@ -38,6 +44,14 @@ describe("CodexAppServerClient shared socket mode", () => {
       await client.initialize();
       expect(server.connections).toHaveLength(1);
       expect(startSharedServer).not.toHaveBeenCalled();
+      expect(relayDebugLog).toHaveBeenCalledWith("app_server.shared_socket.connected", {
+        ownership: "attached",
+        socketPath,
+      });
+      expect(relayDebugLog).toHaveBeenCalledWith("app_server.shared_socket.attached", {
+        ownership: "attached",
+        socketPath,
+      });
 
       server.connections[0]?.terminate();
 
@@ -50,6 +64,14 @@ describe("CodexAppServerClient shared socket mode", () => {
       await expect(client.listModels()).resolves.toEqual([]);
       expect(server.requests.filter((request) => request.method === "initialize")).toHaveLength(2);
       expect(startSharedServer).not.toHaveBeenCalled();
+      expect(relayDebugLog).toHaveBeenCalledWith(
+        "app_server.shared_socket.disconnected",
+        expect.objectContaining({ ownership: "attached" }),
+      );
+      expect(relayDebugLog).toHaveBeenCalledWith("app_server.shared_socket.reconnected", {
+        ownership: "attached",
+        socketPath,
+      });
     } finally {
       client.close();
       await server.close();
