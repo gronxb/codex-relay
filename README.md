@@ -98,6 +98,8 @@ The default relay uses its own Codex app-server process. To make mobile and a te
 npx codex-relay@latest --shared-app-server
 ```
 
+When a shared app-server is already running, the relay attaches to it instead of starting another one. If the relay's own socket connection resets, it reconnects without stopping the shared app-server or other connected clients.
+
 Then attach a new terminal TUI:
 
 ```sh

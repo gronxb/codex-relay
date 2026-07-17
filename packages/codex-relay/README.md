@@ -38,6 +38,8 @@ On macOS, Linux, or WSL, opt in to Codex's shared app-server socket:
 npx codex-relay@latest --shared-app-server
 ```
 
+When a shared app-server is already running, the relay attaches to it instead of starting another one. If the relay's own socket connection resets, it reconnects without stopping the shared app-server or other connected clients.
+
 Then connect a new terminal TUI to the shared app-server socket:
 
 ```sh
