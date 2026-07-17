@@ -1,5 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { access } from "node:fs/promises";
+import { connect } from "node:net";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createInterface, type Interface } from "node:readline";
@@ -9,6 +10,7 @@ import WebSocket from "ws";
 import {
   resolveCodexAppServerMode,
   resolveCodexAppServerSpawn,
+  resolveCodexSharedAppServerRemoteAddress,
   resolveCodexSharedAppServerSpawn,
 } from "./codex-binary.js";
 
@@ -438,9 +440,15 @@ export class CodexAppServerClient {
   }
 
   private async connectSharedCodexAppServer() {
-    const socket = new WebSocket(`ws+unix://${sharedCodexAppServerSocketPath()}:/`, {
-      perMessageDeflate: false,
-    });
+    const remoteAddress = resolveCodexSharedAppServerRemoteAddress();
+    const socket = new WebSocket(
+      remoteAddress === "unix://"
+        ? `ws+unix://${sharedCodexAppServerSocketPath()}:/`
+        : remoteAddress,
+      {
+        perMessageDeflate: false,
+      },
+    );
     this.socket = socket;
     await new Promise<void>((resolve, reject) => {
       const handleOpen = () => {
@@ -593,13 +601,13 @@ async function startSharedCodexAppServer() {
     exitReason = signal ?? code ?? 1;
   });
 
-  const socketPath = sharedCodexAppServerSocketPath();
+  const remoteAddress = resolveCodexSharedAppServerRemoteAddress();
   for (let attempt = 0; attempt < 100; attempt += 1) {
     if (spawnError) {
       throw new Error(`Failed to start the shared Codex app-server: ${spawnError.message}`);
     }
     try {
-      await access(socketPath);
+      await waitForSharedCodexAppServer(remoteAddress);
       return child;
     } catch {
       if (exitReason !== undefined) {
@@ -613,7 +621,26 @@ async function startSharedCodexAppServer() {
   }
 
   child.kill();
-  throw new Error(`Timed out waiting for the shared Codex app-server socket at ${socketPath}.`);
+  throw new Error(`Timed out waiting for the shared Codex app-server at ${remoteAddress}.`);
+}
+
+async function waitForSharedCodexAppServer(remoteAddress: string) {
+  if (remoteAddress === "unix://") {
+    await access(sharedCodexAppServerSocketPath());
+    return;
+  }
+
+  const url = new URL(remoteAddress);
+  await new Promise<void>((resolve, reject) => {
+    const socket = connect({ host: url.hostname, port: Number(url.port) });
+    const onError = (error: Error) => reject(error);
+    socket.once("error", onError);
+    socket.once("connect", () => {
+      socket.off("error", onError);
+      socket.destroy();
+      resolve();
+    });
+  });
 }
 
 function sharedCodexAppServerSocketPath() {
