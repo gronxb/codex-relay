@@ -1276,6 +1276,10 @@ describe("Codex Relay server routes", () => {
       });
       handler({
         method: "turn/completed",
+        params: { status: "completed", threadId: "agent-thread-1", turnId: "agent-turn-1" },
+      });
+      handler({
+        method: "turn/completed",
         params: { status: "completed", threadId: "thread-1", turnId: "turn-1" },
       });
       handler({

@@ -7264,14 +7264,18 @@ function observeAppServerPushNotifications(
   dispatcher: PushNotificationDispatcher,
 ) {
   const dispatchedEventIds = new Set<string>();
-  const dispatch = (event: PushNotificationEvent, eventId: string) => {
-    if (dispatchedEventIds.has(eventId)) {
-      return;
-    }
+  const subagentThreadIds = new Set<string>();
+  const rememberEventId = (eventId: string) => {
     if (dispatchedEventIds.size >= 1000) {
       dispatchedEventIds.clear();
     }
     dispatchedEventIds.add(eventId);
+  };
+  const dispatch = (event: PushNotificationEvent, eventId: string) => {
+    if (dispatchedEventIds.has(eventId)) {
+      return;
+    }
+    rememberEventId(eventId);
     void dispatcher.dispatch(event).catch((error) => {
       relayDebugLog("push_notification.dispatch_failed", {
         error: errorMessage(error),
@@ -7283,11 +7287,17 @@ function observeAppServerPushNotifications(
   };
 
   appServer.onNotification((notification) => {
+    rememberSubagentThreadIds(notification, subagentThreadIds);
     const event = pushNotificationEventFromTerminalNotification(notification);
     if (!event) {
       return;
     }
-    dispatch(event, `${event.intent}:${event.threadId}:${event.turnId ?? ""}`);
+    const eventId = `${event.intent}:${event.threadId}:${event.turnId ?? ""}`;
+    if (subagentThreadIds.delete(event.threadId)) {
+      rememberEventId(eventId);
+      return;
+    }
+    dispatch(event, eventId);
   });
 
   appServer.onRequest((request) => {
@@ -7297,6 +7307,23 @@ function observeAppServerPushNotifications(
     }
     dispatch(event, `${event.intent}:${event.threadId}:${event.turnId ?? ""}:${request.id}`);
   });
+}
+
+function rememberSubagentThreadIds(
+  notification: AppServerNotification,
+  subagentThreadIds: Set<string>,
+) {
+  const item = objectRecord(recordParams(notification)?.item);
+  if (
+    item?.type !== "collabAgentToolCall" ||
+    !["spawnAgent", "sendInput", "resumeAgent"].includes(String(item.tool))
+  ) {
+    return;
+  }
+
+  for (const threadId of stringArray(item.receiverThreadIds)) {
+    subagentThreadIds.add(threadId);
+  }
 }
 
 function pushNotificationEventFromTerminalNotification(notification: AppServerNotification) {
