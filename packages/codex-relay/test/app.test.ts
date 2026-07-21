@@ -1252,6 +1252,29 @@ describe("Codex Relay server routes", () => {
 
     for (const handler of notificationHandlers) {
       handler({
+        method: "item/completed",
+        params: {
+          item: {
+            agentsStates: {},
+            id: "spawn-agent",
+            model: null,
+            prompt: null,
+            reasoningEffort: null,
+            receiverThreadIds: ["agent-thread-1"],
+            senderThreadId: "thread-1",
+            status: "completed",
+            tool: "spawnAgent",
+            type: "collabAgentToolCall",
+          },
+          threadId: "thread-1",
+          turnId: "turn-1",
+        },
+      });
+      handler({
+        method: "turn/completed",
+        params: { status: "completed", threadId: "agent-thread-1", turnId: "agent-turn-1" },
+      });
+      handler({
         method: "turn/completed",
         params: { status: "completed", threadId: "thread-1", turnId: "turn-1" },
       });
