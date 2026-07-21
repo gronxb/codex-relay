@@ -6,6 +6,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Fonts } from "@/constants/theme";
+import { workspaceName } from "@/lib/workspace-name";
 
 const tailscaleAppStoreUrl = "https://apps.apple.com/us/app/tailscale/id1470499037";
 
@@ -225,14 +226,6 @@ function PairingStep({
       </View>
     </View>
   );
-}
-
-function workspaceName(workspacePath: string | undefined) {
-  if (!workspacePath) {
-    return undefined;
-  }
-  const parts = workspacePath.split("/").filter(Boolean);
-  return parts.at(-1);
 }
 
 function compactServer(serverUrl: string) {

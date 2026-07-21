@@ -24,6 +24,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text as UiText } from "@/components/ui/text";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { hapticSelection } from "@/lib/haptics";
+import { workspaceName } from "@/lib/workspace-name";
 
 import { HighlightedCodeBlock } from "../MessageBubble";
 
@@ -770,8 +771,7 @@ function errorMessage(error: unknown) {
 }
 
 function workspaceDisplayName(workspacePath: string) {
-  const parts = workspacePath.split("/").filter(Boolean);
-  return parts.at(-1) ?? workspacePath;
+  return workspaceName(workspacePath) ?? workspacePath;
 }
 
 const gitPreviewLayoutTransition = LinearTransition.duration(180);

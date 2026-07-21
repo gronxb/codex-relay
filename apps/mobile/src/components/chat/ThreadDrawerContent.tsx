@@ -53,6 +53,7 @@ import {
   setThreadsState,
 } from "@/lib/server-state";
 import { evaluateRelayVersion, type RelayVersionCompatibility } from "@/lib/version-policy";
+import { workspaceName } from "@/lib/workspace-name";
 import {
   chatStore$,
   requestThreadStreamReconnect,
@@ -395,7 +396,6 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
           data={rows}
           drawDistance={drawerListDrawDistance}
           estimatedItemSize={drawerRowEstimatedSize}
-          getFixedItemSize={getEstimatedDrawerRowSize}
           keyboardShouldPersistTaps="handled"
           keyExtractor={(item) => item.id}
           ListEmptyComponent={emptyList}
@@ -776,9 +776,7 @@ const DrawerRowItem = memo(function DrawerRowItem({
         <View style={styles.rowIconSlot}>
           <Icon name="folder" size={15} tintColor={theme.textSecondary} />
         </View>
-        <Text style={styles.projectTitle} numberOfLines={1}>
-          {item.title}
-        </Text>
+        <Text style={styles.projectTitle}>{item.title}</Text>
         <View style={styles.projectActions}>
           <Button
             accessibilityLabel={`Create new chat in ${item.title}`}
@@ -836,9 +834,7 @@ const DrawerRowItem = memo(function DrawerRowItem({
               )}
             </View>
             <View style={[styles.threadContent, pressed && styles.drawerPressedContent]}>
-              <Text style={styles.threadTitle} numberOfLines={1}>
-                {item.thread.title}
-              </Text>
+              <Text style={styles.threadTitle}>{item.thread.title}</Text>
               <Text style={styles.threadTime} numberOfLines={1}>
                 {formatRelativeTime(item.thread.lastActivityAt ?? item.thread.updatedAt)}
               </Text>
@@ -1088,7 +1084,7 @@ function WorkspaceBrowserModal({
               </Pressable>
               <View style={styles.workspaceLocation}>
                 <Text style={styles.workspaceLocationTitle} numberOfLines={1}>
-                  {projectName(currentBrowserPath)}
+                  {workspaceName(currentBrowserPath) ?? "codex-relay"}
                 </Text>
                 <Text style={styles.workspaceLocationPath} numberOfLines={1}>
                   {currentBrowserPath ?? "codex-relay"}
@@ -1133,7 +1129,7 @@ function WorkspaceBrowserModal({
               onPress={() => void onCreateThread(currentBrowserPath)}
               selected
               title="New Chat Here"
-              subtitle={projectName(currentBrowserPath)}
+              subtitle={workspaceName(currentBrowserPath) ?? "codex-relay"}
             />
           </View>
         </View>
@@ -1275,7 +1271,7 @@ function buildDrawerRows(
   >();
 
   for (const thread of threads) {
-    const title = projectName(thread.cwd);
+    const title = workspaceName(thread.cwd) ?? "codex-relay";
     const key = thread.cwd ?? title;
     const group = groups.get(key);
     if (group) {
@@ -1359,10 +1355,6 @@ function indexThreadsById(threads: ThreadSummary[]) {
   return threadsById;
 }
 
-function getEstimatedDrawerRowSize(row: DrawerRow) {
-  return row.kind === "thread" ? 44 : 32;
-}
-
 function getDrawerStatus(state: ThreadDrawerContentProps["state"]) {
   const drawerHistoryEntry = state.history.find(
     (entry): entry is { status: "closed" | "open"; type: "drawer" } => entry.type === "drawer",
@@ -1415,15 +1407,6 @@ function threadMatchesSearch(thread: ThreadSummary, normalizedQuery: string) {
 
 function normalizeSearchValue(value: string | undefined) {
   return (value ?? "").trim().toLocaleLowerCase();
-}
-
-function projectName(cwd: string | undefined) {
-  if (!cwd) {
-    return "codex-relay";
-  }
-
-  const parts = cwd.split("/").filter(Boolean);
-  return parts.at(-1) ?? cwd;
 }
 
 function formatRelativeTime(value: string) {
@@ -1617,11 +1600,13 @@ const styles = StyleSheet.create({
   projectHeader: {
     alignItems: "center",
     flexDirection: "row",
-    height: 32,
+    minHeight: 32,
     paddingRight: 2,
+    paddingVertical: 4,
   },
   projectTitle: {
     flex: 1,
+    flexShrink: 1,
     fontSize: 12,
     fontWeight: "500",
     lineHeight: 16,
