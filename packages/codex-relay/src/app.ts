@@ -325,6 +325,7 @@ export function createApp(options: AppOptions = {}) {
   const pendingApprovals = new Map<string, PendingApproval>();
   const resolvedApprovals = new Map<string, ResolvedApproval>();
   const queuedInputsByThreadId = new Map<string, QueuedThreadInput[]>();
+  const threadOperationTails = new Map<string, Promise<void>>();
   const workspaceTerminalSessions = new Map<string, WorkspaceTerminalSession>();
   const activeAppServerTurnIdsByThreadId = new Map<string, string>();
   const appServerHistoryLoadsByThreadId = new Map<string, Promise<void>>();
@@ -332,6 +333,21 @@ export function createApp(options: AppOptions = {}) {
   const secureSessionsByTokenHash = new Map<string, SecureSession>();
   const activeStreamControllers = new Set<ReadableStreamDefaultController<Uint8Array>>();
   const threadOptions = { workingDirectory: workspacePath };
+  function runThreadOperation<T>(threadId: string, operation: () => Promise<T>) {
+    const previous = threadOperationTails.get(threadId) ?? Promise.resolve();
+    const result = previous.then(operation, operation);
+    const tail = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    threadOperationTails.set(threadId, tail);
+    void tail.finally(() => {
+      if (threadOperationTails.get(threadId) === tail) {
+        threadOperationTails.delete(threadId);
+      }
+    });
+    return result;
+  }
   const pushNotificationDispatcher = options.pairing
     ? createPushNotificationDispatcher({
         sender: options.pushNotificationSender ?? createExpoPushNotificationSender(),
@@ -2332,87 +2348,89 @@ export function createApp(options: AppOptions = {}) {
 
   app.post("/v1/threads/:threadId/input", async (c) => {
     const threadId = c.req.param("threadId");
-    const knownThread = await ensureKnownThread({
-      appServer,
-      threadId,
-      messagesByThreadId,
-      threads,
-    });
-    if (!knownThread) {
-      return secureJson(
-        c,
-        options.pairing,
-        secureSessionsByTokenHash,
-        apiError("not_found", `Thread ${threadId} is not known to this server.`),
-        404,
-      );
-    }
-    if (!appServer) {
-      return secureJson(
-        c,
-        options.pairing,
-        secureSessionsByTokenHash,
-        apiError("unsupported", "Running-thread input requires the Codex app-server."),
-        409,
-      );
-    }
-    if (knownThread.state !== "running") {
-      return secureJson(
-        c,
-        options.pairing,
-        secureSessionsByTokenHash,
-        apiError("thread_not_running", `Thread ${threadId} is not currently running.`),
-        409,
-      );
-    }
+    return runThreadOperation(threadId, async () => {
+      const knownThread = await ensureKnownThread({
+        appServer,
+        threadId,
+        messagesByThreadId,
+        threads,
+      });
+      if (!knownThread) {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          apiError("not_found", `Thread ${threadId} is not known to this server.`),
+          404,
+        );
+      }
+      if (!appServer) {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          apiError("unsupported", "Running-thread input requires the Codex app-server."),
+          409,
+        );
+      }
+      if (knownThread.state !== "running") {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          apiError("thread_not_running", `Thread ${threadId} is not currently running.`),
+          409,
+        );
+      }
 
-    const parsed = await parseRequestJson(
-      c,
-      options.pairing,
-      secureSessionsByTokenHash,
-      RunThreadRequestSchema,
-    );
-    if (!parsed.success) {
-      return secureJson(
+      const parsed = await parseRequestJson(
         c,
         options.pairing,
         secureSessionsByTokenHash,
-        validationError(parsed.error),
-        400,
+        RunThreadRequestSchema,
       );
-    }
+      if (!parsed.success) {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          validationError(parsed.error),
+          400,
+        );
+      }
 
-    const runOptions = withRuntimePreferences(
-      await preferences.read(knownThread.cwd ?? workspacePath),
-      parsed.data,
-    );
-    const skills = runOptions.skills ?? [];
-    const prompt = runOptions.prompt;
-    const queuedInputs = queuedInputsByThreadId.get(threadId) ?? [];
-    const queuedInput: QueuedThreadInput = {
-      attachments: runOptions.attachments ?? [],
-      id: randomUUID(),
-      prompt,
-      runOptions,
-      skills,
-      workspacePath: knownThread.cwd ?? workspacePath,
-    };
-    queuedInputs.push(queuedInput);
-    queuedInputsByThreadId.set(threadId, queuedInputs);
+      const runOptions = withRuntimePreferences(
+        await preferences.read(knownThread.cwd ?? workspacePath),
+        parsed.data,
+      );
+      const skills = runOptions.skills ?? [];
+      const prompt = runOptions.prompt;
+      const queuedInputs = queuedInputsByThreadId.get(threadId) ?? [];
+      const queuedInput: QueuedThreadInput = {
+        attachments: runOptions.attachments ?? [],
+        id: randomUUID(),
+        prompt,
+        runOptions,
+        skills,
+        workspacePath: knownThread.cwd ?? workspacePath,
+      };
+      queuedInputs.push(queuedInput);
+      queuedInputsByThreadId.set(threadId, queuedInputs);
 
-    const thread = updateThread(threads, messagesByThreadId, threadId, {
-      state: "running",
-      lastPrompt: promptWithAttachmentReferences(prompt, runOptions.attachments ?? []),
-      lastError: undefined,
-      ...runtimeMetadataFromOptions(runOptions),
+      const thread = updateThread(threads, messagesByThreadId, threadId, {
+        state: "running",
+        lastPrompt: promptWithAttachmentReferences(prompt, runOptions.attachments ?? []),
+        lastError: undefined,
+        ...runtimeMetadataFromOptions(runOptions),
+      });
+      const response: SubmitThreadInputResponse = SubmitThreadInputResponseSchema.parse({
+        acceptedAs: "queued",
+        input: queuedThreadInputSummary(queuedInput),
+        queueLength: queuedInputsByThreadId.get(threadId)?.length ?? 0,
+        thread,
+      });
+      return secureJson(c, options.pairing, secureSessionsByTokenHash, response, 202);
     });
-    const response: SubmitThreadInputResponse = SubmitThreadInputResponseSchema.parse({
-      acceptedAs: "queued",
-      input: queuedThreadInputSummary(queuedInput),
-      queueLength: queuedInputsByThreadId.get(threadId)?.length ?? 0,
-      thread,
-    });
-    return secureJson(c, options.pairing, secureSessionsByTokenHash, response, 202);
   });
 
   app.delete("/v1/threads/:threadId/input/:inputId", async (c) => {
@@ -2734,6 +2752,7 @@ export function createApp(options: AppOptions = {}) {
           messagesByThreadId,
           pendingApprovals,
           queuedInputsByThreadId,
+          runThreadOperation,
           prompt,
           attachments: runOptions.attachments ?? [],
           secureSession,
@@ -3044,6 +3063,7 @@ async function runPromptStreamed(input: {
   messagesByThreadId: Map<string, ChatMessage[]>;
   pendingApprovals: Map<string, PendingApproval>;
   queuedInputsByThreadId: Map<string, QueuedThreadInput[]>;
+  runThreadOperation: <T>(threadId: string, operation: () => Promise<T>) => Promise<T>;
   prompt: string;
   secureSession?: SecureSessionHandle;
   steeringThreads: Set<string>;
@@ -3071,6 +3091,7 @@ async function runPromptStreamed(input: {
       messagesByThreadId: input.messagesByThreadId,
       pendingApprovals: input.pendingApprovals,
       queuedInputsByThreadId: input.queuedInputsByThreadId,
+      runThreadOperation: input.runThreadOperation,
       prompt: input.prompt,
       runOptions: input.runOptions,
       secureSession: input.secureSession,
@@ -3766,6 +3787,7 @@ async function runAppServerPromptStreamed(input: {
   messagesByThreadId: Map<string, ChatMessage[]>;
   pendingApprovals: Map<string, PendingApproval>;
   queuedInputsByThreadId: Map<string, QueuedThreadInput[]>;
+  runThreadOperation: <T>(threadId: string, operation: () => Promise<T>) => Promise<T>;
   prompt: string;
   runOptions: {
     model?: string;
@@ -4243,12 +4265,19 @@ async function runAppServerPromptStreamed(input: {
             const state = terminalTurnState(notification.method, params);
             const terminalTurnId =
               firstString(params, ["turnId"]) ?? turnIdFromParams(params) ?? activeTurnId;
-            finishTerminalTurn({
-              lastError: state === "failed" ? turnErrorMessage(params) : undefined,
-              method: notification.method,
-              state,
-              turnId: terminalTurnId,
-            });
+            void input
+              .runThreadOperation(activeThreadId, async () => {
+                finishTerminalTurn({
+                  lastError: state === "failed" ? turnErrorMessage(params) : undefined,
+                  method: notification.method,
+                  state,
+                  turnId: terminalTurnId,
+                });
+              })
+              .catch((error: unknown) => {
+                cleanupNotificationHandler();
+                rejectCompleted(error);
+              });
             return;
           }
         }
