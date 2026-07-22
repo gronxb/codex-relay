@@ -1911,31 +1911,6 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
     hapticWarning();
   }
 
-  async function createNewThread() {
-    if (isRunning) {
-      return;
-    }
-
-    const newThreadCollaborationMode = collaborationMode;
-    try {
-      const response = await createThreadMutation.mutateAsync({
-        title: "New chat",
-        collaborationMode: newThreadCollaborationMode,
-        workspacePath: activeWorkspacePath,
-      });
-      setThreadCollaborationMode(response.thread.id, newThreadCollaborationMode);
-      setThreadDetailState(queryClient, response.thread, response.messages);
-      setActiveThread(response.thread.id);
-      clearQueuedPrompts();
-      setQueuedInputsState(queryClient, response.thread.id, []);
-      setConnection("connected");
-      hapticSuccess();
-    } catch (caught) {
-      syncPairedSessionState();
-      setConnection("offline", errorMessage(caught));
-    }
-  }
-
   function currentRuntimePreferences(): RuntimePreferences {
     const thread = activeThread;
     const targetWorkspacePath = thread?.cwd ?? workspacePath;
@@ -2155,10 +2130,9 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   const chatTrailingActions: ChatShellAction[] = hasPairedSession
     ? [
         {
-          disabled: isRunning,
-          icon: "newThread",
-          label: "New thread",
-          onPress: createNewThread,
+          icon: "refresh",
+          label: "Refresh chat",
+          onPress: refresh,
         },
         {
           icon: usesWideLayout ? (isWidePreviewVisible ? "previewHide" : "preview") : "preview",
