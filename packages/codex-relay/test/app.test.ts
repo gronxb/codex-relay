@@ -14,7 +14,10 @@ import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
 import type { CodexClient, CodexThread } from "../src/codex.js";
 import { createTursoPairingSessionStore } from "../src/pairing-store.js";
-import { createFileRuntimePreferencesStore } from "../src/preferences-store.js";
+import {
+  createFileRuntimePreferencesStore,
+  type RuntimePreferencesStore,
+} from "../src/preferences-store.js";
 import type { PushNotificationSender, RelayPushNotification } from "../src/push-notifications.js";
 import { createServerIdentity } from "../src/secure-transport.js";
 
@@ -5336,6 +5339,121 @@ describe("Codex Relay server routes", () => {
     expect(body).not.toContain("thread.error");
     expect(body).toContain("recovered reply");
     expect(body).toContain('"id":"app-thread-stale"');
+  });
+
+  it("hands off queued input when the active turn completes during input submission", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    let delayQueuedPreferenceRead = false;
+    let releaseQueuedPreferenceRead: (() => void) | undefined;
+    const queuedPreferenceRead = new Promise<void>((resolve) => {
+      releaseQueuedPreferenceRead = resolve;
+    });
+    let signalQueuedPreferenceRead: (() => void) | undefined;
+    const queuedPreferenceReadStarted = new Promise<void>((resolve) => {
+      signalQueuedPreferenceRead = resolve;
+    });
+    const preferences: RuntimePreferencesStore = {
+      async read() {
+        if (delayQueuedPreferenceRead) {
+          signalQueuedPreferenceRead?.();
+          await queuedPreferenceRead;
+        }
+        return { runtimeMode: "default" };
+      },
+      async readByWorkspacePath() {
+        return {};
+      },
+      async update() {
+        return { runtimeMode: "default" };
+      },
+    };
+    const now = Date.now() / 1000;
+    let turnCount = 0;
+    const startTurn = vi.fn<(params: unknown) => Promise<unknown>>(async () => {
+      turnCount += 1;
+      return {
+        id: `turn-queue-race-${turnCount}`,
+        items: [],
+        status: "running",
+        startedAt: null,
+        completedAt: null,
+      };
+    });
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      startThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: "app-thread-queue-race",
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Queue race",
+        preview: "Queue race",
+        source: "app",
+        status: "idle",
+        turns: [],
+        updatedAt: now,
+      })),
+      startTurn,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      preferences,
+      workspacePath,
+    });
+
+    await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "Queue race" }),
+      headers: { "content-type": "application/json" },
+    });
+    const streamResponse = await app.request("/v1/threads/app-thread-queue-race/runs/stream", {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Initial run" }),
+      headers: { "content-type": "application/json" },
+    });
+    await waitUntil(() => expect(startTurn).toHaveBeenCalledTimes(1));
+
+    delayQueuedPreferenceRead = true;
+    const queuedResponse = app.request("/v1/threads/app-thread-queue-race/input", {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Queued after completion" }),
+      headers: { "content-type": "application/json" },
+    });
+    await queuedPreferenceReadStarted;
+    for (const handler of notificationHandlers) {
+      handler({
+        method: "turn/completed",
+        params: {
+          status: "completed",
+          threadId: "app-thread-queue-race",
+          turnId: "turn-queue-race-1",
+        },
+      });
+    }
+    releaseQueuedPreferenceRead?.();
+
+    await expect(queuedResponse).resolves.toHaveProperty("status", 202);
+    await waitUntil(() => expect(startTurn).toHaveBeenCalledTimes(2));
+
+    for (const handler of notificationHandlers) {
+      handler({
+        method: "turn/completed",
+        params: {
+          status: "completed",
+          threadId: "app-thread-queue-race",
+          turnId: "turn-queue-race-2",
+        },
+      });
+    }
+    expect(await streamResponse.text()).toContain("thread.state.changed");
   });
 
   it("queues additional running-thread input on the server", async () => {
