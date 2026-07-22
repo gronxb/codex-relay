@@ -1,5 +1,12 @@
 # codex-relay
 
+## 1.4.1
+
+### Patch Changes
+
+- 1df8e01: Start queued input when the active turn completes during queued-input submission.
+- cfb2b8c: Avoid turn-complete push notifications for spawned subagent threads.
+
 ## 1.4.0
 
 ### Minor Changes

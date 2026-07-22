@@ -1,6 +1,6 @@
 {
   "name": "@codex-relay/mobile",
-  "version": "1.0.0",
+  "version": "1.4.0-ship.1",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
