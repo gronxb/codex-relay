@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.2
+
+### Patch Changes
+
+- 1881c31: Wait longer for the shared Codex app-server to finish cold startup.
+
 ## 1.4.1
 
 ### Patch Changes
