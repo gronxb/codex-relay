@@ -11,6 +11,8 @@ import {
   resolveCodexAppServerSpawn,
   resolveCodexSharedAppServerRemoteAddress,
   resolveCodexSharedAppServerSpawn,
+  type CodexAppServerMode,
+  type CodexAppServerModeResolution,
 } from "./codex-binary.js";
 import { relayDebugLog } from "./debug-log.js";
 
@@ -34,7 +36,9 @@ type PendingRequest = {
 type SharedAppServerOwnership = "attached" | "relay-owned";
 
 export type CodexAppServerClientOptions = {
-  startSharedServer?: () => Promise<ChildProcessWithoutNullStreams>;
+  readonly mode?: CodexAppServerModeResolution;
+  readonly onStartupFallback?: (error: Error) => void;
+  readonly startSharedServer?: () => Promise<ChildProcessWithoutNullStreams>;
 };
 
 const sharedSocketReconnectDelaysMs = [50, 100, 250, 500, 1_000, 2_000] as const;
@@ -254,8 +258,10 @@ export type AppServerThreadGoalClearParams = {
 };
 
 export class CodexAppServerClient {
+  private activeMode: CodexAppServerMode;
   private child: ChildProcessWithoutNullStreams | undefined;
   private closed = false;
+  private fallbackToStdio: boolean;
   private initialized: Promise<void> | undefined;
   private notificationHandlers = new Set<(notification: AppServerNotification) => void>();
   private nextId = 1;
@@ -263,12 +269,22 @@ export class CodexAppServerClient {
   private reconnecting: Promise<void> | undefined;
   private requestHandlers = new Set<(request: AppServerRequest) => void>();
   private readline: Interface | undefined;
+  private sharedReconnectEnabled = false;
   private sharedServer: ChildProcessWithoutNullStreams | undefined;
   private socket: WebSocket | undefined;
-  private startSharedServer: () => Promise<ChildProcessWithoutNullStreams>;
+  private readonly onStartupFallback: ((error: Error) => void) | undefined;
+  private readonly startSharedServer: () => Promise<ChildProcessWithoutNullStreams>;
 
   constructor(options: CodexAppServerClientOptions = {}) {
+    const mode = options.mode ?? resolveCodexAppServerMode();
+    this.activeMode = mode.mode;
+    this.fallbackToStdio = mode.fallbackToStdio;
+    this.onStartupFallback = options.onStartupFallback;
     this.startSharedServer = options.startSharedServer ?? startSharedCodexAppServer;
+  }
+
+  get appServerMode() {
+    return this.activeMode;
   }
 
   initialize() {
@@ -373,15 +389,8 @@ export class CodexAppServerClient {
       pending.reject(new Error("Codex app-server was closed."));
     }
     this.pending.clear();
-    this.readline?.close();
-    this.child?.kill();
-    const socket = this.socket;
-    this.socket = undefined;
-    socket?.close();
-    this.sharedServer?.kill();
-    this.readline = undefined;
-    this.child = undefined;
-    this.sharedServer = undefined;
+    this.stopStdioCodexAppServer();
+    this.stopSharedCodexAppServer();
     this.initialized = undefined;
   }
 
@@ -416,18 +425,37 @@ export class CodexAppServerClient {
   }
 
   private async start() {
-    const mode = resolveCodexAppServerMode();
+    if (this.activeMode === "stdio") {
+      await this.startAndInitializeStdioCodexAppServer();
+      return;
+    }
+
     try {
-      if (mode === "socket") {
-        await this.startOrAttachSharedCodexAppServer();
-      } else {
-        this.startStdioCodexAppServer();
+      await this.startOrAttachSharedCodexAppServer();
+      await this.initializeAppServer();
+      this.fallbackToStdio = false;
+      this.sharedReconnectEnabled = true;
+    } catch (error) {
+      const sharedError = error instanceof Error ? error : new Error(String(error));
+      this.stopSharedCodexAppServer();
+      if (!this.fallbackToStdio) {
+        throw sharedError;
       }
+      this.activeMode = "stdio";
+      relayDebugLog("app_server.shared_socket.startup_fallback", {
+        message: sharedError.message,
+      });
+      this.onStartupFallback?.(sharedError);
+      await this.startAndInitializeStdioCodexAppServer();
+    }
+  }
+
+  private async startAndInitializeStdioCodexAppServer() {
+    try {
+      this.startStdioCodexAppServer();
       await this.initializeAppServer();
     } catch (error) {
-      if (mode === "stdio") {
-        this.stopStdioCodexAppServer();
-      }
+      this.stopStdioCodexAppServer();
       throw error;
     }
   }
@@ -474,6 +502,15 @@ export class CodexAppServerClient {
     this.child = undefined;
   }
 
+  private stopSharedCodexAppServer() {
+    this.sharedReconnectEnabled = false;
+    const socket = this.socket;
+    this.socket = undefined;
+    socket?.close();
+    this.sharedServer?.kill();
+    this.sharedServer = undefined;
+  }
+
   private async startOrAttachSharedCodexAppServer() {
     try {
       await this.connectSharedCodexAppServer();
@@ -483,7 +520,7 @@ export class CodexAppServerClient {
       });
       return;
     } catch (error) {
-      const attachError = asError(error);
+      const attachError = error instanceof Error ? error : new Error(String(error));
       relayDebugLog("app_server.shared_socket.attach_failed", {
         message: attachError.message,
         socketPath: sharedCodexAppServerSocketPath(),
@@ -603,7 +640,7 @@ export class CodexAppServerClient {
   }
 
   private scheduleSharedSocketReconnect() {
-    if (this.closed || this.reconnecting) {
+    if (this.closed || !this.sharedReconnectEnabled || this.reconnecting) {
       return;
     }
     const reconnecting = this.reconnectSharedCodexAppServer();
@@ -635,7 +672,7 @@ export class CodexAppServerClient {
     let lastError: Error | undefined;
     for (const delayMs of sharedSocketReconnectDelaysMs) {
       await setTimeout(delayMs);
-      if (this.closed) {
+      if (this.closed || !this.sharedReconnectEnabled) {
         return;
       }
       try {
@@ -647,7 +684,7 @@ export class CodexAppServerClient {
         });
         return;
       } catch (error) {
-        lastError = asError(error);
+        lastError = error instanceof Error ? error : new Error(String(error));
         const socket = this.socket;
         this.socket = undefined;
         socket?.close();

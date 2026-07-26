@@ -66,6 +66,7 @@ describe("CodexAppServerClient shared socket mode", () => {
       await expect(client.listModels()).resolves.toEqual([]);
       expect(server.requests.filter((request) => request.method === "initialize")).toHaveLength(2);
       expect(startSharedServer).not.toHaveBeenCalled();
+      expect(client.appServerMode).toBe("socket");
       expect(relayDebugLog).toHaveBeenCalledWith(
         "app_server.shared_socket.disconnected",
         expect.objectContaining({ ownership: "attached" }),

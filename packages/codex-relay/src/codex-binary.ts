@@ -21,15 +21,27 @@ export type CodexAppServerSpawnInput = {
 
 export type CodexAppServerMode = "stdio" | "socket";
 
+export type CodexAppServerModeResolution = {
+  readonly fallbackToStdio: boolean;
+  readonly mode: CodexAppServerMode;
+};
+
 export function resolveCodexAppServerMode(
-  env: NodeJS.ProcessEnv = process.env,
-): CodexAppServerMode {
+  input: CodexAppServerSpawnInput = {},
+): CodexAppServerModeResolution {
+  const env = input.env ?? process.env;
+  const platform = input.platform ?? currentPlatform();
   const configuredMode = env.CODEX_RELAY_APP_SERVER_MODE?.trim().toLowerCase();
-  if (!configuredMode || configuredMode === "stdio") {
-    return "stdio";
+  if (!configuredMode) {
+    return platform === "darwin"
+      ? { fallbackToStdio: true, mode: "socket" }
+      : { fallbackToStdio: false, mode: "stdio" };
+  }
+  if (configuredMode === "stdio") {
+    return { fallbackToStdio: false, mode: "stdio" };
   }
   if (configuredMode === "socket") {
-    return "socket";
+    return { fallbackToStdio: false, mode: "socket" };
   }
   throw new Error(
     `Unsupported CODEX_RELAY_APP_SERVER_MODE ${JSON.stringify(configuredMode)}. Expected "stdio" or "socket".`,

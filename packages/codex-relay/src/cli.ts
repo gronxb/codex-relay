@@ -43,7 +43,7 @@ const program = new Command()
   .option("--debug", "write verbose relay diagnostics to debug.log")
   .option(
     "--shared-app-server",
-    "use a shared Codex app-server socket so terminal and mobile can share live sessions",
+    "require a shared Codex app-server so terminal and mobile can share live sessions",
   )
   .option(
     "--dangerously-auto-approve",
