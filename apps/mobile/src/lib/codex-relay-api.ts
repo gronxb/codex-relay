@@ -951,8 +951,14 @@ export async function getRateLimits(): Promise<RateLimitsResponse> {
   return request(apiPaths.rateLimits, undefined, RateLimitsResponseSchema.parse);
 }
 
-export async function getThread(threadId: string): Promise<ThreadDetailResponse> {
-  return request(apiPaths.thread(threadId), undefined, ThreadDetailResponseSchema.parse);
+export async function getThread(
+  threadId: string,
+  options: { refresh?: boolean } = {},
+): Promise<ThreadDetailResponse> {
+  const path = options.refresh
+    ? `${apiPaths.thread(threadId)}?refresh=true`
+    : apiPaths.thread(threadId);
+  return request(path, undefined, ThreadDetailResponseSchema.parse);
 }
 
 export async function getThreadMessageDetail(

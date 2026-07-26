@@ -73,6 +73,57 @@ function createMockCodex(handlers?: {
   };
 }
 
+function appServerHistoryThread(input: {
+  id: string;
+  name: string;
+  turns: Array<{
+    id: string;
+    items: Array<
+      | { id: string; type: "agentMessage"; text: string }
+      | {
+          id: string;
+          type: "userMessage";
+          content: Array<{ type: "text"; text: string; text_elements: [] }>;
+        }
+    >;
+    completedAt: number;
+    startedAt: number;
+    status: { type: string };
+  }>;
+  workspacePath: string;
+}) {
+  const now = Date.now() / 1000;
+  return {
+    id: input.id,
+    preview: input.name,
+    createdAt: now,
+    updatedAt: now,
+    status: { type: "idle" },
+    cwd: input.workspacePath,
+    source: "app",
+    modelProvider: "openai",
+    name: input.name,
+    turns: input.turns,
+  };
+}
+
+function appServerTurn(id: string, text: string, timestamp: number) {
+  return {
+    id,
+    items: [
+      {
+        id: `${id}-user`,
+        type: "userMessage" as const,
+        content: [{ type: "text" as const, text, text_elements: [] as [] }],
+      },
+      { id: `${id}-assistant`, type: "agentMessage" as const, text: `Reply: ${text}` },
+    ],
+    completedAt: timestamp + 1,
+    startedAt: timestamp,
+    status: { type: "completed" },
+  };
+}
+
 function testPairingTranscript(input: {
   approvalCode: string;
   clientEphemeralPublicKey: string;
@@ -1744,6 +1795,51 @@ describe("Codex Relay server routes", () => {
       id: "app-thread-remaining",
       title: "Remaining thread",
     });
+  });
+
+  it("refreshes an app-server thread from its current history", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const now = Date.now() / 1000;
+    let currentThread = appServerHistoryThread({
+      id: "app-thread-refresh",
+      name: "Refresh history",
+      turns: [
+        appServerTurn("turn-1", "First prompt", now),
+        appServerTurn("turn-2", "Second prompt", now + 10),
+      ],
+      workspacePath,
+    });
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread: vi.fn<() => Promise<unknown>>(async () => currentThread),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    await app.request("/v1/threads/app-thread-refresh");
+    currentThread = appServerHistoryThread({
+      id: "app-thread-refresh",
+      name: "Refresh history",
+      turns: [appServerTurn("turn-1", "First prompt", now)],
+      workspacePath,
+    });
+    const response = await app.request("/v1/threads/app-thread-refresh?refresh=true");
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.thread.messageCount).toBe(2);
+    expect(body.messages.map((message: { id: string }) => message.id)).toEqual([
+      "turn-1-user",
+      "turn-1-assistant",
+    ]);
   });
 
   it("reads an app-server thread goal", async () => {

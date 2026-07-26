@@ -372,7 +372,9 @@ export function createApp(options: AppOptions = {}) {
     const load = appServer
       .readThread(threadId, { includeTurns: true })
       .then((threadWithTurns) => {
-        const mappedThread = rememberAppServerThread(threads, threadWithTurns);
+        const mappedThread = rememberAppServerThread(threads, threadWithTurns, {
+          authoritativeMessageCount: true,
+        });
         const messages = mergeAppServerMessagesWithLocalStatus(
           mapAppServerMessages(threadWithTurns),
           messagesByThreadId.get(threadId) ?? cachedMessages,
@@ -1727,6 +1729,7 @@ export function createApp(options: AppOptions = {}) {
 
   app.get("/v1/threads/:threadId", async (c) => {
     const threadId = c.req.param("threadId");
+    const forceRefresh = c.req.query("refresh") === "true";
     const detailStartedAt = Date.now();
     relayDebugLog("thread.detail.requested", {
       threadId,
@@ -1745,31 +1748,45 @@ export function createApp(options: AppOptions = {}) {
         let messages = cachedMessages;
         let responseThread = preserveKnownRunningThreadState(mappedThread, wasKnownRunning);
 
-        const rolloutHistory = readRolloutThreadMessages(threadId, workspacePath);
-        if (rolloutHistory.messages.length > 0) {
-          messages = mergeThreadMessagePages(rolloutHistory.messages, cachedMessages);
-          responseThread = rememberRolloutThreadMessages(
-            threads,
-            responseThread,
-            messages,
-            rolloutHistory.messageCountLowerBound,
-          );
-          responseThread = preserveKnownRunningThreadState(responseThread, wasKnownRunning);
+        if (forceRefresh && responseThread.state !== "running") {
+          const threadWithTurns = await appServer.readThread(threadId, {
+            includeTurns: true,
+          });
+          responseThread = rememberAppServerThread(threads, threadWithTurns, {
+            authoritativeMessageCount: true,
+          });
+          messages = mapAppServerMessages(threadWithTurns);
           messagesByThreadId.set(threadId, messages);
           loadedMessages = true;
-        } else if (cachedMessages.length > 0) {
-          messages = dedupeThreadMessages(cachedMessages);
-          if (messages.length !== cachedMessages.length) {
+        } else {
+          const rolloutHistory = readRolloutThreadMessages(threadId, workspacePath);
+          if (rolloutHistory.messages.length > 0) {
+            messages = mergeThreadMessagePages(rolloutHistory.messages, cachedMessages);
+            responseThread = rememberRolloutThreadMessages(
+              threads,
+              responseThread,
+              messages,
+              rolloutHistory.messageCountLowerBound,
+            );
+            responseThread = preserveKnownRunningThreadState(responseThread, wasKnownRunning);
             messagesByThreadId.set(threadId, messages);
+            loadedMessages = true;
+          } else if (cachedMessages.length > 0) {
+            messages = dedupeThreadMessages(cachedMessages);
+            if (messages.length !== cachedMessages.length) {
+              messagesByThreadId.set(threadId, messages);
+            }
+            loadedMessages = true;
           }
-          loadedMessages = true;
         }
 
         if (!loadedMessages && responseThread.state !== "running") {
           const threadWithTurns = await appServer.readThread(threadId, {
             includeTurns: true,
           });
-          responseThread = rememberAppServerThread(threads, threadWithTurns);
+          responseThread = rememberAppServerThread(threads, threadWithTurns, {
+            authoritativeMessageCount: true,
+          });
           messages = mergeAppServerMessagesWithLocalStatus(
             mapAppServerMessages(threadWithTurns),
             cachedMessages,
@@ -5985,9 +6002,16 @@ function mapAppServerThread(
   });
 }
 
-function rememberAppServerThread(threads: Map<string, ThreadMetadata>, thread: AppServerThread) {
+function rememberAppServerThread(
+  threads: Map<string, ThreadMetadata>,
+  thread: AppServerThread,
+  options: { authoritativeMessageCount?: boolean } = {},
+) {
   const existingThread = threads.get(thread.id);
-  const mappedThread = mapAppServerThread(thread, existingThread?.messageCount);
+  const mappedThread = mapAppServerThread(
+    thread,
+    options.authoritativeMessageCount ? undefined : existingThread?.messageCount,
+  );
   const threadWithLocalRuntime = ThreadSummarySchema.parse({
     ...mappedThread,
     goal: existingThread?.goal ?? mappedThread.goal,

@@ -599,11 +599,13 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   }, []);
 
   const syncThreadSnapshot = useCallback(
-    async (threadId: string, options: { setOfflineOnError?: boolean } = {}) => {
+    async (threadId: string, options: { refresh?: boolean; setOfflineOnError?: boolean } = {}) => {
       const setOfflineOnError = options.setOfflineOnError ?? true;
       setThreadMessagesLoading(threadId, true);
       try {
-        const response = await fetchThreadState(queryClient, threadId);
+        const response = await fetchThreadState(queryClient, threadId, {
+          refresh: options.refresh,
+        });
         syncPairedSessionState();
         if (chatStore$.activeThreadId.peek() !== threadId) {
           return response.thread.state;
@@ -613,6 +615,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           response.thread,
           response.messages,
           response.pendingInputRequests,
+          { replaceMessages: options.refresh },
         );
         await Promise.all([
           fetchQueuedInputsState(queryClient, threadId).catch(() => undefined),
@@ -653,9 +656,9 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   );
 
   const loadThread = useCallback(
-    async (threadId: string) => {
+    async (threadId: string, options: { refresh?: boolean } = {}) => {
       setActiveThread(threadId);
-      const state = await syncThreadSnapshot(threadId);
+      const state = await syncThreadSnapshot(threadId, { refresh: options.refresh });
       if (state === "running") {
         requestThreadStreamReconnect(threadId);
         return;
@@ -718,7 +721,10 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           response.threads.some((thread) => thread.id === currentActiveThreadId);
         const missingActiveThreadState =
           currentActiveThreadId && !hasCurrentActiveThread
-            ? await syncThreadSnapshot(currentActiveThreadId, { setOfflineOnError: false })
+            ? await syncThreadSnapshot(currentActiveThreadId, {
+                refresh: true,
+                setOfflineOnError: false,
+              })
             : undefined;
         if (chatStore$.activeThreadId.peek() !== currentActiveThreadId) {
           return;
@@ -734,7 +740,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           setActiveThread(nextActiveThreadId);
         }
         if (nextActiveThreadId && !missingActiveThreadRestored) {
-          await loadThread(nextActiveThreadId);
+          await loadThread(nextActiveThreadId, { refresh: true });
         } else if (nextActiveThreadId && missingActiveThreadState === "running") {
           requestThreadStreamReconnect(nextActiveThreadId);
         }
