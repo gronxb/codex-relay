@@ -207,6 +207,7 @@ function formatStartupInstructions(details: {
     `${color.prompt("›")} Commands`,
     `  ${color.command(npxCommand)}              Start and print a pairing QR`,
     `  ${color.command(`${npxCommand} --bg`)}         Start in the background`,
+    `  ${color.command(`${npxCommand} stop`)}         Stop the background relay`,
     `  ${color.command(`${npxCommand} qr`)}           Print this QR again`,
     `  ${color.command(`${npxCommand} approve <code>`)} Approve a device`,
     "",

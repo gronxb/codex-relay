@@ -1,5 +1,4 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { access } from "node:fs/promises";
 import { connect } from "node:net";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -810,14 +809,11 @@ async function startSharedCodexAppServer() {
 }
 
 async function waitForSharedCodexAppServer(remoteAddress: string) {
-  if (remoteAddress === "unix://") {
-    await access(sharedCodexAppServerSocketPath());
-    return;
-  }
-
-  const url = new URL(remoteAddress);
   await new Promise<void>((resolve, reject) => {
-    const socket = connect({ host: url.hostname, port: Number(url.port) });
+    const socket =
+      remoteAddress === "unix://"
+        ? connect({ path: sharedCodexAppServerSocketPath() })
+        : connectRemoteAddress(remoteAddress);
     const onError = (error: Error) => reject(error);
     socket.once("error", onError);
     socket.once("connect", () => {
@@ -826,6 +822,11 @@ async function waitForSharedCodexAppServer(remoteAddress: string) {
       resolve();
     });
   });
+}
+
+function connectRemoteAddress(remoteAddress: string) {
+  const url = new URL(remoteAddress);
+  return connect({ host: url.hostname, port: Number(url.port) });
 }
 
 function sharedCodexAppServerSocketPath() {

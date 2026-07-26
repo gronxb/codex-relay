@@ -10,15 +10,29 @@ describe("relay watchdog service command", () => {
   it("keeps the relay server in watch mode for local library development", () => {
     const command = relayServiceCommand(["--dangerously-auto-approve"]);
 
-    expect(command.args).toEqual([
-      "--filter",
-      "codex-relay",
-      "exec",
-      "tsx",
-      "watch",
-      "src/cli.ts",
-      "--dangerously-auto-approve",
-    ]);
+    expect(command).toEqual({
+      args: [
+        "--filter",
+        "codex-relay",
+        "exec",
+        "tsx",
+        "watch",
+        "src/cli.ts",
+        "--dangerously-auto-approve",
+      ],
+      command: "pnpm",
+      persistent: true,
+    });
+  });
+
+  it("runs the stop command once without a file watcher", () => {
+    const command = relayServiceCommand(["stop"]);
+
+    expect(command).toEqual({
+      args: ["--filter", "codex-relay", "exec", "tsx", "src/cli.ts", "stop"],
+      command: "pnpm",
+      persistent: false,
+    });
   });
 
   it("checks the relay version endpoint on the configured host and port", () => {

@@ -82,15 +82,18 @@ describe("CodexAppServerClient shared socket mode", () => {
   });
 
   it.skipIf(process.platform === "win32")(
-    "waits for a slow shared app-server to create its Unix socket",
+    "replaces a stale Unix socket after a slow shared app-server startup",
     async () => {
-      // Given: a real child process that needs four seconds before its socket is ready.
+      // Given: a stale socket path and a real child that needs four seconds before listening.
       const codexHome = await mkdtemp(join(socketTempRoot, "codex-relay-slow-app-server-"));
       const fakeCodexBinary = join(codexHome, "fake-codex");
+      const socketPath = join(codexHome, "app-server-control", "app-server-control.sock");
+      await mkdir(dirname(socketPath), { recursive: true });
+      await writeFile(socketPath, "");
       await writeFile(
         fakeCodexBinary,
         `#!/usr/bin/env node
-import { mkdir } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import { join } from "node:path";
 import { setTimeout } from "node:timers/promises";
@@ -99,6 +102,7 @@ import { WebSocketServer } from ${JSON.stringify(import.meta.resolve("ws"))};
 await setTimeout(4_000);
 const socketPath = join(process.env.CODEX_HOME, "app-server-control", "app-server-control.sock");
 await mkdir(join(process.env.CODEX_HOME, "app-server-control"), { recursive: true });
+await rm(socketPath, { force: true });
 const server = createServer();
 const webSocketServer = new WebSocketServer({ server });
 webSocketServer.on("connection", (socket) => {
@@ -130,7 +134,7 @@ process.stdin.resume();
         // When: the relay initializes its shared app-server client.
         await client.initialize();
 
-        // Then: it connects after the slow startup instead of timing out at 2.5 seconds.
+        // Then: it waits for a real listener instead of treating the stale path as ready.
         await expect(client.listModels()).resolves.toEqual([]);
       } finally {
         client.close();

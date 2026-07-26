@@ -10,7 +10,11 @@ import { setTimeout } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 import { apiPaths } from "./api-schema.js";
-import { readRunningRelayPid } from "./background-process.js";
+import {
+  readRunningRelayPid,
+  stopRunningRelay,
+  type StopRunningRelayResult,
+} from "./background-process.js";
 import { createTursoPairingSessionStore } from "./pairing-store.js";
 import { getConnectUrlGuidance } from "./pairing-url-candidates.js";
 
@@ -53,6 +57,7 @@ Examples:
   ${npxCommand}              Start the relay and print a pairing QR
   ${npxCommand} --shared-app-server Share live sessions with a connected terminal
   ${npxCommand} --bg         Start the relay in the background
+  ${npxCommand} stop         Stop the background relay
   ${npxCommand} qr           Print the current pairing QR
   ${npxCommand} clear        Sign out every paired mobile app
   ${npxCommand} approve CODE Approve a pending mobile pairing request`,
@@ -74,6 +79,13 @@ Examples:
     }
 
     await import("./index.js").catch(handleServerStartError);
+  });
+
+program
+  .command("stop")
+  .description("Stop the background Codex Relay server.")
+  .action(async () => {
+    await stopBackgroundServer();
   });
 
 program
@@ -151,6 +163,7 @@ async function startBackgroundServer() {
     console.log(`Debug logs: ${debugLogPath}`);
   }
   console.log(`Print the pairing QR later with: ${npxCommand} qr`);
+  console.log(`Stop the background relay with: ${npxCommand} stop`);
 }
 
 function backgroundArgs() {
@@ -175,6 +188,32 @@ async function waitForBackgroundPid(child: ReturnType<typeof spawn>, pidPath: st
   }
 
   return undefined;
+}
+
+async function stopBackgroundServer() {
+  const result = await stopRunningRelay(codexRelayDataPath("server.pid"));
+  printStopResult(result);
+}
+
+function printStopResult(result: StopRunningRelayResult) {
+  switch (result.kind) {
+    case "not-running":
+      console.log("No background Codex Relay server is running.");
+      return;
+    case "stopped":
+      console.log(`Stopped codex-relay background server (pid ${result.pid}).`);
+      return;
+    case "timed-out":
+      console.error(`Timed out stopping codex-relay background server (pid ${result.pid}).`);
+      process.exitCode = 1;
+      return;
+    default:
+      return assertNever(result);
+  }
+}
+
+function assertNever(value: never): never {
+  throw new TypeError(`Unexpected background stop result: ${JSON.stringify(value)}`);
 }
 
 async function approvePairing(rawCode: string | undefined) {
@@ -394,7 +433,7 @@ async function handleServerStartError(error: unknown) {
     console.error(`  ${npxCommand} qr`);
     console.error("");
     console.error("To stop the background server:");
-    console.error(`  kill -TERM ${existingPid}`);
+    console.error(`  ${npxCommand} stop`);
     console.error("");
     console.error(`Logs: ${logPath}`);
   } else {

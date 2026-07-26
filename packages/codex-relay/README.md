@@ -79,10 +79,10 @@ Print the current pairing QR again:
 npx codex-relay@latest qr
 ```
 
-Stop a background server with the printed process id:
+Stop a background server:
 
 ```sh
-kill -TERM <pid>
+npx codex-relay@latest stop
 ```
 
 ## Commands
@@ -98,6 +98,12 @@ npx codex-relay@latest --bg
 ```
 
 Start the relay in the background.
+
+```sh
+npx codex-relay@latest stop
+```
+
+Stop the background relay. Repeating this command is safe when no background server is running.
 
 ```sh
 npx codex-relay@latest --shared-app-server
@@ -174,7 +180,7 @@ npx codex-relay@latest qr
 Or stop the background process shown by the CLI:
 
 ```sh
-kill -TERM <pid>
+npx codex-relay@latest stop
 ```
 
 If the mobile app cannot connect, confirm that the phone can reach the printed `Mobile:` URL and that the chosen port is not blocked by a firewall.

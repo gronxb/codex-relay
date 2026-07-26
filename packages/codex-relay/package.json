@@ -49,7 +49,7 @@
     "@noble/ciphers": "2.2.0",
     "@noble/curves": "2.2.0",
     "@noble/hashes": "2.2.0",
-    "@openai/codex-sdk": "0.144.5",
+    "@openai/codex-sdk": "0.145.0",
     "base64-js": "1.5.1",
     "commander": "^14.0.3",
     "es-git": "^0.6.0",

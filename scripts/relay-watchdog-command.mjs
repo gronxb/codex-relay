@@ -1,7 +1,17 @@
 export function relayServiceCommand(cliArgs) {
+  const persistent = !cliArgs.includes("stop");
   return {
     command: "pnpm",
-    args: ["--filter", "codex-relay", "exec", "tsx", "watch", "src/cli.ts", ...cliArgs],
+    args: [
+      "--filter",
+      "codex-relay",
+      "exec",
+      "tsx",
+      ...(persistent ? ["watch"] : []),
+      "src/cli.ts",
+      ...cliArgs,
+    ],
+    persistent,
   };
 }
 

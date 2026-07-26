@@ -1,16 +1,29 @@
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
+import { setTimeout } from "node:timers/promises";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
 type ProcessCommandReader = (pid: number) => Promise<string | undefined>;
 type ProcessAliveChecker = (pid: number) => boolean;
+type ProcessSignaler = (pid: number) => void;
+type ProcessExitWaiter = (pid: number) => Promise<boolean>;
 
 type ReadRunningRelayPidOptions = {
   readonly commandReader?: ProcessCommandReader;
   readonly isProcessAlive?: ProcessAliveChecker;
 };
+
+type StopRunningRelayOptions = ReadRunningRelayPidOptions & {
+  readonly signalProcess?: ProcessSignaler;
+  readonly waitForProcessExit?: ProcessExitWaiter;
+};
+
+export type StopRunningRelayResult =
+  | { readonly kind: "not-running" }
+  | { readonly kind: "stopped"; readonly pid: number }
+  | { readonly kind: "timed-out"; readonly pid: number };
 
 export async function readRunningRelayPid(
   pidPath: string,
@@ -32,6 +45,27 @@ export async function readRunningRelayPid(
   return command && isRelayProcessCommand(command) ? pid : undefined;
 }
 
+export async function stopRunningRelay(
+  pidPath: string,
+  options: StopRunningRelayOptions = {},
+): Promise<StopRunningRelayResult> {
+  const pid = await readRunningRelayPid(pidPath, options);
+  if (!pid) {
+    await rm(pidPath, { force: true });
+    return { kind: "not-running" };
+  }
+
+  const signalProcess = options.signalProcess ?? signalRelayProcess;
+  signalProcess(pid);
+  const waitForProcessExit = options.waitForProcessExit ?? waitForRelayProcessExit;
+  if (!(await waitForProcessExit(pid))) {
+    return { kind: "timed-out", pid };
+  }
+
+  await rm(pidPath, { force: true });
+  return { kind: "stopped", pid };
+}
+
 function defaultIsProcessAlive(pid: number) {
   try {
     process.kill(pid, 0);
@@ -39,6 +73,27 @@ function defaultIsProcessAlive(pid: number) {
   } catch {
     return false;
   }
+}
+
+function signalRelayProcess(pid: number) {
+  try {
+    process.kill(pid, "SIGTERM");
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ESRCH") {
+      return;
+    }
+    throw error;
+  }
+}
+
+async function waitForRelayProcessExit(pid: number) {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if (!defaultIsProcessAlive(pid)) {
+      return true;
+    }
+    await setTimeout(50);
+  }
+  return false;
 }
 
 async function readProcessCommand(pid: number) {

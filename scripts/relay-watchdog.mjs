@@ -22,22 +22,18 @@ await log(`watchdog starting args=${cliArgs.join(" ")}`);
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
 
-await runService();
+const serviceCommand = relayServiceCommand(cliArgs);
+if (serviceCommand.persistent) {
+  await runService(serviceCommand);
+} else {
+  await runCommandOnce(serviceCommand);
+}
 await log("watchdog stopped");
 
-async function runService() {
+async function runService(serviceCommand) {
   while (!stopping) {
     const startedAt = Date.now();
-    const serviceCommand = relayServiceCommand(cliArgs);
-    child = spawn(serviceCommand.command, serviceCommand.args, {
-      cwd: root,
-      env: {
-        ...process.env,
-        NODE_ENV: "development",
-        PORT: process.env.CODEX_RELAY_PORT ?? process.env.PORT ?? "8787",
-      },
-      stdio: "inherit",
-    });
+    child = spawnService(serviceCommand);
 
     await log(`server spawned pid=${child.pid}`);
 
@@ -66,6 +62,26 @@ async function runService() {
     );
     await delay(restartDelayMs);
   }
+}
+
+async function runCommandOnce(serviceCommand) {
+  child = spawnService(serviceCommand);
+  await log(`command spawned pid=${child.pid}`);
+  const exit = await waitForExit(child);
+  child = undefined;
+  process.exitCode = exit.code ?? 1;
+}
+
+function spawnService(serviceCommand) {
+  return spawn(serviceCommand.command, serviceCommand.args, {
+    cwd: root,
+    env: {
+      ...process.env,
+      NODE_ENV: "development",
+      PORT: process.env.CODEX_RELAY_PORT ?? process.env.PORT ?? "8787",
+    },
+    stdio: "inherit",
+  });
 }
 
 function waitForExit(runningChild) {
