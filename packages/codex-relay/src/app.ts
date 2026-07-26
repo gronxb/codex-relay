@@ -18,6 +18,9 @@ import {
   PushNotificationSettingsResponseSchema,
   QueuedThreadInputActionResponseSchema,
   RateLimitsResponseSchema,
+  RenameThreadRequestSchema,
+  RenameThreadResponseSchema,
+  RewindThreadRequestSchema,
   KnownReasoningEffortSchema,
   ReasoningEffortSchema,
   ResolveApprovalRequestSchema,
@@ -72,6 +75,7 @@ import {
   type PromptAttachment,
   type PromptSkill,
   type ReasoningEffort,
+  type RenameThreadRequest,
   type RunThreadResponse,
   type RuntimeMode,
   type RuntimePreferences,
@@ -1723,6 +1727,156 @@ export function createApp(options: AppOptions = {}) {
       source: "memory",
     });
     return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
+  });
+
+  app.post("/v1/threads/:threadId/name", async (c) => {
+    const threadId = c.req.param("threadId");
+    if (!appServer) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError("unsupported", "Renaming threads requires the Codex app-server."),
+        409,
+      );
+    }
+
+    const parsed = await parseRequestJson(
+      c,
+      options.pairing,
+      secureSessionsByTokenHash,
+      RenameThreadRequestSchema,
+    );
+    if (!parsed.success) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        validationError(parsed.error),
+        400,
+      );
+    }
+
+    try {
+      const body: RenameThreadRequest = parsed.data;
+      const thread = rememberAppServerThread(
+        threads,
+        await appServer.setThreadName({ name: body.title, threadId }),
+      );
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        RenameThreadResponseSchema.parse({ thread }),
+      );
+    } catch (error) {
+      const message = errorMessage(error);
+      const status = /not found|no rollout found/i.test(message) ? 404 : 502;
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError(status === 404 ? "not_found" : "rename_unavailable", message),
+        status,
+      );
+    }
+  });
+
+  app.post("/v1/threads/:threadId/rollback", async (c) => {
+    const threadId = c.req.param("threadId");
+    if (!appServer) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError("unsupported", "Rewinding threads requires the Codex app-server."),
+        409,
+      );
+    }
+
+    const parsed = await parseRequestJson(
+      c,
+      options.pairing,
+      secureSessionsByTokenHash,
+      RewindThreadRequestSchema,
+    );
+    if (!parsed.success) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        validationError(parsed.error),
+        400,
+      );
+    }
+
+    try {
+      const threadBeforeRewind = await appServer.readThread(threadId, { includeTurns: true });
+      if (
+        mapAppServerThreadState(threadBeforeRewind.status, threadBeforeRewind.turns) ===
+          "running" ||
+        activeAppServerTurnIdsByThreadId.has(threadId)
+      ) {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          apiError("thread_running", "Stop the current turn before rewinding this chat."),
+          409,
+        );
+      }
+
+      const turns = threadBeforeRewind.turns ?? [];
+      const turnIndex = turns.findIndex((turn) => turn.id === parsed.data.turnId);
+      if (turnIndex < 0) {
+        return secureJson(
+          c,
+          options.pairing,
+          secureSessionsByTokenHash,
+          apiError("not_found", "The selected message is no longer available to rewind."),
+          404,
+        );
+      }
+
+      const rolledBackThread = await appServer.rollbackThread({
+        threadId,
+        numTurns: turns.length - turnIndex,
+      });
+      const threadWithTurns =
+        rolledBackThread.turns === undefined
+          ? await appServer.readThread(threadId, { includeTurns: true })
+          : rolledBackThread;
+      const thread = rememberAppServerThread(threads, threadWithTurns, {
+        authoritativeMessageCount: true,
+      });
+      const messages = mapAppServerMessages(threadWithTurns);
+      messagesByThreadId.set(threadId, messages);
+      liveThreads.delete(threadId);
+      activeAppServerTurnIdsByThreadId.delete(threadId);
+      queuedInputsByThreadId.delete(threadId);
+      steeringThreads.delete(threadId);
+
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        threadDetailResponse({
+          thread,
+          messages,
+          pendingInputRequests: [],
+        }),
+      );
+    } catch (error) {
+      const message = errorMessage(error);
+      const status = /not found|no rollout found/i.test(message) ? 404 : 502;
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError(status === 404 ? "not_found" : "rewind_unavailable", message),
+        status,
+      );
+    }
   });
 
   app.get("/v1/threads/:threadId", async (c) => {
@@ -5985,9 +6139,16 @@ function mapAppServerThread(
   });
 }
 
-function rememberAppServerThread(threads: Map<string, ThreadMetadata>, thread: AppServerThread) {
+function rememberAppServerThread(
+  threads: Map<string, ThreadMetadata>,
+  thread: AppServerThread,
+  options: { authoritativeMessageCount?: boolean } = {},
+) {
   const existingThread = threads.get(thread.id);
-  const mappedThread = mapAppServerThread(thread, existingThread?.messageCount);
+  const mappedThread = mapAppServerThread(
+    thread,
+    options.authoritativeMessageCount ? undefined : existingThread?.messageCount,
+  );
   const threadWithLocalRuntime = ThreadSummarySchema.parse({
     ...mappedThread,
     goal: existingThread?.goal ?? mappedThread.goal,

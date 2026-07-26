@@ -2,6 +2,7 @@ import { useSelector } from "@legendapp/state/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   AgentSkill,
+  ChatMessage,
   PromptAttachment as ApiPromptAttachment,
   PromptSkill as ApiPromptSkill,
   PendingInputRequest,
@@ -92,6 +93,7 @@ import {
   optimisticallySteerQueuedInputState,
   removePendingInputRequestState,
   removeQueuedThreadInputServerState,
+  rewindThreadServerState,
   restoreOptimisticSteerQueuedInputState,
   serverStateKeys,
   serverStateQueryFns,
@@ -1884,6 +1886,40 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
     hapticWarning();
   }
 
+  function confirmRewind(message: ChatMessage) {
+    if (!activeThreadId || !message.turnId || activeThread?.source !== "app" || isRunning) {
+      return;
+    }
+
+    Alert.alert("Rewind chat?", "This removes this prompt and everything after it from the chat.", [
+      { style: "cancel", text: "Cancel" },
+      {
+        style: "destructive",
+        text: "Rewind",
+        onPress: () => void rewindFromMessage(message),
+      },
+    ]);
+  }
+
+  async function rewindFromMessage(message: ChatMessage) {
+    if (!activeThreadId || !message.turnId) {
+      return;
+    }
+
+    clearThreadStatusPoll();
+    detachCurrentStream();
+    try {
+      await rewindThreadServerState(queryClient, activeThreadId, { turnId: message.turnId });
+      clearQueuedPrompts(activeThreadId);
+      setConnection("connected");
+      hapticSuccess();
+      await refreshUsageStatus(activeThreadId);
+    } catch (caught) {
+      syncPairedSessionState();
+      Alert.alert("Couldn’t rewind chat", errorMessage(caught));
+    }
+  }
+
   function saveThreadGoalObjective(objective: string) {
     if (!activeThreadId) {
       return;
@@ -2208,6 +2244,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       onImplementPlan={implementPlan}
       onIgnoreInputRequest={(request) => void ignoreInputRequest(request)}
       onMessageCopied={showMessageCopiedToast}
+      onMessageRewind={activeThread?.source === "app" && !isRunning ? confirmRewind : undefined}
       onOpenMarkdownAttachment={openMarkdownAttachmentPreview}
       onRefreshUsageStatus={() => refreshUsageStatus()}
       onSubmitInputRequest={(request, answers) => void submitInputRequest(request, answers)}

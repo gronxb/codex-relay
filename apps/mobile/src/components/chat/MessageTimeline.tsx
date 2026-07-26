@@ -55,6 +55,7 @@ export function MessageTimeline({
   messages,
   onKeyboardDismissRequest,
   onMessageCopied,
+  onMessageRewind,
   onOpenMarkdownAttachment,
   threadId,
 }: {
@@ -65,6 +66,7 @@ export function MessageTimeline({
   messages: ChatMessage[];
   onKeyboardDismissRequest?: () => void;
   onMessageCopied?: () => void;
+  onMessageRewind?: (message: ChatMessage) => void;
   onOpenMarkdownAttachment?: (target: WorkspaceMarkdownPreviewTarget) => void;
   threadId?: string;
 }) {
@@ -128,10 +130,11 @@ export function MessageTimeline({
       <MessageBubble
         message={item}
         onMessageCopied={onMessageCopied}
+        onMessageRewind={onMessageRewind}
         onOpenMarkdownAttachment={onOpenMarkdownAttachment}
       />
     ),
-    [onMessageCopied, onOpenMarkdownAttachment],
+    [onMessageCopied, onMessageRewind, onOpenMarkdownAttachment],
   );
   const handleTimelineLoad = useCallback(() => {
     requestAnimationFrame(() => {

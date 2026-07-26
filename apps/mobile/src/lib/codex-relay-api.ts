@@ -17,7 +17,10 @@ import {
   PushNotificationSettingsResponseSchema,
   QueuedThreadInputActionResponseSchema,
   RateLimitsResponseSchema,
+  RenameThreadRequestSchema,
+  RenameThreadResponseSchema,
   ResolveApprovalResponseSchema,
+  RewindThreadRequestSchema,
   RuntimePreferencesResponseSchema,
   RunThreadResponseSchema,
   StatusResponseSchema,
@@ -54,8 +57,11 @@ import {
   type PushNotificationSettingsResponse,
   type QueuedThreadInputActionResponse,
   type RateLimitsResponse,
+  type RenameThreadRequest,
+  type RenameThreadResponse,
   type ResolveApprovalRequest,
   type ResolveApprovalResponse,
+  type RewindThreadRequest,
   type RuntimePreferencesResponse,
   type RegisterPushNotificationRequest,
   type RunThreadRequest,
@@ -617,6 +623,20 @@ export async function archiveThread(threadId: string): Promise<ArchiveThreadResp
   );
 }
 
+export async function renameThread(
+  threadId: string,
+  body: RenameThreadRequest,
+): Promise<RenameThreadResponse> {
+  return request(
+    apiPaths.threadName(threadId),
+    {
+      method: "POST",
+      body: encryptRequestPayload(RenameThreadRequestSchema.parse(body)),
+    },
+    RenameThreadResponseSchema.parse,
+  );
+}
+
 export async function listModels(): Promise<ListModelsResponse> {
   return request(apiPaths.models, undefined, ListModelsResponseSchema.parse);
 }
@@ -953,6 +973,20 @@ export async function getRateLimits(): Promise<RateLimitsResponse> {
 
 export async function getThread(threadId: string): Promise<ThreadDetailResponse> {
   return request(apiPaths.thread(threadId), undefined, ThreadDetailResponseSchema.parse);
+}
+
+export async function rewindThread(
+  threadId: string,
+  body: RewindThreadRequest,
+): Promise<ThreadDetailResponse> {
+  return request(
+    apiPaths.threadRollback(threadId),
+    {
+      method: "POST",
+      body: encryptRequestPayload(RewindThreadRequestSchema.parse(body)),
+    },
+    ThreadDetailResponseSchema.parse,
+  );
 }
 
 export async function getThreadMessageDetail(

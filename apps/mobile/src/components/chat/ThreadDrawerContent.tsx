@@ -5,7 +5,7 @@ import type { ThreadSummary } from "codex-relay/api-schema";
 import { router } from "expo-router";
 import type { Drawer } from "expo-router/drawer";
 import type { ComponentProps } from "react";
-import { memo, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   Alert,
   InteractionManager,
@@ -29,7 +29,11 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles";
 
 import { FaGithub } from "@/assets/icons/fa";
-import { SheetActionRow } from "@/components/ui/bottom-sheet";
+import {
+  AppBottomSheet,
+  AppBottomSheetTextInput,
+  SheetActionRow,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -45,6 +49,7 @@ import {
   fetchThreadsState,
   fetchWorkspaceDirectoriesState,
   optimisticallyArchiveThreadState,
+  renameThreadServerState,
   restoreOptimisticArchiveThreadState,
   serverStateKeys,
   serverStateQueryFns,
@@ -166,6 +171,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   const drawerStatus = getDrawerStatus(props.state);
   const isDrawerVisible = props.isPermanent || drawerStatus === "open";
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
   const queryClient = useQueryClient();
   const createThreadMutation = useMutation({
     mutationFn: (body: Parameters<typeof createThreadServerState>[1]) =>
@@ -202,6 +208,10 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       await queryClient.invalidateQueries({ queryKey: serverStateKeys.threads() });
     },
   });
+  const renameThreadMutation = useMutation({
+    mutationFn: ({ threadId, title }: { threadId: string; title: string }) =>
+      renameThreadServerState(queryClient, threadId, { title }),
+  });
   const activeThreadId = useSelector(() => chatStore$.activeThreadId.get());
   const statusQuery = useQuery({
     queryKey: serverStateKeys.status(),
@@ -226,6 +236,9 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     [versionQuery.data, versionQuery.error],
   );
   const [uiState, dispatchUi] = useReducer(threadDrawerUiReducer, initialThreadDrawerUiState);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [threadWithActions, setThreadWithActions] = useState<ThreadSummary | undefined>(undefined);
+  const [threadToRename, setThreadToRename] = useState<ThreadSummary | undefined>(undefined);
   const {
     canRenderThreadList,
     expandedProjects,
@@ -260,6 +273,53 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     [activeThreadId, expandedProjects, normalizedSearchQuery, visibleThreads],
   );
   const workspaceRows = useMemo(() => workspaceBrowserRows(workspaceBrowser), [workspaceBrowser]);
+  const canSaveRenamedThread = Boolean(
+    threadToRename &&
+    renameDraft.trim() &&
+    renameDraft.trim() !== threadToRename.title &&
+    !renameThreadMutation.isPending,
+  );
+  const openThreadActions = useCallback((thread: ThreadSummary) => {
+    hapticSelection();
+    setThreadWithActions(thread);
+  }, []);
+  const openRenameThread = useCallback(() => {
+    if (!threadWithActions) {
+      return;
+    }
+    setThreadToRename(threadWithActions);
+    setRenameDraft(threadWithActions.title);
+  }, [threadWithActions]);
+  const closeThreadActions = useCallback(() => {
+    setThreadWithActions(undefined);
+    setThreadToRename(undefined);
+    setRenameDraft("");
+  }, []);
+  const returnToThreadActions = useCallback(() => {
+    setThreadToRename(undefined);
+    setRenameDraft("");
+  }, []);
+  const saveRenamedThread = useCallback(async () => {
+    const title = renameDraft.trim();
+    if (!threadToRename || !title || renameThreadMutation.isPending) {
+      return;
+    }
+
+    try {
+      await renameThreadMutation.mutateAsync({ threadId: threadToRename.id, title });
+      setConnection("connected");
+      hapticSuccess();
+      setThreadWithActions(undefined);
+      setThreadToRename(undefined);
+      setRenameDraft("");
+    } catch (caught) {
+      setHasPairedSession(hasCodexRelaySession());
+      Alert.alert(
+        "Couldn’t rename chat",
+        caught instanceof Error ? caught.message : "Unable to rename this chat.",
+      );
+    }
+  }, [renameDraft, renameThreadMutation, threadToRename]);
   const searchClearAnimatedStyle = useAnimatedStyle<ViewStyle>(() => ({
     opacity: searchProgress.value,
     transform: [
@@ -342,6 +402,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         item={item}
         onArchiveThread={confirmArchiveThread}
         onCreateThread={createNewThread}
+        onRenameThread={openThreadActions}
         onSelectThread={selectThread}
         onToggleProject={toggleProject}
         selected={item.kind === "thread" && item.thread.id === activeThreadId}
@@ -354,6 +415,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       confirmArchiveThread,
       createNewThread,
       isCreatingThread,
+      openThreadActions,
       selectThread,
       toggleProject,
       workspacePath,
@@ -425,6 +487,62 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         workspaceBrowser={workspaceBrowser}
         workspaceRows={workspaceRows}
       />
+      <AppBottomSheet
+        onBack={threadToRename ? returnToThreadActions : undefined}
+        onClose={closeThreadActions}
+        scrollable={false}
+        subtitle={threadToRename ? "Choose a clear title for this chat." : threadWithActions?.title}
+        title={threadToRename ? "Rename chat" : "Chat actions"}
+        visible={Boolean(threadWithActions)}
+      >
+        {threadToRename ? (
+          <View style={styles.renameSheet}>
+            <AppBottomSheetTextInput
+              autoCapitalize="sentences"
+              autoCorrect
+              cursorColor={theme.text}
+              editable={!renameThreadMutation.isPending}
+              onChangeText={setRenameDraft}
+              onSubmitEditing={() => void saveRenamedThread()}
+              placeholder="Chat title"
+              placeholderTextColor={theme.textSecondary}
+              returnKeyType="done"
+              selectionColor="rgba(124, 199, 255, 0.28)"
+              style={[
+                styles.renameSheetInput,
+                { borderColor: "rgba(255, 255, 255, 0.14)", color: theme.text },
+              ]}
+              value={renameDraft}
+            />
+            <View style={styles.renameSheetActions}>
+              <Button
+                accessibilityLabel="Cancel chat rename"
+                disabled={renameThreadMutation.isPending}
+                onPress={returnToThreadActions}
+                size="default"
+                variant="ghost"
+              >
+                <Text style={{ color: theme.textSecondary }}>Cancel</Text>
+              </Button>
+              <Button
+                accessibilityLabel="Save chat name"
+                disabled={!canSaveRenamedThread}
+                onPress={() => void saveRenamedThread()}
+                size="default"
+              >
+                <Text>Save</Text>
+              </Button>
+            </View>
+          </View>
+        ) : (
+          <SheetActionRow
+            accessibilityLabel="Rename chat"
+            icon="newChat"
+            onPress={openRenameThread}
+            title="Rename chat"
+          />
+        )}
+      </AppBottomSheet>
       {props.showResizeHandle ? (
         <GestureDetector gesture={sidebarResizeGesture}>
           <Animated.View
@@ -751,6 +869,7 @@ type DrawerRowItemProps = {
   item: DrawerRow;
   onArchiveThread: (thread: ThreadSummary) => void;
   onCreateThread: (workspacePath: string | undefined) => Promise<void>;
+  onRenameThread: (thread: ThreadSummary) => void;
   onSelectThread: (threadId: string) => void;
   onToggleProject: (projectKey: string) => void;
   selected: boolean;
@@ -763,6 +882,7 @@ const DrawerRowItem = memo(function DrawerRowItem({
   item,
   onArchiveThread,
   onCreateThread,
+  onRenameThread,
   onSelectThread,
   onToggleProject,
   selected,
@@ -821,6 +941,8 @@ const DrawerRowItem = memo(function DrawerRowItem({
         accessibilityRole="button"
         accessibilityLabel={`Open thread ${item.thread.title}`}
         accessibilityState={{ selected }}
+        delayLongPress={350}
+        onLongPress={item.thread.source === "app" ? () => onRenameThread(item.thread) : undefined}
         onPress={() => void onSelectThread(item.thread.id)}
         style={styles.threadOpenButton}
       >
@@ -864,6 +986,7 @@ function areDrawerRowItemsEqual(previous: DrawerRowItemProps, next: DrawerRowIte
     previous.item.id !== next.item.id ||
     previous.onArchiveThread !== next.onArchiveThread ||
     previous.onCreateThread !== next.onCreateThread ||
+    previous.onRenameThread !== next.onRenameThread ||
     previous.onSelectThread !== next.onSelectThread ||
     previous.onToggleProject !== next.onToggleProject ||
     previous.selected !== next.selected ||
@@ -1653,6 +1776,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 14,
     opacity: 0.62,
+  },
+  renameSheet: {
+    gap: 14,
+  },
+  renameSheetInput: {
+    borderRadius: 12,
+    borderWidth: 1,
+    fontFamily: Fonts.sansMedium,
+    fontSize: 15,
+    lineHeight: 20,
+    minHeight: 44,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  renameSheetActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
   threadSelected: {
     backgroundColor: "rgba(255, 255, 255, 0.075)",

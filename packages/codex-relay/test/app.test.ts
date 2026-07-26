@@ -73,6 +73,57 @@ function createMockCodex(handlers?: {
   };
 }
 
+function appServerHistoryThread(input: {
+  id: string;
+  name: string;
+  turns: Array<{
+    id: string;
+    items: Array<
+      | { id: string; type: "agentMessage"; text: string }
+      | {
+          id: string;
+          type: "userMessage";
+          content: Array<{ type: "text"; text: string; text_elements: [] }>;
+        }
+    >;
+    completedAt: number;
+    startedAt: number;
+    status: { type: string };
+  }>;
+  workspacePath: string;
+}) {
+  const now = Date.now() / 1000;
+  return {
+    id: input.id,
+    preview: input.name,
+    createdAt: now,
+    updatedAt: now,
+    status: { type: "idle" },
+    cwd: input.workspacePath,
+    source: "app",
+    modelProvider: "openai",
+    name: input.name,
+    turns: input.turns,
+  };
+}
+
+function appServerTurn(id: string, text: string, timestamp: number) {
+  return {
+    id,
+    items: [
+      {
+        id: `${id}-user`,
+        type: "userMessage" as const,
+        content: [{ type: "text" as const, text, text_elements: [] as [] }],
+      },
+      { id: `${id}-assistant`, type: "agentMessage" as const, text: `Reply: ${text}` },
+    ],
+    completedAt: timestamp + 1,
+    startedAt: timestamp,
+    status: { type: "completed" },
+  };
+}
+
 function testPairingTranscript(input: {
   approvalCode: string;
   clientEphemeralPublicKey: string;
@@ -1744,6 +1795,95 @@ describe("Codex Relay server routes", () => {
       id: "app-thread-remaining",
       title: "Remaining thread",
     });
+  });
+
+  it("renames an app-server thread", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const renamedThread = appServerHistoryThread({
+      id: "app-thread-rename",
+      name: "Renamed chat",
+      turns: [],
+      workspacePath,
+    });
+    const setThreadName = vi.fn<() => Promise<unknown>>(async () => renamedThread);
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      setThreadName,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const response = await app.request("/v1/threads/app-thread-rename/name", {
+      method: "POST",
+      body: JSON.stringify({ title: "Renamed chat" }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(setThreadName).toHaveBeenCalledWith({
+      name: "Renamed chat",
+      threadId: "app-thread-rename",
+    });
+    expect(body.thread).toMatchObject({ id: "app-thread-rename", title: "Renamed chat" });
+  });
+
+  it("rewinds an app-server thread from a selected user turn", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const now = Date.now() / 1000;
+    const beforeRewind = appServerHistoryThread({
+      id: "app-thread-rewind",
+      name: "Rewind history",
+      turns: [
+        appServerTurn("turn-1", "First prompt", now),
+        appServerTurn("turn-2", "Second prompt", now + 10),
+      ],
+      workspacePath,
+    });
+    const afterRewind = appServerHistoryThread({
+      id: "app-thread-rewind",
+      name: "Rewind history",
+      turns: [appServerTurn("turn-1", "First prompt", now)],
+      workspacePath,
+    });
+    const rollbackThread = vi.fn<() => Promise<unknown>>(async () => afterRewind);
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread: vi.fn<() => Promise<unknown>>(async () => beforeRewind),
+      rollbackThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const response = await app.request("/v1/threads/app-thread-rewind/rollback", {
+      method: "POST",
+      body: JSON.stringify({ turnId: "turn-2" }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(rollbackThread).toHaveBeenCalledWith({ threadId: "app-thread-rewind", numTurns: 1 });
+    expect(body.messages.map((message: { id: string }) => message.id)).toEqual([
+      "turn-1-user",
+      "turn-1-assistant",
+    ]);
   });
 
   it("reads an app-server thread goal", async () => {

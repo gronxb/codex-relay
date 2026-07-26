@@ -242,6 +242,16 @@ export type AppServerThreadArchiveParams = {
   threadId: string;
 };
 
+export type AppServerThreadNameSetParams = {
+  name: string;
+  threadId: string;
+};
+
+export type AppServerThreadRollbackParams = {
+  numTurns: number;
+  threadId: string;
+};
+
 export type AppServerThreadGoalGetParams = {
   threadId: string;
 };
@@ -343,6 +353,16 @@ export class CodexAppServerClient {
 
   async archiveThread(params: AppServerThreadArchiveParams) {
     await this.request("thread/archive", params);
+  }
+
+  async setThreadName(params: AppServerThreadNameSetParams) {
+    const response = await this.request<{ thread: AppServerThread }>("thread/name/set", params);
+    return response.thread;
+  }
+
+  async rollbackThread(params: AppServerThreadRollbackParams) {
+    const response = await this.request<{ thread: AppServerThread }>("thread/rollback", params);
+    return response.thread;
   }
 
   async getThreadGoal(params: AppServerThreadGoalGetParams) {

@@ -33,6 +33,7 @@ import {
   PanelLeftOpen,
   Plus,
   RefreshCw,
+  RotateCcw,
   Search,
   Settings,
   Shell,
@@ -83,6 +84,7 @@ export type AppIconName =
   | "previewHide"
   | "pullRequest"
   | "refresh"
+  | "rewind"
   | "running"
   | "search"
   | "send"
@@ -138,6 +140,7 @@ const iconComponents: Record<AppIconName, LucideComponent> = {
   previewHide: PanelRightClose,
   pullRequest: GitPullRequest,
   refresh: RefreshCw,
+  rewind: RotateCcw,
   running: LoaderCircle,
   search: Search,
   send: ArrowUp,

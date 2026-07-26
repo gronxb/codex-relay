@@ -680,6 +680,18 @@ export const ArchiveThreadResponseSchema = z.object({
   source: z.enum(["app-server", "memory"]).default("memory"),
 });
 
+export const RenameThreadRequestSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+});
+
+export const RenameThreadResponseSchema = z.object({
+  thread: ThreadSummarySchema,
+});
+
+export const RewindThreadRequestSchema = z.object({
+  turnId: z.string().trim().min(1),
+});
+
 export const ListModelsResponseSchema = z.object({
   models: z.array(CodexModelSchema),
 });
@@ -843,6 +855,9 @@ export type UpdateRuntimePreferencesRequest = z.infer<typeof UpdateRuntimePrefer
 export type VersionResponse = z.infer<typeof VersionResponseSchema>;
 export type ListThreadsResponse = z.infer<typeof ListThreadsResponseSchema>;
 export type ArchiveThreadResponse = z.infer<typeof ArchiveThreadResponseSchema>;
+export type RenameThreadRequest = z.infer<typeof RenameThreadRequestSchema>;
+export type RenameThreadResponse = z.infer<typeof RenameThreadResponseSchema>;
+export type RewindThreadRequest = z.infer<typeof RewindThreadRequestSchema>;
 export type ListModelsResponse = z.infer<typeof ListModelsResponseSchema>;
 export type ListSkillsResponse = z.infer<typeof ListSkillsResponseSchema>;
 export type ListWorkspaceFilesResponse = z.infer<typeof ListWorkspaceFilesResponseSchema>;
@@ -1088,6 +1103,8 @@ export const apiPaths = {
   threads: "/v1/threads",
   thread: (threadId: string) => `/v1/threads/${encodeURIComponent(threadId)}`,
   threadArchive: (threadId: string) => `/v1/threads/${encodeURIComponent(threadId)}`,
+  threadName: (threadId: string) => `/v1/threads/${encodeURIComponent(threadId)}/name`,
+  threadRollback: (threadId: string) => `/v1/threads/${encodeURIComponent(threadId)}/rollback`,
   threadContextWindow: (threadId: string) =>
     `/v1/threads/${encodeURIComponent(threadId)}/context-window`,
   threadGoal: (threadId: string) => `/v1/threads/${encodeURIComponent(threadId)}/goal`,
@@ -1209,6 +1226,32 @@ export function createOpenApiDocument() {
           responses: {
             "200": jsonResponse("ArchiveThreadResponse"),
             "404": jsonResponse("ErrorResponse"),
+            "502": jsonResponse("ErrorResponse"),
+          },
+        },
+      },
+      "/v1/threads/{threadId}/name": {
+        post: {
+          summary: "Rename a Codex app-server thread",
+          requestBody: jsonRequest("RenameThreadRequest"),
+          responses: {
+            "200": jsonResponse("RenameThreadResponse"),
+            "400": jsonResponse("ErrorResponse"),
+            "404": jsonResponse("ErrorResponse"),
+            "409": jsonResponse("ErrorResponse"),
+            "502": jsonResponse("ErrorResponse"),
+          },
+        },
+      },
+      "/v1/threads/{threadId}/rollback": {
+        post: {
+          summary: "Rewind a Codex app-server thread to before a selected turn",
+          requestBody: jsonRequest("RewindThreadRequest"),
+          responses: {
+            "200": jsonResponse("ThreadDetailResponse"),
+            "400": jsonResponse("ErrorResponse"),
+            "404": jsonResponse("ErrorResponse"),
+            "409": jsonResponse("ErrorResponse"),
             "502": jsonResponse("ErrorResponse"),
           },
         },
@@ -1449,6 +1492,27 @@ export function createOpenApiDocument() {
             objective: { type: "string" },
             status: { type: "string", enum: ThreadGoalStatusSchema.options },
             tokenBudget: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
+          },
+        },
+        RenameThreadRequest: {
+          type: "object",
+          required: ["title"],
+          properties: {
+            title: { type: "string", minLength: 1, maxLength: 120 },
+          },
+        },
+        RenameThreadResponse: {
+          type: "object",
+          required: ["thread"],
+          properties: {
+            thread: { $ref: "#/components/schemas/ThreadSummary" },
+          },
+        },
+        RewindThreadRequest: {
+          type: "object",
+          required: ["turnId"],
+          properties: {
+            turnId: { type: "string", minLength: 1 },
           },
         },
         ThreadGoalResponse: {

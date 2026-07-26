@@ -6,6 +6,8 @@ import type {
   ListQueuedThreadInputsResponse,
   ListThreadsResponse,
   QueuedThreadInput,
+  RenameThreadRequest,
+  RewindThreadRequest,
   RunThreadRequest,
   RuntimePreferences,
   RuntimePreferencesResponse,
@@ -37,6 +39,8 @@ import {
   listThreads,
   listWorkspaceDirectories,
   removeQueuedThreadInput,
+  renameThread,
+  rewindThread,
   steerQueuedThreadInput,
   submitThreadInput,
   updateThreadGoal,
@@ -182,6 +186,33 @@ export async function archiveThreadServerState(queryClient: QueryClient, threadI
   const response = await archiveThread(threadId);
   setThreadsState(queryClient, response.threads, response.source);
   removeThreadDetailState(queryClient, response.archivedThreadId);
+  return response;
+}
+
+export async function renameThreadServerState(
+  queryClient: QueryClient,
+  threadId: string,
+  body: RenameThreadRequest,
+) {
+  const response = await renameThread(threadId, body);
+  upsertThreadState(queryClient, response.thread);
+  return response;
+}
+
+export async function rewindThreadServerState(
+  queryClient: QueryClient,
+  threadId: string,
+  body: RewindThreadRequest,
+) {
+  const response = await rewindThread(threadId, body);
+  setThreadDetailState(
+    queryClient,
+    response.thread,
+    response.messages,
+    response.pendingInputRequests,
+    { replaceMessages: true },
+  );
+  setQueuedInputsState(queryClient, threadId, []);
   return response;
 }
 
@@ -381,6 +412,7 @@ export function setThreadDetailState(
   thread: ThreadSummary,
   messages: ChatMessage[],
   pendingInputRequests: ThreadDetailResponse["pendingInputRequests"] = [],
+  options: { replaceMessages?: boolean } = {},
 ) {
   upsertThreadState(queryClient, thread);
   const response: ThreadDetailResponse = {
@@ -389,7 +421,7 @@ export function setThreadDetailState(
     pendingInputRequests,
   };
   queryClient.setQueryData<ThreadDetailResponse>(serverStateKeys.thread(thread.id), (current) =>
-    mergeThreadDetailState(current, response),
+    options.replaceMessages ? response : mergeThreadDetailState(current, response),
   );
 }
 

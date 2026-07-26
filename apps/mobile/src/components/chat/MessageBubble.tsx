@@ -109,10 +109,12 @@ type MarkdownSegment =
 export const MessageBubble = memo(function MessageBubble({
   message,
   onMessageCopied,
+  onMessageRewind,
   onOpenMarkdownAttachment,
 }: {
   message: ChatMessage;
   onMessageCopied?: () => void;
+  onMessageRewind?: (message: ChatMessage) => void;
   onOpenMarkdownAttachment?: (target: WorkspaceMarkdownPreviewTarget) => void;
 }) {
   const theme = useTheme();
@@ -315,6 +317,9 @@ export const MessageBubble = memo(function MessageBubble({
             canCopy={copyMarkdown.length > 0}
             isCopied={isCopied}
             onCopyPress={handleCopyPress}
+            onRewindPress={
+              onMessageRewind && message.turnId ? () => onMessageRewind(message) : undefined
+            }
             timestamp={timestamp}
             variant="user"
           />
@@ -398,6 +403,11 @@ export const MessageBubble = memo(function MessageBubble({
             canCopy={copyMarkdown.length > 0}
             isCopied={isCopied}
             onCopyPress={handleCopyPress}
+            onRewindPress={
+              isUser && onMessageRewind && message.turnId
+                ? () => onMessageRewind(message)
+                : undefined
+            }
             timestamp={timestamp}
             variant={isUser ? "user" : "assistant"}
           />
@@ -411,12 +421,14 @@ function MessageFooter({
   canCopy,
   isCopied,
   onCopyPress,
+  onRewindPress,
   timestamp,
   variant,
 }: {
   canCopy: boolean;
   isCopied: boolean;
   onCopyPress: () => void;
+  onRewindPress?: () => void;
   timestamp: string;
   variant: "assistant" | "user";
 }) {
@@ -449,6 +461,21 @@ function MessageFooter({
       >
         <Icon name={isCopied ? "check" : "copy"} size={12} tintColor={iconTint} strokeWidth={2.2} />
       </Pressable>
+      {onRewindPress ? (
+        <Pressable
+          accessibilityLabel="Rewind chat to before this message"
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={onRewindPress}
+          style={({ pressed }) => [
+            styles.copyButton,
+            isUser && styles.userCopyButton,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Icon name="rewind" size={12} tintColor={iconTint} strokeWidth={2.2} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }

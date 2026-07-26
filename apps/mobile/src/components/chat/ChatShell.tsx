@@ -53,6 +53,7 @@ export function ChatShell({
   onIgnoreInputRequest,
   onOpenMarkdownAttachment,
   onMessageCopied,
+  onMessageRewind,
   onRefreshUsageStatus,
   onSubmitInputRequest,
   onRemoveQueuedPrompt,
@@ -96,6 +97,7 @@ export function ChatShell({
   onImplementPlan?: () => void;
   onIgnoreInputRequest?: (request: PendingInputRequest) => void;
   onMessageCopied?: () => void;
+  onMessageRewind?: (message: ChatMessage) => void;
   onOpenMarkdownAttachment?: (target: WorkspaceMarkdownPreviewTarget) => void;
   onRefreshUsageStatus?: () => Promise<void> | void;
   onSubmitInputRequest?: (request: PendingInputRequest, answers: string[]) => void;
@@ -171,6 +173,7 @@ export function ChatShell({
                 keyboardLayoutFrozen={isKeyboardLayoutFrozen}
                 messages={visibleMessages}
                 onMessageCopied={onMessageCopied}
+                onMessageRewind={onMessageRewind}
                 onOpenMarkdownAttachment={onOpenMarkdownAttachment}
                 onKeyboardDismissRequest={handleTimelineKeyboardDismissRequest}
                 bottomAccessoryHeight={queuedPromptPanelHeight}
