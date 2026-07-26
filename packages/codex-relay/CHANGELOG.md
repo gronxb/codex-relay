@@ -1,5 +1,13 @@
 # codex-relay
 
+## 1.4.3
+
+### Patch Changes
+
+- ebb83b4: Prefer the shared Codex app-server on macOS, with automatic private-mode fallback when default shared startup fails. Keep Linux and Windows defaults unchanged, and preserve `--shared-app-server` as a required shared mode.
+- 854d799: fix: clean up cancelled thread streams and stop repeated web preview probes
+- 13a1c27: Upgrade the Codex SDK to 0.145.0, add an idempotent `stop` command for background relays, and recover shared app-server startup when a stale Unix socket is present.
+
 ## 1.4.2
 
 ### Patch Changes
