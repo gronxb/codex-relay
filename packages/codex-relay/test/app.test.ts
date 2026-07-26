@@ -5596,9 +5596,9 @@ describe("Codex Relay server routes", () => {
         params: { status: "completed", threadId: "app-thread-queue", turnId: "turn-1" },
       });
     }
-    await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
-
-    expect(startTurn).toHaveBeenCalledTimes(2);
+    await vi.waitFor(() => {
+      expect(startTurn).toHaveBeenCalledTimes(2);
+    });
     expect(startTurn).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
@@ -5621,9 +5621,9 @@ describe("Codex Relay server routes", () => {
         params: { status: "completed", threadId: "app-thread-queue", turnId: "turn-2" },
       });
     }
-    await new Promise<void>((resolve) => queueMicrotask(() => resolve()));
-
-    expect(startTurn).toHaveBeenCalledTimes(3);
+    await vi.waitFor(() => {
+      expect(startTurn).toHaveBeenCalledTimes(3);
+    });
 
     for (const handler of notificationHandlers) {
       handler({
