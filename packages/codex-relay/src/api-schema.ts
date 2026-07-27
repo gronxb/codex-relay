@@ -304,6 +304,7 @@ export const ChatMessageSchema = z.object({
 
 export const ThreadSummarySchema = z.object({
   id: z.string().min(1),
+  parentThreadId: z.string().min(1).optional(),
   title: z.string().min(1),
   createdAt: IsoDateTimeSchema,
   updatedAt: IsoDateTimeSchema,

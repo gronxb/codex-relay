@@ -45,6 +45,7 @@ const sharedSocketReconnectDelaysMs = [50, 100, 250, 500, 1_000, 2_000] as const
 
 export type AppServerThread = {
   id: string;
+  parentThreadId: string | null;
   preview: string;
   createdAt: number;
   updatedAt: number;

@@ -1654,7 +1654,9 @@ export function createApp(options: AppOptions = {}) {
       try {
         const appServerThreads = await appServer.listThreads();
         const response: ListThreadsResponse = ListThreadsResponseSchema.parse({
-          threads: appServerThreads.map((thread) => rememberAppServerThread(threads, thread)),
+          threads: appServerThreads
+            .filter((thread) => !isSubagentThread(thread))
+            .map((thread) => rememberAppServerThread(threads, thread)),
           source: "app-server",
         });
         return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
@@ -1685,7 +1687,9 @@ export function createApp(options: AppOptions = {}) {
         const appServerThreads = await appServer.listThreads();
         const response: ArchiveThreadResponse = ArchiveThreadResponseSchema.parse({
           archivedThreadId: threadId,
-          threads: appServerThreads.map((thread) => rememberAppServerThread(threads, thread)),
+          threads: appServerThreads
+            .filter((thread) => !isSubagentThread(thread))
+            .map((thread) => rememberAppServerThread(threads, thread)),
           source: "app-server",
         });
         return secureJson(c, options.pairing, secureSessionsByTokenHash, response);
@@ -1732,6 +1736,15 @@ export function createApp(options: AppOptions = {}) {
       threadId,
     });
     const knownThread = threads.get(threadId);
+    if (knownThread && isSubagentThread(knownThread)) {
+      return secureJson(
+        c,
+        options.pairing,
+        secureSessionsByTokenHash,
+        apiError("not_found", `Thread ${threadId} is not known to this server.`),
+        404,
+      );
+    }
     const wasKnownRunning =
       knownThread?.state === "running" || activeAppServerTurnIdsByThreadId.has(threadId);
     if (appServer) {
@@ -1739,6 +1752,15 @@ export function createApp(options: AppOptions = {}) {
         const thread = await appServer.readThread(threadId, {
           includeTurns: false,
         });
+        if (isSubagentThread(thread)) {
+          return secureJson(
+            c,
+            options.pairing,
+            secureSessionsByTokenHash,
+            apiError("not_found", `Thread ${threadId} is not known to this server.`),
+            404,
+          );
+        }
         const mappedThread = rememberAppServerThread(threads, thread);
         const cachedMessages = messagesByThreadId.get(threadId) ?? [];
         let loadedMessages = false;
@@ -4766,7 +4788,9 @@ function createSecureSessionHandle(
 }
 
 function sortedThreads(threads: Map<string, ThreadMetadata>) {
-  return [...threads.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return [...threads.values()]
+    .filter((thread) => !isSubagentThread(thread))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 async function ensureKnownThread(input: {
@@ -4777,7 +4801,7 @@ async function ensureKnownThread(input: {
 }) {
   const knownThread = input.threads.get(input.threadId);
   if (knownThread) {
-    return knownThread;
+    return isSubagentThread(knownThread) ? undefined : knownThread;
   }
 
   if (!input.appServer) {
@@ -4788,6 +4812,9 @@ async function ensureKnownThread(input: {
     const appServerThread = await input.appServer.readThread(input.threadId, {
       includeTurns: false,
     });
+    if (isSubagentThread(appServerThread)) {
+      return undefined;
+    }
     const thread = rememberAppServerThread(input.threads, appServerThread);
     return thread;
   } catch {
@@ -5973,6 +6000,7 @@ function mapAppServerThread(
   const mappedState = mapAppServerThreadState(thread.status, thread.turns);
   return ThreadSummarySchema.parse({
     id: thread.id,
+    parentThreadId: thread.parentThreadId ?? undefined,
     title: thread.name ?? preview(thread.preview || "Untitled thread"),
     createdAt,
     updatedAt,
@@ -5996,6 +6024,10 @@ function rememberAppServerThread(threads: Map<string, ThreadMetadata>, thread: A
   });
   threads.set(threadWithLocalRuntime.id, threadWithLocalRuntime);
   return threadWithLocalRuntime;
+}
+
+function isSubagentThread(thread: { readonly parentThreadId?: string | null }) {
+  return Boolean(thread.parentThreadId);
 }
 
 function mapAppServerThreadGoal(goal: AppServerThreadGoal | null): ThreadGoal | null {
@@ -7405,7 +7437,12 @@ function observeAppServerPushNotifications(
     if (!event) {
       return;
     }
-    dispatch(event, `${event.intent}:${event.threadId}:${event.turnId ?? ""}:${request.id}`);
+    const eventId = `${event.intent}:${event.threadId}:${event.turnId ?? ""}:${request.id}`;
+    if (subagentThreadIds.has(event.threadId)) {
+      rememberEventId(eventId);
+      return;
+    }
+    dispatch(event, eventId);
   });
 }
 
