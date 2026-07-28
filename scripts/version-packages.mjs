@@ -11,6 +11,7 @@ const workspaceRoot = fileURLToPath(new URL("..", import.meta.url));
 const mobileRoot = resolve(workspaceRoot, "apps/mobile");
 const mobilePackagePath = resolve(workspaceRoot, "apps/mobile/package.json");
 const mobileChangelogPath = resolve(workspaceRoot, "apps/mobile/CHANGELOG.md");
+const changesetDirectory = resolve(workspaceRoot, ".changeset");
 const ignoredPackagesByTarget = {
   npm: [mobilePackageName, "react-native-direct-fetch"],
   mobile: ["codex-relay", "react-native-direct-fetch"],
@@ -41,14 +42,47 @@ function main() {
   }
 
   const ignoreArguments = ignoredPackages.flatMap((packageName) => ["--ignore", packageName]);
-  execFileSync("pnpm", ["changeset", "version", ...ignoreArguments], {
-    cwd: workspaceRoot,
-    stdio: "inherit",
-  });
+  const mixedChangesets = splitMixedChangesets(status.changesets, ignoredPackages);
+  try {
+    for (const changeset of mixedChangesets) {
+      writeChangeset(changeset.id, changeset.selectedReleases, changeset.summary);
+    }
+    execFileSync("pnpm", ["changeset", "version", ...ignoreArguments], {
+      cwd: workspaceRoot,
+      stdio: "inherit",
+    });
+  } catch (error) {
+    for (const changeset of mixedChangesets) {
+      writeChangeset(changeset.id, changeset.originalReleases, changeset.summary);
+    }
+    throw error;
+  }
+  for (const changeset of mixedChangesets) {
+    writeChangeset(changeset.id, changeset.remainingReleases, changeset.summary);
+  }
 
   if (targetMobileVersion) {
     applyMobileShipVersion(targetMobileVersion);
   }
+}
+
+export function splitMixedChangesets(changesets, ignoredPackages) {
+  return changesets.flatMap(({ id, releases, summary }) => {
+    const selectedReleases = releases.filter(({ name }) => !ignoredPackages.includes(name));
+    const remainingReleases = releases.filter(({ name }) => ignoredPackages.includes(name));
+    if (selectedReleases.length === 0 || remainingReleases.length === 0) {
+      return [];
+    }
+    return [{ id, originalReleases: releases, remainingReleases, selectedReleases, summary }];
+  });
+}
+
+function writeChangeset(id, releases, summary) {
+  const frontmatter = releases.map(({ name, type }) => `"${name}": ${type}`).join("\n");
+  writeFileSync(
+    resolve(changesetDirectory, `${id}.md`),
+    `---\n${frontmatter}\n---\n\n${summary}\n`,
+  );
 }
 
 function readChangesetStatus() {
@@ -94,4 +128,6 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
-main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main();
+}
