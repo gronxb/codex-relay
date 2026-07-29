@@ -7420,7 +7420,6 @@ function observeAppServerPushNotifications(
   dispatcher: PushNotificationDispatcher,
 ) {
   const dispatchedEventIds = new Set<string>();
-  const subagentThreadIds = new Set<string>();
   const rememberEventId = (eventId: string) => {
     if (dispatchedEventIds.size >= 1000) {
       dispatchedEventIds.clear();
@@ -7432,27 +7431,29 @@ function observeAppServerPushNotifications(
       return;
     }
     rememberEventId(eventId);
-    void dispatcher.dispatch(event).catch((error) => {
-      relayDebugLog("push_notification.dispatch_failed", {
-        error: errorMessage(error),
-        intent: event.intent,
-        threadId: event.threadId,
-        turnId: event.turnId,
+    void appServer
+      .readThread(event.threadId, { includeTurns: false })
+      .then((thread) => {
+        if (!isSubagentThread(thread)) {
+          return dispatcher.dispatch(event);
+        }
+      })
+      .catch((error) => {
+        relayDebugLog("push_notification.dispatch_failed", {
+          error: errorMessage(error),
+          intent: event.intent,
+          threadId: event.threadId,
+          turnId: event.turnId,
+        });
       });
-    });
   };
 
   appServer.onNotification((notification) => {
-    rememberSubagentThreadIds(notification, subagentThreadIds);
     const event = pushNotificationEventFromTerminalNotification(notification);
     if (!event) {
       return;
     }
     const eventId = `${event.intent}:${event.threadId}:${event.turnId ?? ""}`;
-    if (subagentThreadIds.delete(event.threadId)) {
-      rememberEventId(eventId);
-      return;
-    }
     dispatch(event, eventId);
   });
 
@@ -7462,29 +7463,8 @@ function observeAppServerPushNotifications(
       return;
     }
     const eventId = `${event.intent}:${event.threadId}:${event.turnId ?? ""}:${request.id}`;
-    if (subagentThreadIds.has(event.threadId)) {
-      rememberEventId(eventId);
-      return;
-    }
     dispatch(event, eventId);
   });
-}
-
-function rememberSubagentThreadIds(
-  notification: AppServerNotification,
-  subagentThreadIds: Set<string>,
-) {
-  const item = objectRecord(recordParams(notification)?.item);
-  if (
-    item?.type !== "collabAgentToolCall" ||
-    !["spawnAgent", "sendInput", "resumeAgent"].includes(String(item.tool))
-  ) {
-    return;
-  }
-
-  for (const threadId of stringArray(item.receiverThreadIds)) {
-    subagentThreadIds.add(threadId);
-  }
 }
 
 function pushNotificationEventFromTerminalNotification(notification: AppServerNotification) {

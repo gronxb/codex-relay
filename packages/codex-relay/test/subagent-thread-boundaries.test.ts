@@ -97,7 +97,7 @@ describe("subagent thread boundaries", () => {
     expect(runResponse.status).toBe(404);
   });
 
-  it("suppresses completion and action-required pushes from spawned subagents", async () => {
+  it("suppresses subagent pushes when the observer did not see the spawn event", async () => {
     // Given
     const sessions = await createTursoPairingSessionStore(":memory:");
     await sessions.createSession("client-token", {
@@ -114,6 +114,9 @@ describe("subagent thread boundaries", () => {
     const notificationHandlers = new Set<(notification: AppServerNotification) => void>();
     const requestHandlers = new Set<(request: AppServerRequest) => void>();
     const appServer = new CodexAppServerClient();
+    vi.spyOn(appServer, "readThread").mockImplementation(async (threadId) =>
+      appServerThread(threadId, threadId === "subagent-thread" ? "parent-thread" : null),
+    );
     vi.spyOn(appServer, "onNotification").mockImplementation((handler) => {
       notificationHandlers.add(handler);
       return () => notificationHandlers.delete(handler);
@@ -142,27 +145,6 @@ describe("subagent thread boundaries", () => {
     });
 
     // When
-    for (const handler of notificationHandlers) {
-      handler({
-        method: "item/completed",
-        params: {
-          item: {
-            agentsStates: {},
-            id: "spawn-agent",
-            model: null,
-            prompt: null,
-            reasoningEffort: null,
-            receiverThreadIds: ["subagent-thread"],
-            senderThreadId: "parent-thread",
-            status: "completed",
-            tool: "spawnAgent",
-            type: "collabAgentToolCall",
-          },
-          threadId: "parent-thread",
-          turnId: "parent-turn",
-        },
-      });
-    }
     for (const handler of requestHandlers) {
       handler({
         id: 1,

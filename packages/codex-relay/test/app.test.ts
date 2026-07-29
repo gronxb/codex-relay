@@ -1276,6 +1276,11 @@ describe("Codex Relay server routes", () => {
     const notificationHandlers = new Set<(notification: unknown) => void>();
     const requestHandlers = new Set<(request: unknown) => void>();
     const appServer = {
+      async readThread(threadId: string) {
+        return {
+          parentThreadId: threadId === "agent-thread-1" ? "thread-1" : null,
+        };
+      },
       onNotification(handler: (notification: unknown) => void) {
         notificationHandlers.add(handler);
         return () => notificationHandlers.delete(handler);
