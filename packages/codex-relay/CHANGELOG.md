@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.4
+
+### Patch Changes
+
+- dfa005a: fix: isolate subagent threads from clients
+
 ## 1.4.3
 
 ### Patch Changes

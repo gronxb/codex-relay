@@ -203,3 +203,17 @@ describe("push notification schemas", () => {
     });
   });
 });
+
+describe("thread mutation OpenAPI paths", () => {
+  it.each(["/v1/threads/{threadId}/name", "/v1/threads/{threadId}/rollback"] as const)(
+    "declares the threadId path parameter for %s",
+    (path) => {
+      expect(createOpenApiDocument().paths[path]?.post?.parameters).toContainEqual({
+        name: "threadId",
+        in: "path",
+        required: true,
+        schema: { type: "string" },
+      });
+    },
+  );
+});

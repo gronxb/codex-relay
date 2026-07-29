@@ -259,6 +259,10 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         .catch(() => undefined);
     },
   });
+  const rewindThreadMutation = useMutation({
+    mutationFn: ({ threadId, turnId }: { threadId: string; turnId: string }) =>
+      rewindThreadServerState(queryClient, threadId, { turnId }),
+  });
   const removeQueuedThreadInputMutation = useMutation({
     mutationFn: (input: { inputId: string; threadId: string }) =>
       removeQueuedThreadInputServerState(queryClient, input.threadId, input.inputId),
@@ -470,6 +474,10 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   const activeThread =
     activeThreadDetailQuery.data?.thread ??
     (activeThreadId ? threadsById[activeThreadId] : undefined);
+  const canMutateActiveThread =
+    statusQuery.data?.appServerAvailable === true &&
+    threadsQuery.data?.source === "app-server" &&
+    Boolean(activeThreadId && threadsById[activeThreadId]);
   const isRunningAppThread = activeThread?.source === "app" && activeThread.state === "running";
   const activeWorkspacePath = activeThread?.cwd ?? workspacePath;
   const skillsQuery = useQuery({
@@ -601,11 +609,13 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   }, []);
 
   const syncThreadSnapshot = useCallback(
-    async (threadId: string, options: { setOfflineOnError?: boolean } = {}) => {
+    async (threadId: string, options: { refresh?: boolean; setOfflineOnError?: boolean } = {}) => {
       const setOfflineOnError = options.setOfflineOnError ?? true;
       setThreadMessagesLoading(threadId, true);
       try {
-        const response = await fetchThreadState(queryClient, threadId);
+        const response = await fetchThreadState(queryClient, threadId, {
+          refresh: options.refresh,
+        });
         syncPairedSessionState();
         if (chatStore$.activeThreadId.peek() !== threadId) {
           return response.thread.state;
@@ -615,6 +625,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           response.thread,
           response.messages,
           response.pendingInputRequests,
+          { replaceMessages: options.refresh },
         );
         await Promise.all([
           fetchQueuedInputsState(queryClient, threadId).catch(() => undefined),
@@ -655,9 +666,9 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   );
 
   const loadThread = useCallback(
-    async (threadId: string) => {
+    async (threadId: string, options: { refresh?: boolean } = {}) => {
       setActiveThread(threadId);
-      const state = await syncThreadSnapshot(threadId);
+      const state = await syncThreadSnapshot(threadId, { refresh: options.refresh });
       if (state === "running") {
         requestThreadStreamReconnect(threadId);
         return;
@@ -720,7 +731,10 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           response.threads.some((thread) => thread.id === currentActiveThreadId);
         const missingActiveThreadState =
           currentActiveThreadId && !hasCurrentActiveThread
-            ? await syncThreadSnapshot(currentActiveThreadId, { setOfflineOnError: false })
+            ? await syncThreadSnapshot(currentActiveThreadId, {
+                refresh: true,
+                setOfflineOnError: false,
+              })
             : undefined;
         if (chatStore$.activeThreadId.peek() !== currentActiveThreadId) {
           return;
@@ -736,7 +750,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           setActiveThread(nextActiveThreadId);
         }
         if (nextActiveThreadId && !missingActiveThreadRestored) {
-          await loadThread(nextActiveThreadId);
+          await loadThread(nextActiveThreadId, { refresh: true });
         } else if (nextActiveThreadId && missingActiveThreadState === "running") {
           requestThreadStreamReconnect(nextActiveThreadId);
         }
@@ -1887,7 +1901,13 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   }
 
   function confirmRewind(message: ChatMessage) {
-    if (!activeThreadId || !message.turnId || activeThread?.source !== "app" || isRunning) {
+    if (
+      !canMutateActiveThread ||
+      !activeThreadId ||
+      !message.turnId ||
+      isRunning ||
+      rewindThreadMutation.isPending
+    ) {
       return;
     }
 
@@ -1902,14 +1922,22 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   }
 
   async function rewindFromMessage(message: ChatMessage) {
-    if (!activeThreadId || !message.turnId) {
+    if (
+      !canMutateActiveThread ||
+      !activeThreadId ||
+      !message.turnId ||
+      rewindThreadMutation.isPending
+    ) {
       return;
     }
 
     clearThreadStatusPoll();
     detachCurrentStream();
     try {
-      await rewindThreadServerState(queryClient, activeThreadId, { turnId: message.turnId });
+      await rewindThreadMutation.mutateAsync({
+        threadId: activeThreadId,
+        turnId: message.turnId,
+      });
       clearQueuedPrompts(activeThreadId);
       setConnection("connected");
       hapticSuccess();
@@ -2244,7 +2272,11 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       onImplementPlan={implementPlan}
       onIgnoreInputRequest={(request) => void ignoreInputRequest(request)}
       onMessageCopied={showMessageCopiedToast}
-      onMessageRewind={activeThread?.source === "app" && !isRunning ? confirmRewind : undefined}
+      onMessageRewind={
+        canMutateActiveThread && !isRunning && !rewindThreadMutation.isPending
+          ? confirmRewind
+          : undefined
+      }
       onOpenMarkdownAttachment={openMarkdownAttachmentPreview}
       onRefreshUsageStatus={() => refreshUsageStatus()}
       onSubmitInputRequest={(request, answers) => void submitInputRequest(request, answers)}

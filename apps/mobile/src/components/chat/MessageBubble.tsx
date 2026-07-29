@@ -465,7 +465,7 @@ function MessageFooter({
         <Pressable
           accessibilityLabel="Rewind chat to before this message"
           accessibilityRole="button"
-          hitSlop={8}
+          hitSlop={11}
           onPress={onRewindPress}
           style={({ pressed }) => [
             styles.copyButton,

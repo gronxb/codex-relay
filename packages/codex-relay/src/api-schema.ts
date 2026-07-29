@@ -304,6 +304,7 @@ export const ChatMessageSchema = z.object({
 
 export const ThreadSummarySchema = z.object({
   id: z.string().min(1),
+  parentThreadId: z.string().min(1).optional(),
   title: z.string().min(1),
   createdAt: IsoDateTimeSchema,
   updatedAt: IsoDateTimeSchema,
@@ -1207,6 +1208,11 @@ export function createOpenApiDocument() {
               required: true,
               schema: { type: "string" },
             },
+            {
+              name: "refresh",
+              in: "query",
+              schema: { type: "boolean" },
+            },
           ],
           responses: {
             "200": jsonResponse("ThreadDetailResponse"),
@@ -1233,6 +1239,14 @@ export function createOpenApiDocument() {
       "/v1/threads/{threadId}/name": {
         post: {
           summary: "Rename a Codex app-server thread",
+          parameters: [
+            {
+              name: "threadId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
           requestBody: jsonRequest("RenameThreadRequest"),
           responses: {
             "200": jsonResponse("RenameThreadResponse"),
@@ -1246,6 +1260,14 @@ export function createOpenApiDocument() {
       "/v1/threads/{threadId}/rollback": {
         post: {
           summary: "Rewind a Codex app-server thread to before a selected turn",
+          parameters: [
+            {
+              name: "threadId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
           requestBody: jsonRequest("RewindThreadRequest"),
           responses: {
             "200": jsonResponse("ThreadDetailResponse"),

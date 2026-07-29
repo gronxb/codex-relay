@@ -3,6 +3,16 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { isMobileShipRelease, nextMobileShipVersion } from "./mobile-release-version.mjs";
+import { splitMixedChangesets } from "./version-packages.mjs";
+
+const mixedReleaseChangeset = {
+  id: "mixed-release",
+  releases: [
+    { name: "codex-relay", type: "patch" },
+    { name: "@codex-relay/mobile", type: "patch" },
+  ],
+  summary: "Ship one feature through both release channels.",
+};
 
 test("starts ship numbering from the configured app version", () => {
   assert.equal(nextMobileShipVersion("1.0.0", "1.4.0", "patch"), "1.4.0-ship.1");
@@ -26,6 +36,44 @@ test("detects only sequential ship releases", () => {
   assert.equal(isMobileShipRelease("1.4.0-ship.8", "1.5.0-ship.1"), true);
   assert.equal(isMobileShipRelease("1.4.0-ship.1", "1.4.0-ship.3"), false);
   assert.equal(isMobileShipRelease("1.4.0-ship.1", "1.4.1"), false);
+});
+
+test("keeps the mobile release when preparing a mixed npm changeset", () => {
+  // Given a changeset shared by the npm and mobile release channels
+  const ignoredPackages = ["@codex-relay/mobile", "react-native-direct-fetch"];
+
+  // When the changeset is scoped to the npm release branch
+  const scopedChangesets = splitMixedChangesets([mixedReleaseChangeset], ignoredPackages);
+
+  // Then npm is selected and the mobile release remains pending
+  assert.deepEqual(scopedChangesets, [
+    {
+      id: "mixed-release",
+      originalReleases: mixedReleaseChangeset.releases,
+      remainingReleases: [{ name: "@codex-relay/mobile", type: "patch" }],
+      selectedReleases: [{ name: "codex-relay", type: "patch" }],
+      summary: mixedReleaseChangeset.summary,
+    },
+  ]);
+});
+
+test("keeps the npm release when preparing a mixed mobile changeset", () => {
+  // Given a changeset shared by the npm and mobile release channels
+  const ignoredPackages = ["codex-relay", "react-native-direct-fetch"];
+
+  // When the changeset is scoped to the mobile release branch
+  const scopedChangesets = splitMixedChangesets([mixedReleaseChangeset], ignoredPackages);
+
+  // Then mobile is selected and the npm release remains pending
+  assert.deepEqual(scopedChangesets, [
+    {
+      id: "mixed-release",
+      originalReleases: mixedReleaseChangeset.releases,
+      remainingReleases: [{ name: "codex-relay", type: "patch" }],
+      selectedReleases: [{ name: "@codex-relay/mobile", type: "patch" }],
+      summary: mixedReleaseChangeset.summary,
+    },
+  ]);
 });
 
 test("defines independent npm and mobile version commands", () => {

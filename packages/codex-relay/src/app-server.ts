@@ -45,6 +45,7 @@ const sharedSocketReconnectDelaysMs = [50, 100, 250, 500, 1_000, 2_000] as const
 
 export type AppServerThread = {
   id: string;
+  parentThreadId: string | null;
   preview: string;
   createdAt: number;
   updatedAt: number;
@@ -356,8 +357,7 @@ export class CodexAppServerClient {
   }
 
   async setThreadName(params: AppServerThreadNameSetParams) {
-    const response = await this.request<{ thread: AppServerThread }>("thread/name/set", params);
-    return response.thread;
+    await this.request("thread/name/set", params);
   }
 
   async rollbackThread(params: AppServerThreadRollbackParams) {

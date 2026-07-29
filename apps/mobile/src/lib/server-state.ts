@@ -110,18 +110,25 @@ export function fetchRateLimitsState(queryClient: QueryClient) {
   });
 }
 
-export function fetchThreadState(queryClient: QueryClient, threadId: string) {
-  return queryClient
-    .fetchQuery({
-      queryKey: serverStateKeys.thread(threadId),
-      queryFn: () => getThread(threadId),
-    })
-    .then((response) => {
-      queryClient.setQueryData<ThreadDetailResponse>(serverStateKeys.thread(threadId), (current) =>
-        mergeThreadDetailState(current, response),
-      );
-      return response;
-    });
+export async function fetchThreadState(
+  queryClient: QueryClient,
+  threadId: string,
+  options: { refresh?: boolean } = {},
+) {
+  const response = options.refresh
+    ? await getThread(threadId, { refresh: true })
+    : await queryClient.fetchQuery({
+        queryKey: serverStateKeys.thread(threadId),
+        queryFn: () => getThread(threadId),
+      });
+  setThreadDetailState(
+    queryClient,
+    response.thread,
+    response.messages,
+    response.pendingInputRequests,
+    { replaceMessages: options.refresh },
+  );
+  return response;
 }
 
 export function fetchQueuedInputsState(queryClient: QueryClient, threadId: string) {

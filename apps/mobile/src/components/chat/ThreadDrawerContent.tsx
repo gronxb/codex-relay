@@ -231,6 +231,8 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     staleTime: 60_000,
   });
   const workspacePath = statusQuery.data?.workspacePath;
+  const canMutateAppServerThreads =
+    statusQuery.data?.appServerAvailable === true && threadsQuery.data?.source === "app-server";
   const versionCompatibility = useMemo(
     () => evaluateRelayVersion(versionQuery.data, versionQuery.error),
     [versionQuery.data, versionQuery.error],
@@ -274,6 +276,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   );
   const workspaceRows = useMemo(() => workspaceBrowserRows(workspaceBrowser), [workspaceBrowser]);
   const canSaveRenamedThread = Boolean(
+    canMutateAppServerThreads &&
     threadToRename &&
     renameDraft.trim() &&
     renameDraft.trim() !== threadToRename.title &&
@@ -301,7 +304,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   }, []);
   const saveRenamedThread = useCallback(async () => {
     const title = renameDraft.trim();
-    if (!threadToRename || !title || renameThreadMutation.isPending) {
+    if (!canMutateAppServerThreads || !threadToRename || !title || renameThreadMutation.isPending) {
       return;
     }
 
@@ -319,7 +322,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         caught instanceof Error ? caught.message : "Unable to rename this chat.",
       );
     }
-  }, [renameDraft, renameThreadMutation, threadToRename]);
+  }, [canMutateAppServerThreads, renameDraft, renameThreadMutation, threadToRename]);
   const searchClearAnimatedStyle = useAnimatedStyle<ViewStyle>(() => ({
     opacity: searchProgress.value,
     transform: [
@@ -398,6 +401,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     ({ item }: LegendListRenderItemProps<DrawerRow>) => (
       <DrawerRowItem
         archiveThreadPending={archiveThreadMutation.isPending}
+        canRenameThread={canMutateAppServerThreads}
         isCreatingThread={isCreatingThread}
         item={item}
         onArchiveThread={confirmArchiveThread}
@@ -412,6 +416,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     [
       activeThreadId,
       archiveThreadMutation.isPending,
+      canMutateAppServerThreads,
       confirmArchiveThread,
       createNewThread,
       isCreatingThread,
@@ -865,6 +870,7 @@ function DrawerFooter({
 
 type DrawerRowItemProps = {
   archiveThreadPending: boolean;
+  canRenameThread: boolean;
   isCreatingThread: boolean;
   item: DrawerRow;
   onArchiveThread: (thread: ThreadSummary) => void;
@@ -878,6 +884,7 @@ type DrawerRowItemProps = {
 
 const DrawerRowItem = memo(function DrawerRowItem({
   archiveThreadPending,
+  canRenameThread,
   isCreatingThread,
   item,
   onArchiveThread,
@@ -938,11 +945,24 @@ const DrawerRowItem = memo(function DrawerRowItem({
   return (
     <View style={[styles.thread, selected && styles.threadSelected]}>
       <Pressable
+        accessibilityActions={
+          canRenameThread ? [{ label: "Rename chat", name: "rename" }] : undefined
+        }
+        accessibilityHint={canRenameThread ? "Long press for chat actions" : undefined}
         accessibilityRole="button"
         accessibilityLabel={`Open thread ${item.thread.title}`}
         accessibilityState={{ selected }}
         delayLongPress={350}
-        onLongPress={item.thread.source === "app" ? () => onRenameThread(item.thread) : undefined}
+        onAccessibilityAction={
+          canRenameThread
+            ? (event) => {
+                if (event.nativeEvent.actionName === "rename") {
+                  onRenameThread(item.thread);
+                }
+              }
+            : undefined
+        }
+        onLongPress={canRenameThread ? () => onRenameThread(item.thread) : undefined}
         onPress={() => void onSelectThread(item.thread.id)}
         style={styles.threadOpenButton}
       >
@@ -981,6 +1001,7 @@ const DrawerRowItem = memo(function DrawerRowItem({
 function areDrawerRowItemsEqual(previous: DrawerRowItemProps, next: DrawerRowItemProps) {
   if (
     previous.archiveThreadPending !== next.archiveThreadPending ||
+    previous.canRenameThread !== next.canRenameThread ||
     previous.isCreatingThread !== next.isCreatingThread ||
     previous.item.kind !== next.item.kind ||
     previous.item.id !== next.item.id ||
