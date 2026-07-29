@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.3
+
+### Patch Changes
+
+- 358aefc: Require codex-relay 1.4.5 or newer in the in-app relay update notice.
+
 ## 1.4.0-ship.2
 
 ### Patch Changes
