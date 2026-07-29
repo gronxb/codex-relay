@@ -1,5 +1,13 @@
 # codex-relay
 
+## 1.4.5
+
+### Patch Changes
+
+- d579920: Suppress subagent action-required and completion push notifications using persistent thread ancestry.
+- 3150a9d: Support renaming and rewinding Codex app-server chats from mobile.
+- f810d3f: Reload the active chat from the Codex app-server when refreshing from mobile.
+
 ## 1.4.4
 
 ### Patch Changes
