@@ -1,5 +1,12 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.4
+
+### Patch Changes
+
+- 1a640ee: fix: dismiss connecting banner after status check
+- afcf5bd: Keep paired mobile sessions connected until they are explicitly signed out or cleared.
+
 ## 1.4.0-ship.3
 
 ### Patch Changes
