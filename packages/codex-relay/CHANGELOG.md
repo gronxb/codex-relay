@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.6
+
+### Patch Changes
+
+- afcf5bd: Keep paired mobile sessions connected until they are explicitly signed out or cleared.
+
 ## 1.4.5
 
 ### Patch Changes
