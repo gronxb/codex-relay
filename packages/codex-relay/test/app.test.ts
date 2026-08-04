@@ -1130,7 +1130,6 @@ describe("Codex Relay server routes", () => {
         createClientToken: () => "client-token",
         hashClientToken: (token) => token,
         sessions,
-        tokenTtlMs: 60_000,
       },
     });
 
@@ -1148,7 +1147,7 @@ describe("Codex Relay server routes", () => {
     expect(insecurePairing.status).toBe(400);
   });
 
-  it("rejects expired client tokens", async () => {
+  it("keeps client tokens valid after the legacy expiry timestamp", async () => {
     const sessions = await createTursoPairingSessionStore(":memory:");
     await sessions.createSession("expired-client-token", { expiresAt: Date.now() - 1 });
     const app = createApp({
@@ -1157,15 +1156,14 @@ describe("Codex Relay server routes", () => {
         createClientToken: () => "client-token",
         hashClientToken: (token) => token,
         sessions,
-        tokenTtlMs: 60_000,
       },
     });
 
     const authenticated = await app.request("/v1/status", {
       headers: { authorization: "Bearer expired-client-token" },
     });
-    expect(authenticated.status).toBe(401);
-    expect(await sessions.getValidSession("expired-client-token", Date.now())).toBeUndefined();
+    expect(authenticated.status).toBe(200);
+    expect(await sessions.getValidSession("expired-client-token")).toBeDefined();
   });
 
   it("counts active clients by stable client session id and replaces stale tokens", async () => {
@@ -1181,7 +1179,7 @@ describe("Codex Relay server routes", () => {
       clientSessionId: "phone-session",
       expiresAt,
     });
-    expect(await sessions.countActive(Date.now())).toBe(1);
+    expect(await sessions.countActive()).toBe(1);
 
     await sessions.createSession("client-token-2", {
       clientName: "test phone",
@@ -1189,10 +1187,10 @@ describe("Codex Relay server routes", () => {
       expiresAt,
     });
 
-    expect(await sessions.countActive(Date.now())).toBe(1);
-    expect(await sessions.getValidSession("legacy-client-token", Date.now())).toBeUndefined();
-    expect(await sessions.getValidSession("client-token-1", Date.now())).toBeUndefined();
-    expect(await sessions.getValidSession("client-token-2", Date.now())).toMatchObject({
+    expect(await sessions.countActive()).toBe(1);
+    expect(await sessions.getValidSession("legacy-client-token")).toBeUndefined();
+    expect(await sessions.getValidSession("client-token-1")).toBeUndefined();
+    expect(await sessions.getValidSession("client-token-2")).toMatchObject({
       clientName: "test phone",
       clientSessionId: "phone-session",
     });
@@ -1210,7 +1208,6 @@ describe("Codex Relay server routes", () => {
         createClientToken: () => "unused-client-token",
         hashClientToken: (token) => token,
         sessions,
-        tokenTtlMs: 60_000,
       },
     });
 
@@ -1304,7 +1301,6 @@ describe("Codex Relay server routes", () => {
         createClientToken: () => "unused-client-token",
         hashClientToken: (token) => token,
         sessions,
-        tokenTtlMs: 60_000,
       },
       pushNotificationSender: sender,
     });
@@ -1387,7 +1383,6 @@ describe("Codex Relay server routes", () => {
         hashClientToken: (token) => token,
         serverIdentity: createServerIdentity(),
         sessions,
-        tokenTtlMs: 60_000,
       },
     });
 
@@ -1426,7 +1421,6 @@ describe("Codex Relay server routes", () => {
         hashClientToken: (token) => token,
         onPairingsCleared,
         sessions,
-        tokenTtlMs: 60_000,
       },
     });
 
@@ -1456,7 +1450,7 @@ describe("Codex Relay server routes", () => {
       pendingPairingsCleared: 1,
       sessionsCleared: 1,
     });
-    expect(await sessions.countActive(Date.now())).toBe(0);
+    expect(await sessions.countActive()).toBe(0);
     expect(await sessions.getPendingPairing("1234-5678", Date.now())).toBeUndefined();
 
     const afterClear = await app.request("/v1/status", {
@@ -1486,7 +1480,6 @@ describe("Codex Relay server routes", () => {
         onTokenRefreshed,
         serverIdentity,
         sessions,
-        tokenTtlMs: 60_000,
       },
       workspacePath: "/tmp/codex-relay",
     });
@@ -1575,8 +1568,11 @@ describe("Codex Relay server routes", () => {
     const tokenPayload = JSON.parse(
       testDecrypt(keys.serverToMobileKey, "server", 0, approvedBody.secure.encryptedPayload),
     );
-    expect(tokenPayload.clientToken).toBe("client-token");
-    expect(await sessions.getValidSession("client-token", Date.now())).toMatchObject({
+    expect(tokenPayload).toMatchObject({
+      clientToken: "client-token",
+      clientTokenExpiresAt: "9999-12-31T23:59:59.999Z",
+    });
+    expect(await sessions.getValidSession("client-token")).toMatchObject({
       clientName: "test phone",
       clientSessionId: "phone-session",
     });
@@ -1599,9 +1595,17 @@ describe("Codex Relay server routes", () => {
       method: "POST",
       headers: { authorization: "Bearer client-token" },
     });
+    const refreshEnvelope = await refresh.json();
+    const refreshBody = JSON.parse(
+      testDecrypt(keys.serverToMobileKey, "server", 2, refreshEnvelope.ciphertext),
+    );
     expect(refresh.status).toBe(201);
-    expect(await sessions.getValidSession("client-token", Date.now())).toBeUndefined();
-    expect(await sessions.getValidSession("client-token-2", Date.now())).toMatchObject({
+    expect(refreshBody).toMatchObject({
+      clientToken: "client-token-2",
+      clientTokenExpiresAt: "9999-12-31T23:59:59.999Z",
+    });
+    expect(await sessions.getValidSession("client-token")).toBeUndefined();
+    expect(await sessions.getValidSession("client-token-2")).toMatchObject({
       clientName: "test phone",
       clientSessionId: "phone-session",
     });
@@ -1625,7 +1629,6 @@ describe("Codex Relay server routes", () => {
         dangerouslyAutoApprove: true,
         serverIdentity,
         sessions,
-        tokenTtlMs: 60_000,
       },
       workspacePath: "/tmp/codex-relay",
     });

@@ -84,9 +84,7 @@ export function createPushNotificationDispatcher(input: {
 }): PushNotificationDispatcher {
   return {
     async dispatch(event) {
-      const subscriptions = await input.sessions.listActivePushNotificationSubscriptions(
-        Date.now(),
-      );
+      const subscriptions = await input.sessions.listActivePushNotificationSubscriptions();
       const selectedTokens = new Set(
         subscriptions
           .filter((subscription) => notificationEnabled(subscription, event.intent))

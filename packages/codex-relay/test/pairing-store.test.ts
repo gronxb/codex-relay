@@ -35,7 +35,7 @@ describe("pairing session store", () => {
     const cleared = await sessions.clearAll();
 
     expect(cleared).toEqual({ pendingPairingsCleared: 1, sessionsCleared: 1 });
-    expect(await sessions.countActive(Date.now())).toBe(0);
+    expect(await sessions.countActive()).toBe(0);
     expect(await sessions.getPendingPairing("1234-5678", Date.now())).toBeUndefined();
   });
 
@@ -45,8 +45,8 @@ describe("pairing session store", () => {
     const second = await createTursoPairingSessionStore(":memory:");
     await first.createSession("client-token", { expiresAt: Date.now() + 60_000 });
 
-    expect(await first.countActive(Date.now())).toBe(1);
-    expect(await second.countActive(Date.now())).toBe(0);
+    expect(await first.countActive()).toBe(1);
+    expect(await second.countActive()).toBe(0);
     expect(await memoryDatabaseEntries()).toEqual(temporaryEntriesBefore);
   });
 
@@ -77,12 +77,12 @@ describe("pairing session store", () => {
       platform: "ios",
       turnTerminal: true,
     });
-    expect(await sessions.listActivePushNotificationSubscriptions(Date.now())).toEqual([
+    expect(await sessions.listActivePushNotificationSubscriptions()).toEqual([
       expect.objectContaining({ clientSessionId: "phone-session" }),
     ]);
   });
 
-  it("does not dispatch push subscriptions for expired pairings and clears them with sessions", async () => {
+  it("keeps paired sessions and push subscriptions after the legacy expiry timestamp", async () => {
     const sessions = await createTursoPairingSessionStore(":memory:");
     await sessions.createSession("expired-client-token", {
       clientSessionId: "expired-phone",
@@ -96,9 +96,16 @@ describe("pairing session store", () => {
       turnTerminal: true,
     });
 
-    expect(await sessions.listActivePushNotificationSubscriptions(Date.now())).toEqual([]);
-    await sessions.pruneExpired(Date.now());
-    expect(await sessions.getPushNotificationSubscription("expired-phone")).toBeUndefined();
+    expect(await sessions.listActivePushNotificationSubscriptions()).toEqual([
+      expect.objectContaining({ clientSessionId: "expired-phone" }),
+    ]);
+    await sessions.pruneExpiredPendingPairings(Date.now());
+    expect(await sessions.getValidSession("expired-client-token")).toMatchObject({
+      clientSessionId: "expired-phone",
+    });
+    expect(await sessions.getPushNotificationSubscription("expired-phone")).toMatchObject({
+      clientSessionId: "expired-phone",
+    });
 
     await sessions.createSession("active-client-token", {
       clientSessionId: "active-phone",
@@ -116,6 +123,25 @@ describe("pairing session store", () => {
     expect(await sessions.getPushNotificationSubscription("active-phone")).toBeUndefined();
   });
 
+  it("still prunes expired pending pairing requests", async () => {
+    const sessions = await createTursoPairingSessionStore(":memory:");
+    await sessions.createPendingPairing({
+      approvalCode: "1234-5678",
+      approved: false,
+      clientEphemeralPublicKey: "public-key",
+      clientNonce: "nonce",
+      expiresAt: Date.now() - 1,
+      serverUrl: "http://127.0.0.1:8787",
+    });
+
+    await sessions.pruneExpiredPendingPairings(Date.now());
+
+    expect(await sessions.clearAll()).toEqual({
+      pendingPairingsCleared: 0,
+      sessionsCleared: 0,
+    });
+  });
+
   it("rolls back a token rotation when the replacement token already exists", async () => {
     const sessions = await createTursoPairingSessionStore(":memory:");
     const expiresAt = Date.now() + 60_000;
@@ -129,11 +155,11 @@ describe("pairing session store", () => {
       }),
     ).rejects.toThrow(/UNIQUE constraint failed/);
 
-    expect(await sessions.getValidSession("old-token", Date.now())).toMatchObject({
+    expect(await sessions.getValidSession("old-token")).toMatchObject({
       clientName: "Old",
       expiresAt,
     });
-    expect(await sessions.getValidSession("existing-token", Date.now())).toMatchObject({
+    expect(await sessions.getValidSession("existing-token")).toMatchObject({
       clientName: "Existing",
       expiresAt,
     });
@@ -182,7 +208,7 @@ describe("pairing session store", () => {
     try {
       const sessions = await createTursoPairingSessionStore(path);
 
-      expect(await sessions.getValidSession("old-schema-token", Date.now())).toMatchObject({
+      expect(await sessions.getValidSession("old-schema-token")).toMatchObject({
         clientName: "Old schema",
         secureSession: undefined,
       });
@@ -223,7 +249,7 @@ describe("pairing session store", () => {
     try {
       const sessions = await createTursoPairingSessionStore(path);
 
-      const session = await sessions.getValidSession("legacy-token", Date.now());
+      const session = await sessions.getValidSession("legacy-token");
       const pending = await sessions.getPendingPairing("1234-5678", Date.now());
 
       expect(session).toMatchObject({
@@ -307,7 +333,7 @@ describe("pairing session store", () => {
       expect(database.prepare("PRAGMA journal_mode").get()).toEqual({ journal_mode: "wal" });
       const sessions = await createTursoPairingSessionStore(path);
 
-      expect(await sessions.getValidSession("legacy-token", Date.now())).toMatchObject({
+      expect(await sessions.getValidSession("legacy-token")).toMatchObject({
         clientName: "Intel Mac",
         expiresAt,
       });

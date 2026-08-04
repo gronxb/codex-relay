@@ -144,7 +144,7 @@ import {
 import { readLatestContextWindowUsage } from "./context-window.js";
 import { codexRelayDataPath } from "./paths.js";
 import { relayDebugLog } from "./debug-log.js";
-import type { PairingSessionStore } from "./pairing-store.js";
+import { permanentClientSessionExpiresAt, type PairingSessionStore } from "./pairing-store.js";
 import {
   createExpoPushNotificationSender,
   createPushNotificationDispatcher,
@@ -207,7 +207,6 @@ type PairingOptions = {
   createClientToken: () => string;
   hashClientToken: (token: string) => string;
   sessions: PairingSessionStore;
-  tokenTtlMs: number;
   onPaired?: (client: { clientName?: string; tokenCount: number }) => void;
   onPairAttempt?: (client: { remoteAddress?: string }) => void;
   onPairApprovalRequested?: (client: { approvalCode: string; clientName?: string }) => void;
@@ -437,7 +436,7 @@ export function createApp(options: AppOptions = {}) {
     const token = parseBearerToken(c.req.header("authorization"));
     const tokenHash = token ? options.pairing.hashClientToken(token) : undefined;
     const validSession = tokenHash
-      ? await options.pairing.sessions.getValidSession(tokenHash, Date.now())
+      ? await options.pairing.sessions.getValidSession(tokenHash)
       : undefined;
     if (!tokenHash || !validSession) {
       return c.json(apiError("unauthorized", "Pair this device with the Codex Relay server."), 401);
@@ -490,7 +489,7 @@ export function createApp(options: AppOptions = {}) {
       );
     }
 
-    await options.pairing.sessions.pruneExpired(Date.now());
+    await options.pairing.sessions.pruneExpiredPendingPairings(Date.now());
     const approvalCode = await createApprovalCode(options.pairing.sessions);
     const expiresAt = Date.now() + (options.pairing.approvalTtlMs ?? 5 * 60 * 1000);
     const requestOrigin = externalRequestOrigin(c.req.url, (name) => c.req.header(name));
@@ -540,11 +539,10 @@ export function createApp(options: AppOptions = {}) {
       );
     }
 
-    await options.pairing.sessions.pruneExpired(Date.now());
+    await options.pairing.sessions.pruneExpiredPendingPairings(Date.now());
     const clientToken = options.pairing.createClientToken();
-    const expiresAt = Date.now() + options.pairing.tokenTtlMs;
     const tokenHash = options.pairing.hashClientToken(clientToken);
-    const clientTokenExpiresAt = new Date(expiresAt).toISOString();
+    const clientTokenExpiresAt = new Date(permanentClientSessionExpiresAt).toISOString();
     const pairing = createSecurePairing({
       approvalCode,
       clientEphemeralPublicKey: pending.clientEphemeralPublicKey,
@@ -558,7 +556,6 @@ export function createApp(options: AppOptions = {}) {
     const tokenCount = await options.pairing.sessions.createSession(tokenHash, {
       clientSessionId: pending.clientSessionId,
       clientName: pending.clientName,
-      expiresAt,
       secureSession: pairing.session,
     });
     await options.pairing.sessions.deletePendingPairing(approvalCode);
@@ -625,7 +622,6 @@ export function createApp(options: AppOptions = {}) {
     }
 
     const clientToken = options.pairing.createClientToken();
-    const expiresAt = Date.now() + options.pairing.tokenTtlMs;
     const oldTokenHash = options.pairing.hashClientToken(oldToken);
     const newTokenHash = options.pairing.hashClientToken(clientToken);
     const clientSessionId =
@@ -634,7 +630,6 @@ export function createApp(options: AppOptions = {}) {
     const tokenCount = await options.pairing.sessions.rotateSession(oldTokenHash, newTokenHash, {
       clientSessionId,
       clientName: oldSession.clientName,
-      expiresAt,
       secureSession: secureSessionsByTokenHash.get(oldTokenHash) ?? oldSession.secureSession,
     });
     const secureSession = secureSessionsByTokenHash.get(oldTokenHash) ?? oldSession.secureSession;
@@ -648,7 +643,7 @@ export function createApp(options: AppOptions = {}) {
 
     const response: PairResponse = PairResponseSchema.parse({
       clientToken,
-      clientTokenExpiresAt: new Date(expiresAt).toISOString(),
+      clientTokenExpiresAt: new Date(permanentClientSessionExpiresAt).toISOString(),
     });
     const jsonResponse = await secureJson(
       c,
@@ -3064,10 +3059,7 @@ async function pairedClientSessionIdForAuthorization(
   if (!token) {
     return undefined;
   }
-  const session = await pairing.sessions.getValidSession(
-    pairing.hashClientToken(token),
-    Date.now(),
-  );
+  const session = await pairing.sessions.getValidSession(pairing.hashClientToken(token));
   return session?.clientSessionId;
 }
 
@@ -3116,7 +3108,7 @@ async function createApprovalCode(sessions: PairingSessionStore) {
 }
 
 async function getValidClientSession(pairing: PairingOptions, token: string) {
-  return pairing.sessions.getValidSession(pairing.hashClientToken(token), Date.now());
+  return pairing.sessions.getValidSession(pairing.hashClientToken(token));
 }
 
 function externalRequestOrigin(requestUrl: string, header: (name: string) => string | undefined) {

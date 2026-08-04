@@ -108,11 +108,6 @@ import {
 } from "./thread-run-stream";
 import { requestWithNetworkTimeout, withTimeout } from "./network-timeout";
 import {
-  isClientTokenExpiredByInactivity,
-  markInactiveSessionExpired,
-  shouldClearClientSessionForInvalidStatus,
-} from "./session-expiration";
-import {
   clearCodexRelayServerUrlState,
   codexRelayStorage as storage,
   dedupeServerUrls,
@@ -131,9 +126,8 @@ import {
 const skillsPath = "/v1/skills";
 const skillsRequestTimeoutMs = 8000;
 const clientSessionIdStorageKey = "codex-relay.client-session-id";
-const clientTokenExpiresAtStorageKey = "codex-relay.client-token-expires-at";
+const legacyClientTokenExpiresAtStorageKey = "codex-relay.client-token-expires-at";
 const clientTokenStorageKey = "codex-relay.client-token";
-const clientTokenRefreshLeewayMs = 24 * 60 * 60 * 1000;
 const pairingConnectTimeoutMs = 2500;
 const streamRequestTimeoutMs = 10 * 60 * 1000;
 const terminalStreamRequestTimeoutMs = 24 * 60 * 60 * 1000;
@@ -214,32 +208,14 @@ export function codexRelayImageRequestHeaders() {
 }
 
 export function signOutCodexRelaySession() {
-  clearClientSession("signed-out");
+  storage.remove(clientTokenStorageKey);
+  storage.remove(legacyClientTokenExpiresAtStorageKey);
+  clearSecureSession();
   clearCodexRelayServerUrlState();
 }
 
 export function hasCodexRelaySession() {
   return Boolean(storage.getString(clientTokenStorageKey));
-}
-
-type ClientSessionClearReason = "inactive-expired" | "invalid" | "signed-out";
-
-function clearClientSession(reason: ClientSessionClearReason) {
-  storage.remove(clientTokenStorageKey);
-  storage.remove(clientTokenExpiresAtStorageKey);
-  clearSecureSession();
-  if (reason === "inactive-expired") {
-    markInactiveSessionExpired();
-  }
-}
-
-function clearInvalidClientSession(status: number) {
-  const expiresAt = storage.getString(clientTokenExpiresAtStorageKey);
-  if (!shouldClearClientSessionForInvalidStatus(status, expiresAt)) {
-    return;
-  }
-  const reason = isClientTokenExpiredByInactivity(expiresAt) ? "inactive-expired" : "invalid";
-  clearClientSession(reason);
 }
 
 export async function pairWithQrPayload(
@@ -316,7 +292,7 @@ async function pairWithApproval(
   handlers?.onApprovalCode?.(parsed.approvalCode, normalizedServerUrl);
   const approved = await waitForPairingApproval(normalizedServerUrl, parsed.approvalCode);
   const session = completeSecurePairing(securePairing, approved);
-  saveSession(normalizedServerUrl, session.clientToken, session.clientTokenExpiresAt);
+  saveSession(normalizedServerUrl, session.clientToken);
   await startPairingTrialIfNeeded();
   return { approvalCode: parsed.approvalCode, serverUrl: normalizedServerUrl };
 }
@@ -425,55 +401,8 @@ function isLocalhostUrl(url: string) {
 }
 
 export async function refreshSession() {
-  if (!storage.getString(clientTokenStorageKey)) {
-    return false;
-  }
-  if (!shouldRefreshClientToken()) {
-    return true;
-  }
-
-  const response = await fetchWithNetworkContext(
-    `${getCodexRelayServerUrl()}${apiPaths.sessionRefresh}`,
-    {
-      method: "POST",
-      headers: requestHeaders(undefined),
-    },
-  );
-  const responsePayload = await response.json().catch(() => undefined);
-
-  if (!response.ok) {
-    if (isSessionInvalidStatus(response.status)) {
-      clearInvalidClientSession(response.status);
-    }
-    throw new Error(
-      errorMessage(responsePayload, `Codex Relay server returned ${response.status}`),
-    );
-  }
-
-  const parsed = PairResponseSchema.parse(decryptResponsePayload(responsePayload));
-  if (!parsed.clientToken || !parsed.clientTokenExpiresAt) {
-    throw new Error("Session refresh response did not include a usable session.");
-  }
-  saveSession(getCodexRelayServerUrl(), parsed.clientToken, parsed.clientTokenExpiresAt);
-  return true;
-}
-
-function shouldRefreshClientToken() {
-  const expiresAt = storage.getString(clientTokenExpiresAtStorageKey);
-  if (!expiresAt) {
-    return true;
-  }
-
-  const expiresAtMs = Date.parse(expiresAt);
-  if (!Number.isFinite(expiresAtMs)) {
-    return true;
-  }
-
-  return expiresAtMs - Date.now() <= clientTokenRefreshLeewayMs;
-}
-
-function isSessionInvalidStatus(status: number) {
-  return status === 401 || status === 403 || status === 410;
+  storage.remove(legacyClientTokenExpiresAtStorageKey);
+  return hasCodexRelaySession();
 }
 
 function parsePairingQrPayload(payload: unknown): PairingQrPayload {
@@ -827,9 +756,6 @@ export function streamWorkspaceTerminalOutput(
         return;
       }
       if (!response.ok) {
-        if (isSessionInvalidStatus(response.status)) {
-          clearInvalidClientSession(response.status);
-        }
         void response.text().then((text) => {
           let payload: unknown = text;
           try {
@@ -960,9 +886,6 @@ async function requestNoContent(path: string, init: RequestInit) {
   }
 
   const payload = decryptResponsePayload(await response.json().catch(() => undefined));
-  if (isSessionInvalidStatus(response.status)) {
-    clearInvalidClientSession(response.status);
-  }
   const message = errorMessage(payload, `Codex Relay server returned ${response.status}`);
   throw new CodexRelayApiError(message, response.status, errorCode(payload));
 }
@@ -1161,9 +1084,6 @@ function streamThreadRunWithDirectFetch(
         return;
       }
       if (!response.ok) {
-        if (isSessionInvalidStatus(response.status)) {
-          clearInvalidClientSession(response.status);
-        }
         void response.text().then((text) => {
           let payload: unknown = text;
           try {
@@ -1335,9 +1255,6 @@ async function request<T>(
   const payload = decryptResponsePayload(await response.json().catch(() => undefined));
 
   if (!response.ok) {
-    if (isSessionInvalidStatus(response.status)) {
-      clearInvalidClientSession(response.status);
-    }
     const message = errorMessage(payload, `Codex Relay server returned ${response.status}`);
     throw new CodexRelayApiError(message, response.status, errorCode(payload));
   }
@@ -1370,10 +1287,10 @@ function requestHeaders(
   return headers;
 }
 
-function saveSession(serverUrl: string, clientToken: string, clientTokenExpiresAt: string) {
+function saveSession(serverUrl: string, clientToken: string) {
   setCodexRelayServerUrl(serverUrl);
   storage.set(clientTokenStorageKey, clientToken);
-  storage.set(clientTokenExpiresAtStorageKey, clientTokenExpiresAt);
+  storage.remove(legacyClientTokenExpiresAtStorageKey);
 }
 
 export function getClientSessionId() {

@@ -30,7 +30,6 @@ import {
 
 const port = Number(process.env.PORT ?? 8787);
 const hostname = process.env.HOST ?? "0.0.0.0";
-const clientTokenTtlMs = 7 * 24 * 60 * 60 * 1000;
 const dangerouslyAutoApprove = process.env.CODEX_RELAY_DANGEROUSLY_AUTO_APPROVE === "1";
 const serverIdentity = await getServerIdentity();
 const approvalSecret = await getApprovalSecret();
@@ -91,7 +90,6 @@ serve(
         createClientToken: () => randomBytes(32).toString("base64url"),
         hashClientToken,
         sessions: sessionStore,
-        tokenTtlMs: clientTokenTtlMs,
         onPaired: ({ clientName, tokenCount }) => {
           const name = clientName ? ` from ${clientName}` : "";
           logRuntimeEvent(

@@ -199,7 +199,6 @@ describe("subagent thread boundaries", () => {
         createClientToken: () => "unused-client-token",
         hashClientToken: (token) => token,
         sessions,
-        tokenTtlMs: 60_000,
       },
       pushNotificationSender: sender,
     });

@@ -8,9 +8,12 @@ import type { SecureSession } from "./secure-transport.js";
 export type ClientSession = {
   clientSessionId?: string;
   clientName?: string;
-  expiresAt: number;
+  expiresAt?: number;
   secureSession?: SecureSession;
 };
+
+// Preserve the legacy database/API fields without making session validity time-based.
+export const permanentClientSessionExpiresAt = Date.parse("9999-12-31T23:59:59.999Z");
 
 export type PendingPairing = {
   approvalCode: string;
@@ -37,7 +40,7 @@ export type PushNotificationSubscription = PushNotificationPreferences & {
 export type PairingSessionStore = {
   approvePendingPairing(approvalCode: string, now: number): Promise<PendingPairing | undefined>;
   clearAll(): Promise<{ pendingPairingsCleared: number; sessionsCleared: number }>;
-  countActive(now: number): Promise<number>;
+  countActive(): Promise<number>;
   deletePushNotificationSubscription(clientSessionId: string): Promise<void>;
   deletePushNotificationSubscriptionsByExpoPushToken(expoPushToken: string): Promise<void>;
   createPendingPairing(pairing: PendingPairing): Promise<void>;
@@ -48,9 +51,9 @@ export type PairingSessionStore = {
   getPushNotificationSubscription(
     clientSessionId: string,
   ): Promise<PushNotificationSubscription | undefined>;
-  getValidSession(tokenHash: string, now: number): Promise<ClientSession | undefined>;
-  listActivePushNotificationSubscriptions(now: number): Promise<PushNotificationSubscription[]>;
-  pruneExpired(now: number): Promise<void>;
+  getValidSession(tokenHash: string): Promise<ClientSession | undefined>;
+  listActivePushNotificationSubscriptions(): Promise<PushNotificationSubscription[]>;
+  pruneExpiredPendingPairings(now: number): Promise<void>;
   rotateSession(
     oldTokenHash: string,
     newTokenHash: string,
@@ -106,12 +109,12 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
   `);
   await ensurePairingSessionColumns();
 
-  async function countActive(now: number) {
+  async function countActive() {
     const row = await db
       .prepare(
-        "SELECT COUNT(DISTINCT COALESCE(client_session_id, token_hash)) AS count FROM pairing_sessions WHERE expires_at > ?",
+        "SELECT COUNT(DISTINCT COALESCE(client_session_id, token_hash)) AS count FROM pairing_sessions",
       )
-      .get(now);
+      .get();
     return Number(row?.count ?? 0);
   }
 
@@ -268,7 +271,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
           tokenHash,
           session.clientSessionId ?? null,
           session.clientName ?? null,
-          session.expiresAt,
+          session.expiresAt ?? permanentClientSessionExpiresAt,
           secure?.keyEpoch ?? null,
           secure?.mobileToServerKey ?? null,
           secure?.serverToMobileKey ?? null,
@@ -277,7 +280,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
           now,
           now,
         );
-      return countActive(now);
+      return countActive();
     },
     deleteSession,
     deletePendingPairing,
@@ -296,7 +299,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
         .get(clientSessionId);
       return row ? pushNotificationSubscriptionFromRow(row) : undefined;
     },
-    async getValidSession(tokenHash, now) {
+    async getValidSession(tokenHash) {
       const row = await db
         .prepare(
           `SELECT client_name AS clientName,
@@ -315,20 +318,14 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
         return undefined;
       }
 
-      const expiresAt = Number(row.expiresAt);
-      if (now > expiresAt) {
-        await deleteSession(tokenHash);
-        return undefined;
-      }
-
       return {
         clientSessionId: typeof row.clientSessionId === "string" ? row.clientSessionId : undefined,
         clientName: typeof row.clientName === "string" ? row.clientName : undefined,
-        expiresAt,
+        expiresAt: Number(row.expiresAt),
         secureSession: decodeSecureSession(row),
       };
     },
-    async listActivePushNotificationSubscriptions(now) {
+    async listActivePushNotificationSubscriptions() {
       const rows = await db
         .prepare(
           `SELECT subscriptions.client_session_id AS clientSessionId,
@@ -339,17 +336,15 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
            FROM push_notification_subscriptions AS subscriptions
            INNER JOIN pairing_sessions AS sessions
              ON sessions.client_session_id = subscriptions.client_session_id
-           WHERE sessions.expires_at > ?
            GROUP BY subscriptions.client_session_id`,
         )
-        .all(now);
+        .all();
       return resultRows(rows).flatMap((row) => {
         const subscription = pushNotificationSubscriptionFromRow(row);
         return subscription ? [subscription] : [];
       });
     },
-    async pruneExpired(now) {
-      await db.prepare("DELETE FROM pairing_sessions WHERE expires_at <= ?").run(now);
+    async pruneExpiredPendingPairings(now) {
       await db.prepare("DELETE FROM pending_pairings WHERE expires_at <= ?").run(now);
       await db
         .prepare(
@@ -402,7 +397,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
             newTokenHash,
             session.clientSessionId ?? null,
             session.clientName ?? null,
-            session.expiresAt,
+            session.expiresAt ?? permanentClientSessionExpiresAt,
             secure?.keyEpoch ?? null,
             secure?.mobileToServerKey ?? null,
             secure?.serverToMobileKey ?? null,
@@ -412,7 +407,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
             now,
           );
       })();
-      return countActive(now);
+      return countActive();
     },
     async updateSecureSession(tokenHash, secureSession) {
       const secure = encodeSecureSession(secureSession)!;
