@@ -139,6 +139,7 @@ import {
 import { addWorkspacePreviewTab } from "@/state/workspace-preview-store";
 
 import { ChatControls } from "./ChatControls";
+import { runConnectionRefresh } from "./connection-refresh";
 import {
   modelForSelection,
   normalizeRuntimePreferencesForModels,
@@ -711,20 +712,23 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       try {
         await refreshSession().catch(() => false);
         syncPairedSessionState();
-        const [status, response, modelsResponse, rateLimitsResponse] = await Promise.all([
+        const [response, modelsResponse, rateLimitsResponse] = await runConnectionRefresh(
           fetchCurrentStatus(),
-          fetchThreadsState(queryClient),
-          fetchModelsState(queryClient),
-          fetchRateLimitsState(queryClient).catch(() => undefined),
-        ]);
-        applyStatusFromServer(status);
+          Promise.all([
+            fetchThreadsState(queryClient),
+            fetchModelsState(queryClient),
+            fetchRateLimitsState(queryClient).catch(() => undefined),
+          ]),
+          (status) => {
+            applyStatusFromServer(status);
+            setConnection("connected");
+          },
+        );
         setThreadsState(queryClient, response.threads, response.source);
         queryClient.setQueryData(serverStateKeys.models(), modelsResponse);
         if (rateLimitsResponse) {
           queryClient.setQueryData(serverStateKeys.rateLimits(), rateLimitsResponse);
         }
-        setConnection("connected");
-
         const currentActiveThreadId = chatStore$.activeThreadId.peek();
         const hasCurrentActiveThread =
           !!currentActiveThreadId &&
