@@ -18,7 +18,9 @@ Server APIs, shared thread schemas, cross-device synchronization, drag reorderin
 
 Long-pressing any chat opens `Chat actions`, even when server-side rename is unavailable. The sheet shows `Pin chat` for an unpinned chat or `Unpin chat` for a pinned chat, followed by `Rename chat` when rename is supported.
 
-Pinned chats appear in most-recently-pinned order under a `Pinned` header at the top of the drawer. They are removed from their normal workspace groups to avoid duplicates. Workspace headers remain visible even when every chat in that workspace is pinned. During search, all matching chats appear in their normal workspace groups and the separate `Pinned` section is hidden.
+Pinned chats appear in most-recently-pinned order under a `Pinned` header at the top of the drawer. Each pinned row keeps the chat title primary and shows `<workspace> · <relative time>` as secondary text so chats with similar titles remain distinguishable. The workspace label uses the existing leaf-folder helper and falls back to `codex-relay` when the thread has no working directory. Normal workspace rows keep their existing time-only secondary text.
+
+Pinned chats are removed from their normal workspace groups to avoid duplicates. Workspace headers remain visible even when every chat in that workspace is pinned. During search, all matching chats appear in their normal workspace groups, use the normal time-only metadata, and the separate `Pinned` section is hidden.
 
 Pinning and unpinning update the drawer immediately and close the action sheet. Archiving removes the pin only after the archive request succeeds.
 
@@ -45,7 +47,7 @@ The existing persistence adapter falls back to default state if stored JSON cann
 ## Testing
 
 - Store tests cover pin order, idempotent pinning, unpinning, reset isolation, and restoration after a module reload.
-- Pure row-builder tests cover the pinned section, no duplicates, workspace-header preservation, unavailable pinned IDs, collapsed groups, and search behavior.
+- Pure row-builder tests cover the pinned section, pinned workspace labels, no duplicates, workspace-header preservation, unavailable pinned IDs, collapsed groups, and search behavior.
 - Run the repository test suite, typecheck, lint, and formatting checks.
 - Manually verify long-press actions, immediate drawer updates, archive behavior, and persistence after an app restart. Record any unavailable simulator or device validation in the PR.
 
