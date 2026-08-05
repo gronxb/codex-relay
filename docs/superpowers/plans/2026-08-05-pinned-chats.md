@@ -680,4 +680,4 @@ git status --short
 git log --oneline origin/main..HEAD
 ```
 
-Expected: no whitespace errors, no uncommitted source changes, and Conventional Commit messages only. The eventual PR should be in English, link issue #58, list validation commands, and include a screenshot or recording when manual UI verification is available. No changeset is required because the published `codex-relay` package is unchanged.
+Expected: no whitespace errors, no uncommitted source changes, and Conventional Commit messages only. The eventual PR should be in English, link issue #58, list validation commands, and include a screenshot or recording when manual UI verification is available. Include a patch changeset for `@codex-relay/mobile`; no `codex-relay` package changeset is required.

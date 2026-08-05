@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getPinnedThreadIds,
@@ -49,5 +49,15 @@ describe("mobile pinned thread store", () => {
 
     togglePinnedThread("thread-a");
     expect(getPinnedThreadIds()).toEqual([]);
+  });
+
+  it("restores pinned threads after the store module reloads", async () => {
+    pinThread("thread-a");
+    vi.resetModules();
+
+    const reloadedStore = await import("../../../apps/mobile/src/state/pinned-thread-store.js");
+
+    expect(reloadedStore.getPinnedThreadIds()).toEqual(["thread-a"]);
+    reloadedStore.resetPinnedThreadState();
   });
 });

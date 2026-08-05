@@ -44,11 +44,11 @@ The existing persistence adapter falls back to default state if stored JSON cann
 
 ## Testing
 
-- Store tests cover pin order, idempotent pinning, unpinning, and reset isolation.
+- Store tests cover pin order, idempotent pinning, unpinning, reset isolation, and restoration after a module reload.
 - Pure row-builder tests cover the pinned section, no duplicates, workspace-header preservation, unavailable pinned IDs, collapsed groups, and search behavior.
 - Run the repository test suite, typecheck, lint, and formatting checks.
 - Manually verify long-press actions, immediate drawer updates, archive behavior, and persistence after an app restart. Record any unavailable simulator or device validation in the PR.
 
 ## Contribution Requirements
 
-Use English for maintainer-facing artifacts, Conventional Commits, and link the eventual PR to issue #58. This mobile-only change does not modify the published `codex-relay` package, so it does not require a package changeset.
+Use English for maintainer-facing artifacts, Conventional Commits, and link the eventual PR to issue #58. Add a patch changeset for `@codex-relay/mobile`; no `codex-relay` package changeset is required.
