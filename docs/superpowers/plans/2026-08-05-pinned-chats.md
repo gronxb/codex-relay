@@ -738,11 +738,7 @@ Create pinned rows with the workspace label while leaving normal rows unchanged:
 ```ts
 rows.push(
   ...pinnedThreads.map((thread) =>
-    threadRow(
-      thread,
-      projectKeyForThread(thread),
-      workspaceName(thread.cwd) ?? "codex-relay",
-    ),
+    threadRow(thread, projectKeyForThread(thread), workspaceName(thread.cwd) ?? "codex-relay"),
   ),
 );
 ```
@@ -768,13 +764,15 @@ Calculate the relative time once and render pinned metadata with middle ellipsis
 ```tsx
 const relativeTime = formatRelativeTime(item.thread.lastActivityAt ?? item.thread.updatedAt);
 
-<Text
-  ellipsizeMode={item.workspaceTitle ? "middle" : "tail"}
-  numberOfLines={1}
-  style={styles.threadTime}
->
-  {item.workspaceTitle ? `${item.workspaceTitle} · ${relativeTime}` : relativeTime}
-</Text>
+const metadata = (
+  <Text
+    ellipsizeMode={item.workspaceTitle ? "middle" : "tail"}
+    numberOfLines={1}
+    style={styles.threadTime}
+  >
+    {item.workspaceTitle ? `${item.workspaceTitle} · ${relativeTime}` : relativeTime}
+  </Text>
+);
 ```
 
 Include `workspaceTitle` in the thread-row memo comparison:

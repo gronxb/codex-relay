@@ -13,7 +13,13 @@ export type DrawerRow =
       title: string;
       workspacePath?: string;
     }
-  | { id: string; kind: "thread"; projectKey: string; thread: ThreadSummary }
+  | {
+      id: string;
+      kind: "thread";
+      projectKey: string;
+      thread: ThreadSummary;
+      workspaceTitle?: string;
+    }
   | { id: string; kind: "more"; hiddenCount: number; projectKey: string };
 
 type ThreadGroup = {
@@ -49,7 +55,11 @@ export function buildDrawerRows(
   const rows: DrawerRow[] = [];
   if (pinnedThreads.length > 0) {
     rows.push({ id: "pinned", kind: "pinned" });
-    rows.push(...pinnedThreads.map((thread) => threadRow(thread, projectKeyForThread(thread))));
+    rows.push(
+      ...pinnedThreads.map((thread) =>
+        threadRow(thread, projectKeyForThread(thread), workspaceName(thread.cwd) ?? "codex-relay"),
+      ),
+    );
   }
 
   for (const [projectKey, group] of groups) {
@@ -123,11 +133,12 @@ function projectKeyForThread(thread: ThreadSummary) {
   return thread.cwd ?? title;
 }
 
-function threadRow(thread: ThreadSummary, projectKey: string): DrawerRow {
+function threadRow(thread: ThreadSummary, projectKey: string, workspaceTitle?: string): DrawerRow {
   return {
     id: `thread:${thread.id}`,
     kind: "thread",
     projectKey,
     thread,
+    ...(workspaceTitle ? { workspaceTitle } : {}),
   };
 }

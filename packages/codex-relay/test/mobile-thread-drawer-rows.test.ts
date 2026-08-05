@@ -13,8 +13,8 @@ describe("mobile thread drawer rows", () => {
 
     expect(buildDrawerRows(threads, {}, undefined, ["thread-b", "thread-a"])).toEqual([
       { id: "pinned", kind: "pinned" },
-      threadRow(threads[1]),
-      threadRow(threads[0]),
+      pinnedThreadRow(threads[1], "project"),
+      pinnedThreadRow(threads[0], "project"),
       projectRow("/work/project"),
       threadRow(threads[2]),
     ]);
@@ -28,8 +28,8 @@ describe("mobile thread drawer rows", () => {
 
     expect(buildDrawerRows(threads, {}, undefined, ["thread-a", "thread-b"])).toEqual([
       { id: "pinned", kind: "pinned" },
-      threadRow(threads[0]),
-      threadRow(threads[1]),
+      pinnedThreadRow(threads[0], "project"),
+      pinnedThreadRow(threads[1], "project"),
       projectRow("/work/project"),
     ]);
   });
@@ -42,7 +42,7 @@ describe("mobile thread drawer rows", () => {
 
     expect(buildDrawerRows(threads, {}, undefined, ["thread-missing", "thread-b"])).toEqual([
       { id: "pinned", kind: "pinned" },
-      threadRow(threads[1]),
+      pinnedThreadRow(threads[1], "project"),
       projectRow("/work/project"),
       threadRow(threads[0]),
     ]);
@@ -85,6 +85,18 @@ describe("mobile thread drawer rows", () => {
       projectRow("/work/beta"),
       threadRow(threads[2]),
     ]);
+  });
+
+  it("adds workspace labels only to pinned section rows", () => {
+    const thread = threadSummary("thread-a", "/work/very-long-project-folder-name");
+
+    const pinnedRows = buildDrawerRows([thread], {}, undefined, [thread.id]);
+    const searchRows = buildDrawerRows([thread], {}, undefined, [thread.id], true);
+
+    expect(pinnedRows.find((row) => row.kind === "thread")).toEqual(
+      pinnedThreadRow(thread, "very-long-project-folder-name"),
+    );
+    expect(searchRows.find((row) => row.kind === "thread")).toEqual(threadRow(thread));
   });
 
   it("keeps an active seventh chat visible in a collapsed project", () => {
@@ -134,7 +146,7 @@ describe("mobile thread drawer rows", () => {
 
     expect(buildDrawerRows([thread], {}, undefined, ["thread-a", "thread-a"])).toEqual([
       { id: "pinned", kind: "pinned" },
-      threadRow(thread),
+      pinnedThreadRow(thread, "project"),
       projectRow("/work/project"),
     ]);
   });
@@ -157,7 +169,7 @@ describe("mobile thread drawer rows", () => {
 
     expect(buildDrawerRows([thread], {}, undefined, ["thread-a"])).toEqual([
       { id: "pinned", kind: "pinned" },
-      threadRow(thread),
+      pinnedThreadRow(thread, "codex-relay"),
       {
         id: "project:codex-relay",
         kind: "project",
@@ -198,5 +210,12 @@ function threadRow(thread: ThreadSummary) {
     kind: "thread" as const,
     projectKey: thread.cwd ?? "codex-relay",
     thread,
+  };
+}
+
+function pinnedThreadRow(thread: ThreadSummary, workspaceTitle: string) {
+  return {
+    ...threadRow(thread),
+    workspaceTitle,
   };
 }

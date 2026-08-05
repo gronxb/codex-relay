@@ -977,6 +977,7 @@ const DrawerRowItem = memo(function DrawerRowItem({
   }
 
   const running = item.thread.state === "running";
+  const relativeTime = formatRelativeTime(item.thread.lastActivityAt ?? item.thread.updatedAt);
   return (
     <View style={[styles.thread, selected && styles.threadSelected]}>
       <Pressable
@@ -1011,8 +1012,12 @@ const DrawerRowItem = memo(function DrawerRowItem({
             </View>
             <View style={[styles.threadContent, pressed && styles.drawerPressedContent]}>
               <Text style={styles.threadTitle}>{item.thread.title}</Text>
-              <Text style={styles.threadTime} numberOfLines={1}>
-                {formatRelativeTime(item.thread.lastActivityAt ?? item.thread.updatedAt)}
+              <Text
+                ellipsizeMode={item.workspaceTitle ? "middle" : "tail"}
+                numberOfLines={1}
+                style={styles.threadTime}
+              >
+                {item.workspaceTitle ? `${item.workspaceTitle} · ${relativeTime}` : relativeTime}
               </Text>
             </View>
           </>
@@ -1054,11 +1059,12 @@ function areDrawerRowItemsEqual(previous: DrawerRowItemProps, next: DrawerRowIte
 
   if (previous.item.kind === "thread" && next.item.kind === "thread") {
     return (
-      previous.item.thread === next.item.thread ||
-      (previous.item.thread.title === next.item.thread.title &&
-        previous.item.thread.state === next.item.thread.state &&
-        previous.item.thread.lastActivityAt === next.item.thread.lastActivityAt &&
-        previous.item.thread.updatedAt === next.item.thread.updatedAt)
+      previous.item.workspaceTitle === next.item.workspaceTitle &&
+      (previous.item.thread === next.item.thread ||
+        (previous.item.thread.title === next.item.thread.title &&
+          previous.item.thread.state === next.item.thread.state &&
+          previous.item.thread.lastActivityAt === next.item.thread.lastActivityAt &&
+          previous.item.thread.updatedAt === next.item.thread.updatedAt))
     );
   }
 
