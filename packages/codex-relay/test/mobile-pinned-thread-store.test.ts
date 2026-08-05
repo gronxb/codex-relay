@@ -1,0 +1,36 @@
+import { beforeEach, describe, expect, it } from "vitest";
+
+import {
+  getPinnedThreadIds,
+  pinThread,
+  resetPinnedThreadState,
+  unpinThread,
+} from "../../../apps/mobile/src/state/pinned-thread-store.js";
+
+describe("mobile pinned thread store", () => {
+  beforeEach(() => {
+    resetPinnedThreadState();
+  });
+
+  it("adds pinned threads to the front in pin order", () => {
+    pinThread("thread-a");
+    pinThread("thread-b");
+
+    expect(getPinnedThreadIds()).toEqual(["thread-b", "thread-a"]);
+  });
+
+  it("does not duplicate an already pinned thread", () => {
+    pinThread("thread-a");
+    pinThread("thread-a");
+
+    expect(getPinnedThreadIds()).toEqual(["thread-a"]);
+  });
+
+  it("removes only the selected pinned thread", () => {
+    pinThread("thread-a");
+    pinThread("thread-b");
+    unpinThread("thread-a");
+
+    expect(getPinnedThreadIds()).toEqual(["thread-b"]);
+  });
+});
