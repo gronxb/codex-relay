@@ -67,17 +67,7 @@ import {
   setHasPairedSession,
   setThreadMessagesLoading,
 } from "@/state/chat-store";
-
-type DrawerRow =
-  | {
-      id: string;
-      kind: "project";
-      projectKey: string;
-      title: string;
-      workspacePath?: string;
-    }
-  | { id: string; kind: "thread"; projectKey: string; thread: ThreadSummary }
-  | { id: string; kind: "more"; hiddenCount: number; projectKey: string };
+import { buildDrawerRows, type DrawerRow } from "./thread-drawer-rows";
 
 type WorkspaceBrowser = {
   directories: { name: string; path: string }[];
@@ -122,7 +112,6 @@ type ThreadDrawerContentProps = Parameters<
 
 type ThreadDrawerNavigation = ThreadDrawerContentProps["navigation"];
 
-const collapsedProjectThreadCount = 5;
 const drawerListDrawDistance = 96;
 const drawerRowEstimatedSize = 40;
 const drawerListIdleTimeoutMs = 180;
@@ -270,6 +259,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         visibleThreads,
         expandedProjects,
         activeThreadId,
+        [],
         Boolean(normalizedSearchQuery),
       ),
     [activeThreadId, expandedProjects, normalizedSearchQuery, visibleThreads],
@@ -897,6 +887,15 @@ const DrawerRowItem = memo(function DrawerRowItem({
 }: DrawerRowItemProps) {
   const theme = useTheme();
 
+  if (item.kind === "pinned") {
+    return (
+      <View style={styles.projectHeader}>
+        <View style={styles.rowIconSlot} />
+        <Text style={styles.projectTitle}>Pinned</Text>
+      </View>
+    );
+  }
+
   if (item.kind === "project") {
     return (
       <View style={styles.projectHeader}>
@@ -1401,70 +1400,6 @@ function VersionNoticeRow({ label, value }: { label: string; value: string }) {
       <Text style={styles.versionNoticeValue}>{value}</Text>
     </View>
   );
-}
-
-function buildDrawerRows(
-  threads: ThreadSummary[],
-  expandedProjects: Record<string, boolean>,
-  activeThreadId: string | undefined,
-  forceExpanded = false,
-): DrawerRow[] {
-  const groups = new Map<
-    string,
-    { title: string; threads: ThreadSummary[]; workspacePath?: string }
-  >();
-
-  for (const thread of threads) {
-    const title = workspaceName(thread.cwd) ?? "codex-relay";
-    const key = thread.cwd ?? title;
-    const group = groups.get(key);
-    if (group) {
-      group.threads.push(thread);
-    } else {
-      groups.set(key, { title, threads: [thread], workspacePath: thread.cwd });
-    }
-  }
-
-  return [...groups.entries()].flatMap(([projectKey, group]) => {
-    const isExpanded = forceExpanded || (expandedProjects[projectKey] ?? false);
-    const activeThread = activeThreadId
-      ? group.threads.find((thread) => thread.id === activeThreadId)
-      : undefined;
-    const collapsedThreads = group.threads.slice(0, collapsedProjectThreadCount);
-    const visibleThreads =
-      isExpanded || !activeThread || collapsedThreads.includes(activeThread)
-        ? isExpanded
-          ? group.threads
-          : collapsedThreads
-        : [...collapsedThreads.slice(0, collapsedProjectThreadCount - 1), activeThread];
-    const hiddenCount = group.threads.length - visibleThreads.length;
-    const projectRows: DrawerRow[] = [
-      {
-        id: `project:${projectKey}`,
-        kind: "project",
-        projectKey,
-        title: group.title,
-        workspacePath: group.workspacePath,
-      },
-      ...visibleThreads.map((thread) => ({
-        id: `thread:${thread.id}`,
-        kind: "thread" as const,
-        projectKey,
-        thread,
-      })),
-    ];
-
-    if (hiddenCount > 0) {
-      projectRows.push({
-        id: `more:${projectKey}`,
-        kind: "more",
-        hiddenCount,
-        projectKey,
-      });
-    }
-
-    return projectRows;
-  });
 }
 
 function workspaceBrowserRows(browser: WorkspaceBrowser | undefined): WorkspaceBrowserRow[] {
