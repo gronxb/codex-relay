@@ -12,8 +12,8 @@ export const pinnedThreadStore$ = observable<PinnedThreadState>({
 
 persistLocalObservable(pinnedThreadStore$, "pinned-threads");
 
-export function getPinnedThreadIds() {
-  return pinnedThreadStore$.threadIds.peek();
+export function getPinnedThreadIds(): readonly string[] {
+  return [...pinnedThreadStore$.threadIds.peek()];
 }
 
 export function pinThread(threadId: string) {

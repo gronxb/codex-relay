@@ -26,6 +26,14 @@ describe("mobile pinned thread store", () => {
     expect(getPinnedThreadIds()).toEqual(["thread-a"]);
   });
 
+  it("does not expose a mutable pinned thread array", () => {
+    pinThread("thread-a");
+    const threadIds = getPinnedThreadIds();
+    (threadIds as string[]).push("thread-b");
+
+    expect(getPinnedThreadIds()).toEqual(["thread-a"]);
+  });
+
   it("removes only the selected pinned thread", () => {
     pinThread("thread-a");
     pinThread("thread-b");
