@@ -31,6 +31,7 @@ import {
   PanelRightOpen,
   PanelLeftClose,
   PanelLeftOpen,
+  Pin,
   Plus,
   RefreshCw,
   RotateCcw,
@@ -80,6 +81,7 @@ export type AppIconName =
   | "permissionsAuto"
   | "permissionsDefault"
   | "permissionsFull"
+  | "pin"
   | "preview"
   | "previewHide"
   | "pullRequest"
@@ -136,6 +138,7 @@ const iconComponents: Record<AppIconName, LucideComponent> = {
   permissionsAuto: Zap,
   permissionsDefault: Hand,
   permissionsFull: ShieldCheck,
+  pin: Pin,
   preview: PanelRightOpen,
   previewHide: PanelRightClose,
   pullRequest: GitPullRequest,

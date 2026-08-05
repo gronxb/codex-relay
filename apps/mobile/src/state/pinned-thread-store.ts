@@ -36,6 +36,15 @@ export function unpinThread(threadId: string) {
   });
 }
 
+export function togglePinnedThread(threadId: string) {
+  if (pinnedThreadStore$.threadIds.peek().includes(threadId)) {
+    unpinThread(threadId);
+    return;
+  }
+
+  pinThread(threadId);
+}
+
 export function resetPinnedThreadState() {
   pinnedThreadStore$.set({ threadIds: [] });
 }

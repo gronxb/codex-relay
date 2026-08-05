@@ -4,6 +4,7 @@ import {
   getPinnedThreadIds,
   pinThread,
   resetPinnedThreadState,
+  togglePinnedThread,
   unpinThread,
 } from "../../../apps/mobile/src/state/pinned-thread-store.js";
 
@@ -40,5 +41,13 @@ describe("mobile pinned thread store", () => {
     unpinThread("thread-a");
 
     expect(getPinnedThreadIds()).toEqual(["thread-b"]);
+  });
+
+  it("toggles a thread between pinned and unpinned", () => {
+    togglePinnedThread("thread-a");
+    expect(getPinnedThreadIds()).toEqual(["thread-a"]);
+
+    togglePinnedThread("thread-a");
+    expect(getPinnedThreadIds()).toEqual([]);
   });
 });

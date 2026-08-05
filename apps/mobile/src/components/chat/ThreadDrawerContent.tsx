@@ -67,6 +67,7 @@ import {
   setHasPairedSession,
   setThreadMessagesLoading,
 } from "@/state/chat-store";
+import { pinnedThreadStore$, togglePinnedThread, unpinThread } from "@/state/pinned-thread-store";
 import { buildDrawerRows, type DrawerRow } from "./thread-drawer-rows";
 
 type WorkspaceBrowser = {
@@ -193,7 +194,8 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         setActiveThread(context.previousActiveThreadId);
       }
     },
-    onSuccess: async () => {
+    onSuccess: async (_response, threadId) => {
+      unpinThread(threadId);
       await queryClient.invalidateQueries({ queryKey: serverStateKeys.threads() });
     },
   });
@@ -202,6 +204,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       renameThreadServerState(queryClient, threadId, { title }),
   });
   const activeThreadId = useSelector(() => chatStore$.activeThreadId.get());
+  const pinnedThreadIds = useSelector(() => pinnedThreadStore$.threadIds.get());
   const statusQuery = useQuery({
     queryKey: serverStateKeys.status(),
     queryFn: serverStateQueryFns.status,
@@ -259,12 +262,15 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         visibleThreads,
         expandedProjects,
         activeThreadId,
-        [],
+        pinnedThreadIds,
         Boolean(normalizedSearchQuery),
       ),
-    [activeThreadId, expandedProjects, normalizedSearchQuery, visibleThreads],
+    [activeThreadId, expandedProjects, normalizedSearchQuery, pinnedThreadIds, visibleThreads],
   );
   const workspaceRows = useMemo(() => workspaceBrowserRows(workspaceBrowser), [workspaceBrowser]);
+  const threadWithActionsIsPinned = Boolean(
+    threadWithActions && pinnedThreadIds.includes(threadWithActions.id),
+  );
   const canSaveRenamedThread = Boolean(
     canMutateAppServerThreads &&
     threadToRename &&
@@ -288,6 +294,16 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     setThreadToRename(undefined);
     setRenameDraft("");
   }, []);
+  const handleTogglePinnedThread = useCallback(
+    (thread: ThreadSummary) => {
+      togglePinnedThread(thread.id);
+      hapticSelection();
+      if (threadWithActions?.id === thread.id) {
+        closeThreadActions();
+      }
+    },
+    [closeThreadActions, threadWithActions?.id],
+  );
   const returnToThreadActions = useCallback(() => {
     setThreadToRename(undefined);
     setRenameDraft("");
@@ -396,9 +412,11 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
         item={item}
         onArchiveThread={confirmArchiveThread}
         onCreateThread={createNewThread}
-        onRenameThread={openThreadActions}
+        onOpenThreadActions={openThreadActions}
         onSelectThread={selectThread}
+        onTogglePinnedThread={handleTogglePinnedThread}
         onToggleProject={toggleProject}
+        pinned={item.kind === "thread" && pinnedThreadIds.includes(item.thread.id)}
         selected={item.kind === "thread" && item.thread.id === activeThreadId}
         workspacePath={workspacePath}
       />
@@ -409,8 +427,10 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       canMutateAppServerThreads,
       confirmArchiveThread,
       createNewThread,
+      handleTogglePinnedThread,
       isCreatingThread,
       openThreadActions,
+      pinnedThreadIds,
       selectThread,
       toggleProject,
       workspacePath,
@@ -529,14 +549,24 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
               </Button>
             </View>
           </View>
-        ) : (
-          <SheetActionRow
-            accessibilityLabel="Rename chat"
-            icon="newChat"
-            onPress={openRenameThread}
-            title="Rename chat"
-          />
-        )}
+        ) : threadWithActions ? (
+          <>
+            <SheetActionRow
+              accessibilityLabel={threadWithActionsIsPinned ? "Unpin chat" : "Pin chat"}
+              icon="pin"
+              onPress={() => handleTogglePinnedThread(threadWithActions)}
+              title={threadWithActionsIsPinned ? "Unpin chat" : "Pin chat"}
+            />
+            {canMutateAppServerThreads ? (
+              <SheetActionRow
+                accessibilityLabel="Rename chat"
+                icon="newChat"
+                onPress={openRenameThread}
+                title="Rename chat"
+              />
+            ) : null}
+          </>
+        ) : null}
       </AppBottomSheet>
       {props.showResizeHandle ? (
         <GestureDetector gesture={sidebarResizeGesture}>
@@ -865,9 +895,11 @@ type DrawerRowItemProps = {
   item: DrawerRow;
   onArchiveThread: (thread: ThreadSummary) => void;
   onCreateThread: (workspacePath: string | undefined) => Promise<void>;
-  onRenameThread: (thread: ThreadSummary) => void;
+  onOpenThreadActions: (thread: ThreadSummary) => void;
   onSelectThread: (threadId: string) => void;
+  onTogglePinnedThread: (thread: ThreadSummary) => void;
   onToggleProject: (projectKey: string) => void;
+  pinned: boolean;
   selected: boolean;
   workspacePath: string | undefined;
 };
@@ -879,9 +911,11 @@ const DrawerRowItem = memo(function DrawerRowItem({
   item,
   onArchiveThread,
   onCreateThread,
-  onRenameThread,
+  onOpenThreadActions,
   onSelectThread,
+  onTogglePinnedThread,
   onToggleProject,
+  pinned,
   selected,
   workspacePath,
 }: DrawerRowItemProps) {
@@ -890,7 +924,9 @@ const DrawerRowItem = memo(function DrawerRowItem({
   if (item.kind === "pinned") {
     return (
       <View style={styles.projectHeader}>
-        <View style={styles.rowIconSlot} />
+        <View style={styles.rowIconSlot}>
+          <Icon name="pin" size={15} tintColor={theme.textSecondary} />
+        </View>
         <Text style={styles.projectTitle}>Pinned</Text>
       </View>
     );
@@ -944,24 +980,23 @@ const DrawerRowItem = memo(function DrawerRowItem({
   return (
     <View style={[styles.thread, selected && styles.threadSelected]}>
       <Pressable
-        accessibilityActions={
-          canRenameThread ? [{ label: "Rename chat", name: "rename" }] : undefined
-        }
-        accessibilityHint={canRenameThread ? "Long press for chat actions" : undefined}
+        accessibilityActions={[
+          { label: pinned ? "Unpin chat" : "Pin chat", name: "toggle-pin" },
+          ...(canRenameThread ? [{ label: "Rename chat", name: "rename" }] : []),
+        ]}
+        accessibilityHint="Long press for chat actions"
         accessibilityRole="button"
         accessibilityLabel={`Open thread ${item.thread.title}`}
         accessibilityState={{ selected }}
         delayLongPress={350}
-        onAccessibilityAction={
-          canRenameThread
-            ? (event) => {
-                if (event.nativeEvent.actionName === "rename") {
-                  onRenameThread(item.thread);
-                }
-              }
-            : undefined
-        }
-        onLongPress={canRenameThread ? () => onRenameThread(item.thread) : undefined}
+        onAccessibilityAction={(event) => {
+          if (event.nativeEvent.actionName === "toggle-pin") {
+            onTogglePinnedThread(item.thread);
+          } else if (event.nativeEvent.actionName === "rename" && canRenameThread) {
+            onOpenThreadActions(item.thread);
+          }
+        }}
+        onLongPress={() => onOpenThreadActions(item.thread)}
         onPress={() => void onSelectThread(item.thread.id)}
         style={styles.threadOpenButton}
       >
@@ -1006,9 +1041,11 @@ function areDrawerRowItemsEqual(previous: DrawerRowItemProps, next: DrawerRowIte
     previous.item.id !== next.item.id ||
     previous.onArchiveThread !== next.onArchiveThread ||
     previous.onCreateThread !== next.onCreateThread ||
-    previous.onRenameThread !== next.onRenameThread ||
+    previous.onOpenThreadActions !== next.onOpenThreadActions ||
     previous.onSelectThread !== next.onSelectThread ||
+    previous.onTogglePinnedThread !== next.onTogglePinnedThread ||
     previous.onToggleProject !== next.onToggleProject ||
+    previous.pinned !== next.pinned ||
     previous.selected !== next.selected ||
     previous.workspacePath !== next.workspacePath
   ) {
