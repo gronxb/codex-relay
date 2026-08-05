@@ -29,20 +29,13 @@ export function buildDrawerRows(
   pinnedThreadIds: string[] = [],
   forceExpanded = false,
 ): DrawerRow[] {
-  const threadsById = new Map(threads.map((thread) => [thread.id, thread]));
-  const pinnedThreads = forceExpanded
-    ? []
-    : pinnedThreadIds.reduce<ThreadSummary[]>((result, threadId) => {
-        const thread = threadsById.get(threadId);
-        if (thread && !result.includes(thread)) {
-          result.push(thread);
-        }
-        return result;
-      }, []);
+  const uniqueThreads = threadsWithUniqueIds(threads);
+  const threadsById = new Map(uniqueThreads.map((thread) => [thread.id, thread]));
+  const pinnedThreads = forceExpanded ? [] : pinnedThreadsForIds(pinnedThreadIds, threadsById);
   const pinnedThreadIdsSet = new Set(pinnedThreads.map((thread) => thread.id));
   const groups = new Map<string, ThreadGroup>();
 
-  for (const thread of threads) {
+  for (const thread of uniqueThreads) {
     const title = workspaceName(thread.cwd) ?? "codex-relay";
     const projectKey = thread.cwd ?? title;
     const group = groups.get(projectKey);
@@ -96,6 +89,33 @@ export function buildDrawerRows(
   }
 
   return rows;
+}
+
+function threadsWithUniqueIds(threads: ThreadSummary[]) {
+  const threadIds = new Set<string>();
+  return threads.filter((thread) => {
+    if (threadIds.has(thread.id)) {
+      return false;
+    }
+    threadIds.add(thread.id);
+    return true;
+  });
+}
+
+function pinnedThreadsForIds(pinnedThreadIds: string[], threadsById: Map<string, ThreadSummary>) {
+  const pinnedIds = new Set<string>();
+  const pinnedThreads: ThreadSummary[] = [];
+  for (const threadId of pinnedThreadIds) {
+    if (pinnedIds.has(threadId)) {
+      continue;
+    }
+    pinnedIds.add(threadId);
+    const thread = threadsById.get(threadId);
+    if (thread) {
+      pinnedThreads.push(thread);
+    }
+  }
+  return pinnedThreads;
 }
 
 function projectKeyForThread(thread: ThreadSummary) {

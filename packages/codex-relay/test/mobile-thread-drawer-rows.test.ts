@@ -108,9 +108,68 @@ describe("mobile thread drawer rows", () => {
       projectKey: "/work/project",
     });
   });
+
+  it("keeps only the first duplicate thread id in normal mode", () => {
+    const firstThread = threadSummary("thread-duplicate", "/work/first");
+    const duplicateThread = threadSummary("thread-duplicate", "/work/second");
+
+    expect(buildDrawerRows([firstThread, duplicateThread], {}, undefined)).toEqual([
+      projectRow("/work/first"),
+      threadRow(firstThread),
+    ]);
+  });
+
+  it("keeps only the first duplicate thread id in force-expanded mode", () => {
+    const firstThread = threadSummary("thread-duplicate", "/work/first");
+    const duplicateThread = threadSummary("thread-duplicate", "/work/second");
+
+    expect(buildDrawerRows([firstThread, duplicateThread], {}, undefined, [], true)).toEqual([
+      projectRow("/work/first"),
+      threadRow(firstThread),
+    ]);
+  });
+
+  it("renders repeated pinned ids only once", () => {
+    const thread = threadSummary("thread-a", "/work/project");
+
+    expect(buildDrawerRows([thread], {}, undefined, ["thread-a", "thread-a"])).toEqual([
+      { id: "pinned", kind: "pinned" },
+      threadRow(thread),
+      projectRow("/work/project"),
+    ]);
+  });
+
+  it("shows every chat in an expanded project without a more row", () => {
+    const threads = Array.from({ length: 7 }, (_, index) =>
+      threadSummary(`thread-${index + 1}`, "/work/project"),
+    );
+
+    const rows = buildDrawerRows(threads, { "/work/project": true }, undefined);
+
+    expect(rows.filter((row) => row.kind === "thread").map((row) => row.thread.id)).toEqual(
+      threads.map((thread) => thread.id),
+    );
+    expect(rows.find((row) => row.kind === "more")).toBeUndefined();
+  });
+
+  it("uses the codex-relay fallback project for a pinned thread without a cwd", () => {
+    const thread = threadSummary("thread-a");
+
+    expect(buildDrawerRows([thread], {}, undefined, ["thread-a"])).toEqual([
+      { id: "pinned", kind: "pinned" },
+      threadRow(thread),
+      {
+        id: "project:codex-relay",
+        kind: "project",
+        projectKey: "codex-relay",
+        title: "codex-relay",
+        workspacePath: undefined,
+      },
+    ]);
+  });
 });
 
-function threadSummary(id: string, cwd: string): ThreadSummary {
+function threadSummary(id: string, cwd?: string): ThreadSummary {
   const now = "2026-08-05T00:00:00.000Z";
   return {
     id,
