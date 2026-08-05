@@ -12,13 +12,13 @@ Let mobile users keep important chats immediately accessible in a dedicated `Pin
 - Remove a pin after its chat is archived successfully.
 - Keep search behavior focused on matching chats instead of showing a separate pinned section.
 
-Server APIs, shared thread schemas, cross-device synchronization, drag reordering, and desktop changes are out of scope.
+Server APIs, shared thread schemas, cross-device synchronization, drag reordering, collapsing the `Pinned` section, and desktop changes are out of scope.
 
 ## User Experience
 
 Long-pressing any chat opens `Chat actions`, even when server-side rename is unavailable. The sheet shows `Pin chat` for an unpinned chat or `Unpin chat` for a pinned chat, followed by `Rename chat` when rename is supported.
 
-Pinned chats appear in most-recently-pinned order under a `Pinned` header at the top of the drawer. Each pinned row keeps the chat title primary and shows `<workspace> · <relative time>` as secondary text so chats with similar titles remain distinguishable. The workspace label uses the existing leaf-folder helper and falls back to `codex-relay` when the thread has no working directory. Normal workspace rows keep their existing time-only secondary text.
+Pinned chats appear in most-recently-pinned order under a `Pinned` header at the top of the drawer. Each pinned row keeps the chat title primary and shows `<workspace> · <relative time>` as single-line secondary text so chats with similar titles remain distinguishable. The workspace label uses the existing leaf-folder helper and falls back to `codex-relay` when the thread has no working directory. Long labels use middle ellipsis so the start of the folder and the relative time remain visible without increasing row height. Normal workspace rows keep their existing time-only secondary text.
 
 Pinned chats are removed from their normal workspace groups to avoid duplicates. Workspace headers remain visible even when every chat in that workspace is pinned. During search, all matching chats appear in their normal workspace groups, use the normal time-only metadata, and the separate `Pinned` section is hidden.
 

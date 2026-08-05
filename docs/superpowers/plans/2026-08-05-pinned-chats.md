@@ -681,3 +681,131 @@ git log --oneline origin/main..HEAD
 ```
 
 Expected: no whitespace errors, no uncommitted source changes, and Conventional Commit messages only. The eventual PR should be in English, link issue #58, list validation commands, and include a screenshot or recording when manual UI verification is available. Include a patch changeset for `@codex-relay/mobile`; no `codex-relay` package changeset is required.
+
+### Task 5: Show workspace metadata on pinned rows
+
+**Files:**
+
+- Modify: `apps/mobile/src/components/chat/thread-drawer-rows.ts`
+- Modify: `apps/mobile/src/components/chat/ThreadDrawerContent.tsx`
+- Test: `packages/codex-relay/test/mobile-thread-drawer-rows.test.ts`
+
+- [ ] **Step 1: Write a failing row-builder test**
+
+Add a test proving pinned rows receive the leaf workspace label while normal search rows do not:
+
+```ts
+it("adds workspace labels only to pinned section rows", () => {
+  const thread = threadSummary("thread-a", "/work/very-long-project-folder-name");
+
+  const pinnedRows = buildDrawerRows([thread], {}, undefined, [thread.id]);
+  const searchRows = buildDrawerRows([thread], {}, undefined, [thread.id], true);
+
+  expect(pinnedRows.find((row) => row.kind === "thread")).toEqual({
+    ...threadRow(thread),
+    workspaceTitle: "very-long-project-folder-name",
+  });
+  expect(searchRows.find((row) => row.kind === "thread")).toEqual(threadRow(thread));
+});
+```
+
+- [ ] **Step 2: Run the focused test and verify RED**
+
+Run:
+
+```bash
+corepack pnpm --filter codex-relay exec vitest run test/mobile-thread-drawer-rows.test.ts
+```
+
+Expected: FAIL because pinned thread rows do not yet contain `workspaceTitle`.
+
+- [ ] **Step 3: Add pinned workspace metadata to the row model**
+
+Extend the thread row variant:
+
+```ts
+| {
+    id: string;
+    kind: "thread";
+    projectKey: string;
+    thread: ThreadSummary;
+    workspaceTitle?: string;
+  }
+```
+
+Create pinned rows with the workspace label while leaving normal rows unchanged:
+
+```ts
+rows.push(
+  ...pinnedThreads.map((thread) =>
+    threadRow(
+      thread,
+      projectKeyForThread(thread),
+      workspaceName(thread.cwd) ?? "codex-relay",
+    ),
+  ),
+);
+```
+
+Update `threadRow` to accept and conditionally include the optional label:
+
+```ts
+function threadRow(thread: ThreadSummary, projectKey: string, workspaceTitle?: string): DrawerRow {
+  return {
+    id: `thread:${thread.id}`,
+    kind: "thread",
+    projectKey,
+    thread,
+    ...(workspaceTitle ? { workspaceTitle } : {}),
+  };
+}
+```
+
+- [ ] **Step 4: Render compact pinned metadata**
+
+Calculate the relative time once and render pinned metadata with middle ellipsis:
+
+```tsx
+const relativeTime = formatRelativeTime(item.thread.lastActivityAt ?? item.thread.updatedAt);
+
+<Text
+  ellipsizeMode={item.workspaceTitle ? "middle" : "tail"}
+  numberOfLines={1}
+  style={styles.threadTime}
+>
+  {item.workspaceTitle ? `${item.workspaceTitle} · ${relativeTime}` : relativeTime}
+</Text>
+```
+
+Include `workspaceTitle` in the thread-row memo comparison:
+
+```ts
+previous.item.workspaceTitle === next.item.workspaceTitle &&
+```
+
+- [ ] **Step 5: Verify GREEN and static checks**
+
+Run:
+
+```bash
+corepack pnpm --filter codex-relay exec vitest run test/mobile-thread-drawer-rows.test.ts
+corepack pnpm exec oxfmt apps/mobile/src/components/chat/thread-drawer-rows.ts apps/mobile/src/components/chat/ThreadDrawerContent.tsx packages/codex-relay/test/mobile-thread-drawer-rows.test.ts --write
+corepack pnpm -r typecheck
+```
+
+Expected: the focused tests and all workspace typechecks pass, and formatting produces no remaining diff.
+
+- [ ] **Step 6: Verify on Android and commit**
+
+Open the drawer in the paired Android emulator and confirm:
+
+1. A pinned row shows `<workspace> · <relative time>` below its title.
+2. A long workspace label stays on one line with middle ellipsis.
+3. A normal workspace row still shows only relative time.
+
+Save a fresh screenshot, then commit:
+
+```bash
+git add apps/mobile/src/components/chat/thread-drawer-rows.ts apps/mobile/src/components/chat/ThreadDrawerContent.tsx packages/codex-relay/test/mobile-thread-drawer-rows.test.ts
+git commit -m "feat: label pinned chats by workspace"
+```
