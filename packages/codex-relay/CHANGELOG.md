@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.7
+
+### Patch Changes
+
+- ea78eff: Persist pinned chats locally so they remain available across app restarts.
+
 ## 1.4.6
 
 ### Patch Changes
