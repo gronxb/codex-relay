@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.5
+
+### Patch Changes
+
+- ea78eff: Persist pinned chats locally so they remain available across app restarts.
+
 ## 1.4.0-ship.4
 
 ### Patch Changes
