@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.8
+
+### Patch Changes
+
+- 5a64d96: Restore conversation history for running threads recorded by current Codex versions.
+
 ## 1.4.7
 
 ### Patch Changes
