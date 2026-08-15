@@ -4,9 +4,11 @@ import { StyleSheet } from "react-native-unistyles";
 
 import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
+import { CopyableCommand } from "@/components/ui/copyable-command";
 import { Icon } from "@/components/ui/icon";
-import { Fonts } from "@/constants/theme";
 import { workspaceName } from "@/lib/workspace-name";
+
+import { relayStartCommand } from "./pairing-commands";
 
 const tailscaleAppStoreUrl = "https://apps.apple.com/us/app/tailscale/id1470499037";
 
@@ -113,7 +115,7 @@ export function ConnectionBanner({
               label="1"
               title="Start the relay"
               body="Open Terminal on your computer and run:"
-              command="npx codex-relay@latest"
+              command={relayStartCommand}
             />
             <PairingStep
               icon="workspace"
@@ -204,11 +206,7 @@ function PairingStep({
           {body}
         </ThemedText>
         {command ? (
-          <View style={styles.commandBox}>
-            <ThemedText type="smallBold" style={styles.commandText}>
-              {command}
-            </ThemedText>
-          </View>
+          <CopyableCommand command={command} copyAccessibilityLabel="Copy relay start command" />
         ) : null}
         {actionLabel && onAction ? (
           <Pressable
@@ -365,19 +363,6 @@ const styles = StyleSheet.create({
     lineHeight: 17,
   },
   stepBody: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  commandBox: {
-    backgroundColor: "rgba(0, 0, 0, 0.24)",
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 7,
-    borderWidth: 1,
-    paddingHorizontal: 9,
-    paddingVertical: 7,
-  },
-  commandText: {
-    fontFamily: Fonts.mono,
     fontSize: 12,
     lineHeight: 16,
   },

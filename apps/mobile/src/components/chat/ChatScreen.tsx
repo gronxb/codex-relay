@@ -50,6 +50,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
 import { ThemedText } from "@/components/themed-text";
+import { CopyableCommand } from "@/components/ui/copyable-command";
 import { AppToast } from "@/components/ui/toast";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { activeThreadAfterRefresh } from "@/lib/active-thread-selection";
@@ -152,6 +153,7 @@ import {
 import { ChatShell } from "./ChatShell";
 import type { ChatShellAction } from "./ChatShellHeader";
 import { ConnectionBanner } from "./ConnectionBanner";
+import { approvalCommand } from "./pairing-commands";
 import {
   EXPANDED_DRAWER_BREAKPOINT,
   THREE_PANE_LAYOUT_BREAKPOINT,
@@ -2418,13 +2420,17 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
               {pasteApprovalCode ? (
                 <View style={styles.manualApproval}>
                   <ThemedText type="smallBold">Approval code</ThemedText>
-                  <ThemedText style={styles.manualApprovalCode}>{pasteApprovalCode}</ThemedText>
+                  <ThemedText selectable style={styles.manualApprovalCode}>
+                    {pasteApprovalCode}
+                  </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
                     Run this on your computer:
                   </ThemedText>
-                  <ThemedText style={styles.manualApprovalCommand}>
-                    {approvalCommand(pasteApprovalCode, pasteApprovalServerUrl)}
-                  </ThemedText>
+                  <CopyableCommand
+                    command={approvalCommand(pasteApprovalCode, pasteApprovalServerUrl)}
+                    copyAccessibilityLabel="Copy approval command"
+                    textStyle={styles.manualApprovalCommand}
+                  />
                 </View>
               ) : null}
             </View>
@@ -2811,27 +2817,8 @@ function delay(ms: number) {
   });
 }
 
-function approvalCommand(approvalCode: string, serverUrl?: string) {
-  const port = approvalPort(serverUrl);
-  return port && port !== "8787"
-    ? `PORT=${port} npx codex-relay@latest approve ${approvalCode}`
-    : `npx codex-relay@latest approve ${approvalCode}`;
-}
-
 function approvalMessage(approvalCode: string, serverUrl?: string) {
   return `Run ${approvalCommand(approvalCode, serverUrl)} in the server terminal.`;
-}
-
-function approvalPort(serverUrl?: string) {
-  if (!serverUrl) {
-    return undefined;
-  }
-
-  try {
-    return new URL(serverUrl).port;
-  } catch {
-    return undefined;
-  }
 }
 
 function readScannedPayload(result: unknown) {
