@@ -6711,6 +6711,28 @@ function rolloutRecordMessage(
     return undefined;
   }
 
+  if (record.type === "response_item" && payload.type === "message") {
+    const role = firstString(payload, ["role"]);
+    if (role !== "user" && role !== "assistant") {
+      return undefined;
+    }
+    const content = rolloutResponseItemMessageContent(payload, role);
+    if (!content) {
+      return undefined;
+    }
+    const messageParts = role === "assistant" ? agentMessageParts(content) : undefined;
+    return ChatMessageSchema.parse({
+      id: firstString(payload, ["id"]) ?? `${messageKey}:${role}`,
+      threadId,
+      role,
+      content: messageParts?.content ?? content,
+      details: messageParts?.details,
+      createdAt: timestamp,
+      state: "completed",
+      turnId,
+    });
+  }
+
   if (record.type === "event_msg" && payload.type === "user_message") {
     const content = firstString(payload, ["message"]);
     if (!content) {
@@ -6813,6 +6835,26 @@ function rolloutRecordMessage(
   }
 
   return undefined;
+}
+
+function rolloutResponseItemMessageContent(
+  payload: Record<string, unknown>,
+  role: "assistant" | "user",
+) {
+  if (!Array.isArray(payload.content)) {
+    return undefined;
+  }
+  const expectedType = role === "user" ? "input_text" : "output_text";
+  const text = payload.content.flatMap((item) => {
+    if (!item || typeof item !== "object") {
+      return [];
+    }
+    const contentItem = item as Record<string, unknown>;
+    return contentItem.type === expectedType && typeof contentItem.text === "string"
+      ? [contentItem.text]
+      : [];
+  });
+  return text.length > 0 ? text.join("\n\n") : undefined;
 }
 
 function rolloutUserMessageDetails(payload: Record<string, unknown>) {
@@ -7064,7 +7106,8 @@ function isRolloutMessageLine(line: string) {
         line.includes('"type":"exec_command_end"') ||
         line.includes('"type":"mcp_tool_call_end"'))) ||
     (line.includes('"type":"response_item"') &&
-      (line.includes('"type":"custom_tool_call"') ||
+      (line.includes('"type":"message"') ||
+        line.includes('"type":"custom_tool_call"') ||
         line.includes('"type":"custom_tool_call_output"')))
   );
 }

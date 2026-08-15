@@ -7177,6 +7177,113 @@ describe("Codex Relay server routes", () => {
     }
   });
 
+  it("loads current response-item rollout messages while a thread is running", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsDir = join(codexHome, "sessions", "2026", "08", "15");
+    await mkdir(sessionsDir, { recursive: true });
+    const threadId = "app-thread-running-response-items";
+    await writeFile(
+      join(sessionsDir, `rollout-2026-08-15T00-00-00-${threadId}.jsonl`),
+      [
+        JSON.stringify({
+          payload: {
+            content: [{ text: "current rollout prompt", type: "input_text" }],
+            id: "msg-user-current",
+            role: "user",
+            type: "message",
+          },
+          timestamp: "2026-08-15T00:00:00.000Z",
+          type: "response_item",
+        }),
+        JSON.stringify({
+          payload: {
+            content: [{ text: "internal instructions", type: "input_text" }],
+            id: "msg-developer-current",
+            role: "developer",
+            type: "message",
+          },
+          timestamp: "2026-08-15T00:00:01.000Z",
+          type: "response_item",
+        }),
+        JSON.stringify({
+          payload: {
+            content: [{ text: "current rollout answer", type: "output_text" }],
+            id: "msg-assistant-current",
+            phase: "final_answer",
+            role: "assistant",
+            type: "message",
+          },
+          timestamp: "2026-08-15T00:00:02.000Z",
+          type: "response_item",
+        }),
+      ].join("\n"),
+    );
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const now = Date.now() / 1000;
+    const runningThread = {
+      id: threadId,
+      createdAt: now,
+      cwd: workspacePath,
+      modelProvider: "gpt-5.5",
+      name: "Running response-item thread",
+      preview: "Running response-item thread",
+      source: "app",
+      status: { type: "active" },
+      updatedAt: now,
+    };
+    const readThread = vi.fn<
+      (_threadId: string, options?: { includeTurns?: boolean }) => Promise<unknown>
+    >(async (_threadId, options) => {
+      if (options?.includeTurns === true) {
+        return new Promise(() => undefined);
+      }
+      return runningThread;
+    });
+    const appServer = {
+      listThreads: vi.fn<() => Promise<unknown[]>>(async () => [runningThread]),
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const response = await app.request(`/v1/threads/${threadId}`);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(readThread).toHaveBeenCalledTimes(1);
+      expect(readThread).toHaveBeenCalledWith(threadId, { includeTurns: false });
+      expect(body.thread.state).toBe("running");
+      expect(
+        body.messages.map((message: { content: string; id: string; role: string }) => ({
+          content: message.content,
+          id: message.id,
+          role: message.role,
+        })),
+      ).toEqual([
+        { content: "current rollout prompt", id: "msg-user-current", role: "user" },
+        {
+          content: "current rollout answer",
+          id: "msg-assistant-current",
+          role: "assistant",
+        },
+      ]);
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
   it("loads the full readable rollout conversation when tool events are newest", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
