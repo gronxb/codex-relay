@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.6
+
+### Patch Changes
+
+- 61f3833: Make the relay setup and phone approval commands selectable and copyable.
+
 ## 1.4.0-ship.5
 
 ### Patch Changes
