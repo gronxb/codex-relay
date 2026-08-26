@@ -5,7 +5,6 @@ import {
   evaluateRelayVersion,
   relayCompatibilityPolicy,
   relayUpdateCommand,
-  requireCompatibleRelayVersion,
 } from "./version-policy";
 
 function relayVersion(packageVersion: string) {
@@ -33,7 +32,7 @@ function nextMajorVersion(version: string) {
 }
 
 describe("relay version policy", () => {
-  it("requires the relay package version bundled with the mobile release", () => {
+  it("reports an older relay for the sidebar using the bundled relay package version", () => {
     const requiredVersion = relayPackage.version;
     const olderVersion = previousPatchVersion(requiredVersion);
 
@@ -49,11 +48,11 @@ describe("relay version policy", () => {
   it("accepts the required release and newer same-major releases", () => {
     const newerVersion = nextPatchVersion(relayPackage.version);
 
-    expect(requireCompatibleRelayVersion(relayVersion(relayPackage.version))).toMatchObject({
+    expect(evaluateRelayVersion(relayVersion(relayPackage.version), undefined)).toMatchObject({
       compatible: true,
       current: relayPackage.version,
     });
-    expect(requireCompatibleRelayVersion(relayVersion(newerVersion))).toMatchObject({
+    expect(evaluateRelayVersion(relayVersion(newerVersion), undefined)).toMatchObject({
       compatible: true,
       current: newerVersion,
     });
@@ -65,13 +64,14 @@ describe("relay version policy", () => {
       "latest",
       nextMajorVersion(relayPackage.version),
     ]) {
-      expect(() => requireCompatibleRelayVersion(relayVersion(packageVersion))).toThrow(
-        "Run npx codex-relay@latest.",
-      );
+      expect(evaluateRelayVersion(relayVersion(packageVersion), undefined)).toMatchObject({
+        compatible: false,
+        current: packageVersion,
+      });
     }
   });
 
-  it("blocks use when the app cannot verify the relay version", () => {
+  it("reports an unavailable relay for the sidebar", () => {
     expect(evaluateRelayVersion(undefined, new Error("offline"))).toMatchObject({
       compatible: false,
       current: "Unavailable",

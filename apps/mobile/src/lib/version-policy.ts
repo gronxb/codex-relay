@@ -67,16 +67,6 @@ export function evaluateRelayVersion(
   };
 }
 
-export function requireCompatibleRelayVersion(version: VersionResponse) {
-  const compatibility = evaluateRelayVersion(version, undefined);
-  if (!compatibility?.compatible) {
-    throw new Error(
-      `${compatibility?.reason ?? "The relay version could not be verified."} Run ${relayUpdateCommand}.`,
-    );
-  }
-  return compatibility;
-}
-
 function compareRelayVersions(current: string, required: string) {
   const currentSemver = parseSemver(current);
   const requiredSemver = parseSemver(required);

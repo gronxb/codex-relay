@@ -325,11 +325,11 @@ export class CodexAppServerClient {
         nextCursor?: string | null;
       }>("thread/list", {
         archived: false,
-        cursor,
         limit,
         sortDirection: "desc",
         sortKey: "recency_at",
         sourceKinds: ["cli", "vscode", "exec", "appServer"],
+        ...(cursor ? { cursor, useStateDbOnly: true } : {}),
       });
       threads.push(...response.data);
       const nextCursor = response.nextCursor ?? undefined;

@@ -111,13 +111,6 @@ export function fetchRateLimitsState(queryClient: QueryClient) {
   });
 }
 
-export function fetchVersionState(queryClient: QueryClient) {
-  return queryClient.fetchQuery({
-    queryKey: serverStateKeys.version(),
-    queryFn: getVersion,
-  });
-}
-
 export async function fetchThreadState(
   queryClient: QueryClient,
   threadId: string,

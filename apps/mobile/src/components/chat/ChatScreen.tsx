@@ -93,7 +93,6 @@ import {
   fetchThreadQueryState,
   fetchThreadState,
   fetchThreadsState,
-  fetchVersionState,
   fetchWorkspaceChangesState,
   optimisticallySteerQueuedInputState,
   removePendingInputRequestState,
@@ -120,7 +119,6 @@ import {
   reconcileThreadRunEventAfterTerminal,
 } from "@/lib/thread-run-stream";
 import { readCachedWorkspaceRuntimePreferences } from "@/lib/workspace-runtime-preferences-cache";
-import { requireCompatibleRelayVersion } from "@/lib/version-policy";
 import {
   appendComposerAttachments,
   chatStore$,
@@ -714,7 +712,6 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       syncPairedSessionState();
       setServerUrl(getCodexRelayServerUrl());
       try {
-        requireCompatibleRelayVersion(await fetchVersionState(queryClient));
         await refreshSession().catch(() => false);
         syncPairedSessionState();
         const [response, modelsResponse, rateLimitsResponse] = await runConnectionRefresh(

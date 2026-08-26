@@ -196,7 +196,7 @@ describe("CodexAppServerClient shared socket mode", () => {
     }
   });
 
-  it("lists every root thread page in server recency order", async () => {
+  it("lists every root thread page without rescanning rollout files after the first page", async () => {
     const codexHome = await mkdtemp(join(socketTempRoot, "codex-relay-app-server-pages-"));
     const socketPath = join(codexHome, "app-server-control", "app-server-control.sock");
     const server = await startSharedSocketServer(socketPath, (request) => {
@@ -227,7 +227,11 @@ describe("CodexAppServerClient shared socket mode", () => {
         sortDirection: "desc",
         sourceKinds: ["cli", "vscode", "exec", "appServer"],
       });
-      expect(requests[1]?.params).toMatchObject({ cursor: "page-2" });
+      expect(requests[0]?.params).not.toHaveProperty("useStateDbOnly");
+      expect(requests[1]?.params).toMatchObject({
+        cursor: "page-2",
+        useStateDbOnly: true,
+      });
     } finally {
       client.close();
       await server.close();

@@ -2,7 +2,6 @@
 
 ## 1.4.0-ship.7
 
-
 ### Patch Changes
 
 - f764166: Keep relay and mobile thread history consistent with Codex 0.149 app-server and SDK behavior, and require the compatible relay release from the app.

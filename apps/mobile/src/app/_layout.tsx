@@ -18,7 +18,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { RelayVersionGate } from "@/components/RelayVersionGate";
 import { useInitialPushNotificationRegistration } from "@/hooks/use-initial-push-notification-registration";
 import { addHotUpdaterLog, formatHotUpdaterProgress } from "@/lib/hot-updater-logs";
 import {
@@ -192,43 +191,41 @@ function TabLayout() {
           <KeyboardProvider>
             <BottomSheetModalProvider>
               <AnimatedSplashOverlay />
-              <RelayVersionGate>
-                <Stack
-                  screenOptions={{
+              <Stack
+                screenOptions={{
+                  contentStyle: {
+                    backgroundColor: "#191919",
+                  },
+                  headerShown: false,
+                }}
+              >
+                <Stack.Screen name="(drawer)" />
+                <Stack.Screen name="pair" />
+                <Stack.Screen
+                  name="image-viewer"
+                  options={{
                     contentStyle: {
-                      backgroundColor: "#191919",
+                      backgroundColor: "#050505",
                     },
-                    headerShown: false,
+                    gestureEnabled: true,
+                    presentation: "modal",
                   }}
-                >
-                  <Stack.Screen name="(drawer)" />
-                  <Stack.Screen name="pair" />
-                  <Stack.Screen
-                    name="image-viewer"
-                    options={{
-                      contentStyle: {
-                        backgroundColor: "#050505",
-                      },
-                      gestureEnabled: true,
-                      presentation: "modal",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="settings"
-                    options={{
-                      animation: "slide_from_right",
-                      title: "Settings",
-                    }}
-                  />
-                  <Stack.Screen
-                    name="workspace-file-editor"
-                    options={{
-                      animation: "slide_from_right",
-                      title: "File Editor",
-                    }}
-                  />
-                </Stack>
-              </RelayVersionGate>
+                />
+                <Stack.Screen
+                  name="settings"
+                  options={{
+                    animation: "slide_from_right",
+                    title: "Settings",
+                  }}
+                />
+                <Stack.Screen
+                  name="workspace-file-editor"
+                  options={{
+                    animation: "slide_from_right",
+                    title: "File Editor",
+                  }}
+                />
+              </Stack>
               <PortalHost />
             </BottomSheetModalProvider>
           </KeyboardProvider>
