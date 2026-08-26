@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.12
+
+### Patch Changes
+
+- d40b19e: Hide Codex-injected context blocks from thread history responses.
+
 ## 1.4.11
 
 ### Patch Changes
