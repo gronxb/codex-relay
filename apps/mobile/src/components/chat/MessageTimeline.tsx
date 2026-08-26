@@ -7,7 +7,7 @@ import {
 } from "@legendapp/list/react-native";
 import { KeyboardAwareLegendList } from "@legendapp/list/keyboard";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 import Animated, {
   Easing,
@@ -20,7 +20,9 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
+import { Icon } from "@/components/ui/icon";
 import { Colors, Spacing } from "@/constants/theme";
+import { hapticSelection } from "@/lib/haptics";
 
 import { MessageBubble } from "./MessageBubble";
 import { messageItemType, messageKeyExtractor } from "./timeline-message-items";
@@ -45,6 +47,8 @@ const MAINTAIN_VISIBLE_CONTENT_POSITION: MaintainVisibleContentPositionConfig<Ch
 const MAINTAIN_SCROLL_AT_END_THRESHOLD = 0.1;
 const TIMELINE_LOADING_ENTER = FadeIn.duration(140).easing(Easing.out(Easing.cubic));
 const TIMELINE_LOADING_EXIT = FadeOut.duration(120).easing(Easing.out(Easing.cubic));
+const SCROLL_TO_END_ENTER = FadeIn.duration(140).easing(Easing.out(Easing.cubic));
+const SCROLL_TO_END_EXIT = FadeOut.duration(120).easing(Easing.out(Easing.cubic));
 const TIMELINE_CONTENT_SETTLE_OFFSET = 10;
 
 export function MessageTimeline({
@@ -71,9 +75,11 @@ export function MessageTimeline({
   threadId?: string;
 }) {
   const listRef = useRef<LegendListRef | null>(null);
+  const removeAtEndListenerRef = useRef<(() => void) | null>(null);
   const { bottom } = useSafeAreaInsets();
   const rows = messages;
   const timelineKey = threadId ?? "no-thread";
+  const [isAtEnd, setIsAtEnd] = useState(true);
   const [settledTimelineKey, setSettledTimelineKey] = useState<string | undefined>(undefined);
   const extraContentPadding = useSharedValue(0);
   const contentRevealProgress = useSharedValue(0);
@@ -93,8 +99,16 @@ export function MessageTimeline({
   }, [bottomAccessoryHeight, extraContentPadding]);
 
   useEffect(() => {
+    setIsAtEnd(true);
     setSettledTimelineKey(undefined);
   }, [timelineKey]);
+
+  useEffect(
+    () => () => {
+      removeAtEndListenerRef.current?.();
+    },
+    [],
+  );
 
   useEffect(() => {
     if (isLoading || !hasRows) {
@@ -141,6 +155,21 @@ export function MessageTimeline({
       setSettledTimelineKey(timelineKey);
     });
   }, [timelineKey]);
+  const handleListRef = useCallback((list: LegendListRef | null) => {
+    removeAtEndListenerRef.current?.();
+    listRef.current = list;
+    if (!list) {
+      return;
+    }
+
+    const listState = list.getState();
+    setIsAtEnd(listState.isAtEnd);
+    removeAtEndListenerRef.current = listState.listen("isAtEnd", setIsAtEnd);
+  }, []);
+  const handleScrollToEnd = useCallback(() => {
+    hapticSelection();
+    void listRef.current?.scrollToEnd({ animated: true }).catch(() => undefined);
+  }, []);
 
   return (
     <View onTouchStart={onKeyboardDismissRequest} style={styles.transitionHost}>
@@ -157,7 +186,7 @@ export function MessageTimeline({
           <Animated.View style={[styles.transitionScene, timelineContentStyle]}>
             <KeyboardAwareLegendList
               key={timelineKey}
-              ref={listRef}
+              ref={handleListRef}
               alignItemsAtEnd
               automaticallyAdjustContentInsets={false}
               contentInsetAdjustmentBehavior="never"
@@ -188,6 +217,24 @@ export function MessageTimeline({
             />
           </Animated.View>
         )
+      ) : null}
+      {!showLoadingConversation && hasRows && !isAtEnd ? (
+        <Animated.View
+          entering={SCROLL_TO_END_ENTER}
+          exiting={SCROLL_TO_END_EXIT}
+          pointerEvents="box-none"
+          style={styles.scrollToEndContainer}
+        >
+          <Pressable
+            accessibilityLabel="Scroll to latest message"
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={handleScrollToEnd}
+            style={({ pressed }) => [styles.scrollToEndButton, pressed && styles.pressed]}
+          >
+            <Icon name="expand" size={18} tintColor={Colors.dark.text} />
+          </Pressable>
+        </Animated.View>
       ) : null}
       {showLoadingConversation ? (
         <Animated.View
@@ -236,6 +283,28 @@ const styles = StyleSheet.create({
   },
   listEndPad: {
     height: Spacing.two,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  scrollToEndButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(42, 42, 42, 0.94)",
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    borderCurve: "continuous",
+    borderRadius: 18,
+    borderWidth: 1,
+    height: 36,
+    justifyContent: "center",
+    width: 36,
+  },
+  scrollToEndContainer: {
+    alignItems: "center",
+    bottom: Spacing.three,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    zIndex: 2,
   },
   transitionHost: {
     flex: 1,
