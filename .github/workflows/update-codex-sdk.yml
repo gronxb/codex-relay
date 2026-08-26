@@ -39,15 +39,16 @@ jobs:
         run: |
           current_version="$(node -p 'require("./packages/codex-relay/package.json").dependencies["@openai/codex-sdk"]')"
           latest_version="$(pnpm view @openai/codex-sdk@latest version)"
+          codex_cli_version="$(pnpm view "@openai/codex-sdk@$latest_version" dependencies.@openai/codex)"
 
           if [[ "$current_version" == "$latest_version" ]]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          pnpm --filter codex-relay add "@openai/codex-sdk@$latest_version" --save-exact --lockfile-only
+          pnpm --filter codex-relay add "@openai/codex@$codex_cli_version" "@openai/codex-sdk@$latest_version" --save-exact --lockfile-only
           changeset_path=".changeset/update-codex-sdk-$latest_version.md"
-          printf -- '---\n"codex-relay": patch\n---\n\nUpdate `@openai/codex-sdk` to `%s`.\n' "$latest_version" > "$changeset_path"
+          printf -- '---\n"codex-relay": patch\n---\n\nUpdate `@openai/codex-sdk` to `%s` and pin its Codex CLI `%s` for app-server compatibility.\n' "$latest_version" "$codex_cli_version" > "$changeset_path"
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "changeset=$changeset_path" >> "$GITHUB_OUTPUT"
           echo "version=$latest_version" >> "$GITHUB_OUTPUT"

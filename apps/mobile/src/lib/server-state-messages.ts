@@ -47,12 +47,13 @@ export function mergeThreadDetailState(
   current: ThreadDetailResponse | undefined,
   response: ThreadDetailResponse,
 ) {
-  if (!current || current.thread.id !== response.thread.id || current.messages.length === 0) {
+  if (!current || current.thread.id !== response.thread.id) {
     return response;
   }
   const messages = mergeMessages(current.messages, response.messages);
   return {
     ...response,
+    thread: preferredThreadSnapshot(current.thread, response.thread),
     messages,
   };
 }
@@ -60,7 +61,12 @@ export function mergeThreadDetailState(
 export function upsertMessage(messages: ChatMessage[], message: ChatMessage) {
   const existingIndex = messages.findIndex((candidate) => candidate.id === message.id);
   if (existingIndex !== -1) {
-    return messages.map((candidate) => (candidate.id === message.id ? message : candidate));
+    return messages.map((candidate) =>
+      candidate.id === message.id ? preferredMessageSnapshot(candidate, message) : candidate,
+    );
+  }
+  if (messages.some((candidate) => replacementMessageId(candidate) === message.id)) {
+    return messages;
   }
   const replacementId = replacementMessageId(message);
   const replacementIndex = replacementId
@@ -87,7 +93,7 @@ export function upsertMessage(messages: ChatMessage[], message: ChatMessage) {
       index === messages.length - 1 ? message : candidate,
     );
   }
-  return [...messages, message];
+  return sortMessagesByCreation([...messages, message]);
 }
 
 function optimisticSteeringMessageId(inputId: string) {
@@ -95,13 +101,26 @@ function optimisticSteeringMessageId(inputId: string) {
 }
 
 function mergeMessages(baseMessages: ChatMessage[], incomingMessages: ChatMessage[]) {
-  const incomingById = new Map(incomingMessages.map((message) => [message.id, message]));
+  const replacedMessageIds = new Set(
+    [...baseMessages, ...incomingMessages]
+      .map(replacementMessageId)
+      .filter((id): id is string => id !== undefined),
+  );
+  const baseById = new Map(baseMessages.map((message) => [message.id, message]));
+  const incomingById = new Map(
+    incomingMessages.map((message) => [
+      message.id,
+      baseById.has(message.id)
+        ? preferredMessageSnapshot(baseById.get(message.id)!, message)
+        : message,
+    ]),
+  );
   const indexesById = new Map<string, number>();
   const seenIds = new Set<string>();
   const messages: ChatMessage[] = [];
   for (const candidate of [...baseMessages, ...incomingMessages]) {
     const message = incomingById.get(candidate.id) ?? candidate;
-    if (seenIds.has(message.id)) {
+    if (seenIds.has(message.id) || replacedMessageIds.has(message.id)) {
       continue;
     }
     const replacementId = replacementMessageId(message);
@@ -129,7 +148,39 @@ function mergeMessages(baseMessages: ChatMessage[], incomingMessages: ChatMessag
     indexesById.set(message.id, messages.length);
     messages.push(message);
   }
-  return messages;
+  return sortMessagesByCreation(messages);
+}
+
+function preferredMessageSnapshot(current: ChatMessage, incoming: ChatMessage) {
+  const currentUpdatedAt = current.updatedAt ?? current.createdAt;
+  const incomingUpdatedAt = incoming.updatedAt ?? incoming.createdAt;
+  if (currentUpdatedAt !== incomingUpdatedAt) {
+    return currentUpdatedAt > incomingUpdatedAt ? current : incoming;
+  }
+  if (current.state === "completed" && incoming.state !== "completed") {
+    return current;
+  }
+  return incoming;
+}
+
+export function preferredThreadSnapshot(current: ThreadSummary, incoming: ThreadSummary) {
+  if (current.updatedAt !== incoming.updatedAt) {
+    return current.updatedAt > incoming.updatedAt ? current : incoming;
+  }
+  if (current.state !== "running" && incoming.state === "running") {
+    return current;
+  }
+  return incoming;
+}
+
+function sortMessagesByCreation(messages: ChatMessage[]) {
+  return messages
+    .map((message, index) => ({ index, message }))
+    .sort(
+      (left, right) =>
+        left.message.createdAt.localeCompare(right.message.createdAt) || left.index - right.index,
+    )
+    .map(({ message }) => message);
 }
 
 function isDuplicateOptimisticQueuedMessage(

@@ -49,6 +49,121 @@ describe("mobile optimistic queued-input steering state", () => {
       role: "user",
     });
   });
+
+  it("does not let a late thread snapshot replace a completed streamed message", () => {
+    const completedThread = {
+      ...threadSummary("thread-late-snapshot"),
+      state: "completed" as const,
+      updatedAt: "2026-06-06T00:00:03.000Z",
+    };
+    const staleThread = {
+      ...completedThread,
+      state: "running" as const,
+      updatedAt: "2026-06-06T00:00:01.000Z",
+    };
+    const completedMessage = {
+      ...chatMessage("assistant-late-snapshot", completedThread.id, "Hello world"),
+      role: "assistant" as const,
+      state: "completed" as const,
+      updatedAt: "2026-06-06T00:00:03.000Z",
+    };
+    const staleMessage = {
+      ...completedMessage,
+      content: "Hello",
+      state: "streaming" as const,
+      updatedAt: "2026-06-06T00:00:01.000Z",
+    };
+
+    const merged = mergeThreadDetailState(
+      {
+        thread: completedThread,
+        messages: [completedMessage],
+        pendingInputRequests: [],
+      },
+      { thread: staleThread, messages: [staleMessage], pendingInputRequests: [] },
+    );
+
+    expect(merged.thread).toMatchObject({ state: "completed" });
+    expect(merged.messages).toEqual([completedMessage]);
+  });
+
+  it("does not reopen a terminal thread whose message cache is still empty", () => {
+    const completedThread = {
+      ...threadSummary("thread-empty-terminal"),
+      state: "completed" as const,
+      updatedAt: "2026-06-06T00:00:03.000Z",
+    };
+    const staleRunningThread = {
+      ...completedThread,
+      state: "running" as const,
+      updatedAt: "2026-06-06T00:00:01.000Z",
+    };
+
+    const merged = mergeThreadDetailState(
+      { thread: completedThread, messages: [], pendingInputRequests: [] },
+      { thread: staleRunningThread, messages: [], pendingInputRequests: [] },
+    );
+
+    expect(merged.thread.state).toBe("completed");
+  });
+
+  it("sorts late-created messages by their server creation time", () => {
+    const thread = threadSummary("thread-message-order");
+    const newer = {
+      ...chatMessage("message-newer", thread.id, "newer"),
+      createdAt: "2026-06-06T00:00:02.000Z",
+    };
+    const older = {
+      ...chatMessage("message-older", thread.id, "older"),
+      createdAt: "2026-06-06T00:00:01.000Z",
+    };
+
+    expect(upsertMessage([newer], older).map((message) => message.id)).toEqual([
+      "message-older",
+      "message-newer",
+    ]);
+  });
+
+  it("does not regress a completed message when its creation event is replayed", () => {
+    const thread = threadSummary("thread-replayed-message");
+    const completed = {
+      ...chatMessage("assistant-replayed", thread.id, "Final answer"),
+      role: "assistant" as const,
+      state: "completed" as const,
+      updatedAt: "2026-06-06T00:00:03.000Z",
+    };
+    const replayedCreation = {
+      ...completed,
+      content: "",
+      state: "streaming" as const,
+      updatedAt: "2026-06-06T00:00:01.000Z",
+    };
+
+    expect(upsertMessage([completed], replayedCreation)).toEqual([completed]);
+  });
+
+  it("does not restore a local message after its canonical replacement arrives", () => {
+    const thread = threadSummary("thread-replacement-replay");
+    const localMessage = chatMessage("local-user", thread.id, "Keep one copy");
+    const canonicalMessage = {
+      ...chatMessage("canonical-user", thread.id, "Keep one copy"),
+      details: { replacesMessageId: localMessage.id },
+    };
+    const canonicalDetail = {
+      thread,
+      messages: [canonicalMessage],
+      pendingInputRequests: [],
+    };
+
+    expect(upsertMessage([canonicalMessage], localMessage)).toEqual([canonicalMessage]);
+    expect(
+      mergeThreadDetailState(canonicalDetail, {
+        thread,
+        messages: [localMessage],
+        pendingInputRequests: [],
+      }).messages,
+    ).toEqual([canonicalMessage]);
+  });
 });
 
 function threadSummary(id: string): ThreadSummary {

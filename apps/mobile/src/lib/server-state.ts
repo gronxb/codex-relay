@@ -53,6 +53,7 @@ import {
 import {
   appendOptimisticSteeringMessageToDetail,
   mergeThreadDetailState,
+  preferredThreadSnapshot,
   upsertMessage,
 } from "./server-state-messages";
 
@@ -115,20 +116,31 @@ export async function fetchThreadState(
   threadId: string,
   options: { refresh?: boolean } = {},
 ) {
-  const response = options.refresh
-    ? await getThread(threadId, { refresh: true })
-    : await queryClient.fetchQuery({
-        queryKey: serverStateKeys.thread(threadId),
-        queryFn: () => getThread(threadId),
-      });
-  setThreadDetailState(
-    queryClient,
-    response.thread,
-    response.messages,
-    response.pendingInputRequests,
-    { replaceMessages: options.refresh },
+  if (options.refresh) {
+    const response = await getThread(threadId, { refresh: true });
+    setThreadDetailState(
+      queryClient,
+      response.thread,
+      response.messages,
+      response.pendingInputRequests,
+      { replaceMessages: true },
+    );
+    return response;
+  }
+  return queryClient.fetchQuery({
+    queryKey: serverStateKeys.thread(threadId),
+    queryFn: () => fetchThreadQueryState(queryClient, threadId),
+  });
+}
+
+export async function fetchThreadQueryState(queryClient: QueryClient, threadId: string) {
+  const response = await getThread(threadId);
+  const merged = mergeThreadDetailState(
+    queryClient.getQueryData<ThreadDetailResponse>(serverStateKeys.thread(threadId)),
+    response,
   );
-  return response;
+  upsertThreadState(queryClient, merged.thread);
+  return merged;
 }
 
 export function fetchQueuedInputsState(queryClient: QueryClient, threadId: string) {
@@ -404,13 +416,16 @@ export function setThreadsState(
 export function upsertThreadState(queryClient: QueryClient, thread: ThreadSummary) {
   queryClient.setQueryData<ListThreadsResponse>(serverStateKeys.threads(), (current) => {
     const threads = current?.threads ?? [];
+    const existing = threads.find((candidate) => candidate.id === thread.id);
     return {
       source: current?.source ?? "memory",
-      threads: sortThreads(upsertById(threads, thread)),
+      threads: sortThreads(
+        upsertById(threads, existing ? preferredThreadSnapshot(existing, thread) : thread),
+      ),
     };
   });
   queryClient.setQueryData<ThreadDetailResponse>(serverStateKeys.thread(thread.id), (current) =>
-    current ? { ...current, thread } : current,
+    current ? { ...current, thread: preferredThreadSnapshot(current.thread, thread) } : current,
   );
 }
 
@@ -721,12 +736,14 @@ function appendMessageDeltaState(
       ...current,
       messages: current.messages.map((message) =>
         message.id === messageId
-          ? {
-              ...message,
-              content: `${message.content}${normalizeStreamDelta(message.content, delta)}`,
-              state: "streaming",
-              updatedAt: new Date().toISOString(),
-            }
+          ? message.state === "completed"
+            ? message
+            : {
+                ...message,
+                content: `${message.content}${normalizeStreamDelta(message.content, delta)}`,
+                state: "streaming",
+                updatedAt: new Date().toISOString(),
+              }
           : message,
       ),
     };

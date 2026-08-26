@@ -9,6 +9,7 @@ import type {
   ReasoningEffort,
   RuntimeMode,
   RuntimePreferences,
+  StreamThreadRunEvent,
   ThreadCollaborationMode,
   ThreadSummary,
   WebPreviewTarget,
@@ -54,6 +55,7 @@ import { CopyableCommand } from "@/components/ui/copyable-command";
 import { AppToast } from "@/components/ui/toast";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { activeThreadAfterRefresh } from "@/lib/active-thread-selection";
+import { consumeHydratedDefaultThread } from "@/lib/server-state-hydration";
 import {
   getCodexRelayServerUrl,
   hasCodexRelaySession,
@@ -88,6 +90,7 @@ import {
   fetchRateLimitsState,
   fetchStatusState,
   fetchThreadGoalState,
+  fetchThreadQueryState,
   fetchThreadState,
   fetchThreadsState,
   fetchWorkspaceChangesState,
@@ -110,7 +113,11 @@ import {
   updateRuntimePreferencesServerState,
 } from "@/lib/server-state";
 import { recordSuccessfulAiConversationForReviewPrompt } from "@/lib/store-review-prompt";
-import { completeThreadRunSession, handleThreadRunStreamEvent } from "@/lib/thread-run-stream";
+import {
+  completeThreadRunSession,
+  handleThreadRunStreamEvent,
+  reconcileThreadRunEventAfterTerminal,
+} from "@/lib/thread-run-stream";
 import { readCachedWorkspaceRuntimePreferences } from "@/lib/workspace-runtime-preferences-cache";
 import {
   appendComposerAttachments,
@@ -445,7 +452,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
     queryKey: activeThreadId
       ? serverStateKeys.thread(activeThreadId)
       : [...serverStateKeys.threads(), "__inactive__", "detail"],
-    queryFn: ({ queryKey }) => serverStateQueryFns.thread(String(queryKey[3] ?? "")),
+    queryFn: ({ queryKey }) => fetchThreadQueryState(queryClient, String(queryKey[3] ?? "")),
     enabled: Boolean(activeThreadId),
   });
   const queuedInputsQuery = useQuery({
@@ -623,13 +630,6 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         if (chatStore$.activeThreadId.peek() !== threadId) {
           return response.thread.state;
         }
-        setThreadDetailState(
-          queryClient,
-          response.thread,
-          response.messages,
-          response.pendingInputRequests,
-          { replaceMessages: options.refresh },
-        );
         await Promise.all([
           fetchQueuedInputsState(queryClient, threadId).catch(() => undefined),
           fetchContextWindowState(queryClient, threadId).catch(() => undefined),
@@ -732,6 +732,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
           queryClient.setQueryData(serverStateKeys.rateLimits(), rateLimitsResponse);
         }
         const currentActiveThreadId = chatStore$.activeThreadId.peek();
+        const preferFirstThread = consumeHydratedDefaultThread(currentActiveThreadId);
         const hasCurrentActiveThread =
           !!currentActiveThreadId &&
           response.threads.some((thread) => thread.id === currentActiveThreadId);
@@ -749,6 +750,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         const nextActiveThreadId = activeThreadAfterRefresh({
           currentActiveThreadId,
           missingActiveThreadRestored,
+          preferFirstThread,
           threads: response.threads,
         });
 
@@ -861,6 +863,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       streamGenerationRef.current = streamGeneration;
       let receivedStreamEvent = false;
       let sawTerminalStreamEvent = false;
+      let terminalStreamEvent: StreamThreadRunEvent | undefined;
       markStreamActivity();
       setThreadRunningState(queryClient, threadId, true);
       setConnection("connected");
@@ -874,9 +877,16 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
             if (streamGeneration !== streamGenerationRef.current) {
               return;
             }
+            const reconciledEvent = reconcileThreadRunEventAfterTerminal(
+              event,
+              terminalStreamEvent,
+            );
+            if (!reconciledEvent) {
+              return;
+            }
             markStreamActivity();
             receivedStreamEvent = true;
-            handleThreadRunStreamEvent(event, {
+            handleThreadRunStreamEvent(reconciledEvent, {
               fallbackThreadId: threadId,
               applyEvent: (streamEvent) => {
                 applyStreamEventToServerState(queryClient, streamEvent);
@@ -888,7 +898,11 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
                 }));
               },
               onTerminal(terminalThreadId, terminalEvent) {
+                if (sawTerminalStreamEvent) {
+                  return;
+                }
                 sawTerminalStreamEvent = true;
+                terminalStreamEvent = terminalEvent;
                 completeThreadRunSession({
                   threadId: terminalThreadId,
                   clearQueuedPrompts,
@@ -1558,6 +1572,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       streamGenerationRef.current = streamGeneration;
       let receivedStreamEvent = false;
       let sawTerminalStreamEvent = false;
+      let terminalStreamEvent: StreamThreadRunEvent | undefined;
       markStreamActivity();
       const restorePrompt = () => {
         if (!input.restoreDraftOnFailure) {
@@ -1584,12 +1599,22 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
             if (streamGeneration !== streamGenerationRef.current) {
               return;
             }
+            const reconciledEvent = reconcileThreadRunEventAfterTerminal(
+              event,
+              terminalStreamEvent,
+            );
+            if (!reconciledEvent) {
+              return;
+            }
             markStreamActivity();
             receivedStreamEvent = true;
-            if (event.type === "thread.state.changed" && event.thread.state === "running") {
-              markQueuedPromptStarted(runThreadId, event.thread.lastPrompt);
+            if (
+              reconciledEvent.type === "thread.state.changed" &&
+              reconciledEvent.thread.state === "running"
+            ) {
+              markQueuedPromptStarted(runThreadId, reconciledEvent.thread.lastPrompt);
             }
-            handleThreadRunStreamEvent(event, {
+            handleThreadRunStreamEvent(reconciledEvent, {
               fallbackThreadId: runThreadId,
               applyEvent: (streamEvent) => {
                 applyStreamEventToServerState(queryClient, streamEvent);
@@ -1601,7 +1626,11 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
                 }));
               },
               onTerminal(terminalThreadId, terminalEvent) {
+                if (sawTerminalStreamEvent) {
+                  return;
+                }
                 sawTerminalStreamEvent = true;
+                terminalStreamEvent = terminalEvent;
                 completeThreadRunSession({
                   threadId: terminalThreadId,
                   clearQueuedPrompts,

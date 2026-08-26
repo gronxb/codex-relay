@@ -2,7 +2,7 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { QueuedThreadInput } from "../src/api-schema.js";
+import type { QueuedThreadInput, StreamThreadRunEvent, ThreadSummary } from "../src/api-schema.js";
 
 import { createApp } from "../src/app.js";
 import {
@@ -18,6 +18,7 @@ import {
   completeThreadRunSession,
   createThreadRunSseDispatcher,
   handleThreadRunStreamEvent,
+  reconcileThreadRunEventAfterTerminal,
   threadRunStreamEventTypes,
 } from "../../../apps/mobile/src/lib/thread-run-stream.js";
 
@@ -308,8 +309,8 @@ describe("mobile stream contract", () => {
     const now = Date.now() / 1000;
     const startTurn = vi.fn<(params: unknown) => Promise<unknown>>(async () => {
       queueMicrotask(() => {
-        for (const handler of notificationHandlers) {
-          handler({
+        const notifications = [
+          {
             method: "item/agentMessage/delta",
             params: {
               delta: "hello",
@@ -317,16 +318,16 @@ describe("mobile stream contract", () => {
               threadId: "app-thread-provider-contract",
               turnId: "turn-provider-contract",
             },
-          });
-          handler({
+          },
+          {
             method: "item/completed",
             params: {
               item: { id: "assistant-provider-contract", text: "hello", type: "agentMessage" },
               threadId: "app-thread-provider-contract",
               turnId: "turn-provider-contract",
             },
-          });
-          handler({
+          },
+          {
             method: "turn/completed",
             params: {
               threadId: "app-thread-provider-contract",
@@ -340,7 +341,12 @@ describe("mobile stream contract", () => {
                 durationMs: 1,
               },
             },
-          });
+          },
+        ];
+        for (const notification of notifications) {
+          for (const handler of notificationHandlers) {
+            handler(notification);
+          }
         }
       });
       return {
@@ -458,7 +464,135 @@ describe("mobile stream contract", () => {
     expect(setQueuedInputs).toHaveBeenCalledWith("thread-terminal", []);
     expect(refreshUsageStatus).toHaveBeenCalledWith("thread-terminal");
   });
+
+  it("applies authoritative snapshots after terminal without reopening the thread", () => {
+    const failedThread = threadSummary("thread-post-terminal", "failed");
+    const terminalEvent = {
+      type: "thread.state.changed",
+      thread: failedThread,
+    } satisfies StreamThreadRunEvent;
+    const staleRunningThread = {
+      ...failedThread,
+      lastError: undefined,
+      state: "running" as const,
+      updatedAt: "2026-04-29T00:00:01.000Z",
+    };
+    const errorMessageEvent = {
+      type: "thread.message.created",
+      thread: staleRunningThread,
+      message: {
+        content: "The turn failed.",
+        createdAt: "2026-04-29T00:00:01.000Z",
+        id: "error-post-terminal",
+        kind: "chat",
+        role: "error",
+        state: "failed",
+        threadId: failedThread.id,
+        updatedAt: "2026-04-29T00:00:01.000Z",
+      },
+    } satisfies StreamThreadRunEvent;
+    const lateItemEvent = {
+      type: "thread.message.completed",
+      thread: staleRunningThread,
+      message: {
+        content: "late command output",
+        createdAt: "2026-04-29T00:00:02.000Z",
+        id: "command-post-terminal",
+        kind: "commandExecution",
+        role: "tool",
+        state: "completed",
+        threadId: failedThread.id,
+        updatedAt: "2026-04-29T00:00:02.000Z",
+      },
+    } satisfies StreamThreadRunEvent;
+    const errorEvent = {
+      type: "thread.error",
+      thread: staleRunningThread,
+      error: { code: "codex_run_failed", message: "The turn failed." },
+    } satisfies StreamThreadRunEvent;
+
+    replaceThreads([failedThread]);
+    setActiveThread(failedThread.id);
+    const consumed = consumeTerminalSequenceAsMobileChatScreen([
+      terminalEvent,
+      errorMessageEvent,
+      errorEvent,
+      lateItemEvent,
+      { type: "thread.state.changed", thread: staleRunningThread },
+      {
+        type: "thread.message.delta",
+        threadId: failedThread.id,
+        messageId: "command-post-terminal",
+        delta: "stale",
+      },
+    ]);
+
+    expect(consumed.appliedEventTypes).toEqual([
+      "thread.state.changed",
+      "thread.message.created",
+      "thread.error",
+      "thread.message.completed",
+    ]);
+    expect(consumed.terminalThreadIds).toEqual([failedThread.id]);
+    expect(
+      consumed.appliedEvents
+        .filter((event) => "thread" in event && event.thread)
+        .map((event) => ("thread" in event ? event.thread?.state : undefined)),
+    ).toEqual(["failed", "failed", "failed", "failed"]);
+    expect(
+      (chatStore$.messagesByThreadId[failedThread.id].peek() ?? []).map((message) => [
+        message.role,
+        message.content,
+      ]),
+    ).toEqual([
+      ["error", "The turn failed."],
+      ["tool", "late command output"],
+    ]);
+  });
 });
+
+function threadSummary(id: string, state: ThreadSummary["state"]): ThreadSummary {
+  return {
+    createdAt: "2026-04-29T00:00:00.000Z",
+    id,
+    lastError: state === "failed" ? "The turn failed." : undefined,
+    messageCount: 0,
+    state,
+    title: id,
+    updatedAt: "2026-04-29T00:00:00.000Z",
+  };
+}
+
+function consumeTerminalSequenceAsMobileChatScreen(events: StreamThreadRunEvent[]) {
+  const appliedEvents: StreamThreadRunEvent[] = [];
+  const appliedEventTypes: StreamThreadRunEvent["type"][] = [];
+  const terminalThreadIds: string[] = [];
+  let terminalEvent: StreamThreadRunEvent | undefined;
+
+  for (const event of events) {
+    const reconciledEvent = reconcileThreadRunEventAfterTerminal(event, terminalEvent);
+    if (!reconciledEvent) {
+      continue;
+    }
+    handleThreadRunStreamEvent(reconciledEvent, {
+      fallbackThreadId: "thread-post-terminal",
+      applyEvent(streamEvent) {
+        appliedEvents.push(streamEvent);
+        appliedEventTypes.push(streamEvent.type);
+        applyStreamEvent(streamEvent);
+      },
+      onTerminal(threadId, streamEvent) {
+        if (terminalEvent) {
+          return;
+        }
+        terminalEvent = streamEvent;
+        terminalThreadIds.push(threadId);
+      },
+    });
+  }
+
+  return { appliedEvents, appliedEventTypes, terminalThreadIds };
+}
 
 function consumeAsMobileChatStream(body: string, threadId: string) {
   const errors: Error[] = [];

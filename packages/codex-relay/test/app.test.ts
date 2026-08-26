@@ -1860,22 +1860,29 @@ describe("Codex Relay server routes", () => {
   it("rewinds an app-server thread from a selected user turn", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const now = Date.now() / 1000;
-    const beforeRewind = appServerHistoryThread({
-      id: "app-thread-rewind",
-      name: "Rewind history",
-      turns: [
-        appServerTurn("turn-1", "First prompt", now),
-        appServerTurn("turn-2", "Second prompt", now + 10),
-      ],
-      workspacePath,
-    });
-    const afterRewind = appServerHistoryThread({
-      id: "app-thread-rewind",
-      name: "Rewind history",
-      turns: [appServerTurn("turn-1", "First prompt", now)],
-      workspacePath,
-    });
+    const beforeRewind = {
+      ...appServerHistoryThread({
+        id: "app-thread-rewind",
+        name: "Rewind history",
+        turns: [
+          appServerTurn("turn-1", "First prompt", now),
+          appServerTurn("turn-2", "Second prompt", now + 10),
+        ],
+        workspacePath,
+      }),
+      historyMode: "paginated" as const,
+    };
+    const afterRewind = {
+      ...appServerHistoryThread({
+        id: "app-thread-rewind",
+        name: "Rewind history",
+        turns: [appServerTurn("turn-1", "First prompt", now)],
+        workspacePath,
+      }),
+      historyMode: "paginated" as const,
+    };
     const rollbackThread = vi.fn<() => Promise<unknown>>(async () => afterRewind);
+    const revertThread = vi.fn<() => Promise<unknown>>(async () => afterRewind);
     const appServer = {
       onNotification() {
         return () => undefined;
@@ -1884,6 +1891,7 @@ describe("Codex Relay server routes", () => {
         return () => undefined;
       },
       readThread: vi.fn<() => Promise<unknown>>(async () => beforeRewind),
+      revertThread,
       rollbackThread,
     };
     const app = createApp({
@@ -1900,11 +1908,67 @@ describe("Codex Relay server routes", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(rollbackThread).toHaveBeenCalledWith({ threadId: "app-thread-rewind", numTurns: 1 });
+    expect(revertThread).toHaveBeenCalledWith({
+      beforeTurnId: "turn-2",
+      threadId: "app-thread-rewind",
+    });
+    expect(rollbackThread).not.toHaveBeenCalled();
     expect(body.messages.map((message: { id: string }) => message.id)).toEqual([
       "turn-1-user",
       "turn-1-assistant",
     ]);
+  });
+
+  it("uses legacy rollback instead of paginated revert for legacy history", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const now = Date.now() / 1000;
+    const beforeRewind = {
+      ...appServerHistoryThread({
+        id: "app-thread-legacy-rewind",
+        name: "Legacy rewind",
+        turns: [
+          appServerTurn("turn-1", "First prompt", now),
+          appServerTurn("turn-2", "Second prompt", now + 10),
+        ],
+        workspacePath,
+      }),
+      historyMode: "legacy" as const,
+    };
+    const afterRewind = {
+      ...beforeRewind,
+      turns: [appServerTurn("turn-1", "First prompt", now)],
+    };
+    const rollbackThread = vi.fn<() => Promise<unknown>>(async () => afterRewind);
+    const revertThread = vi.fn<() => Promise<unknown>>(async () => afterRewind);
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread: vi.fn<() => Promise<unknown>>(async () => beforeRewind),
+      revertThread,
+      rollbackThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const response = await app.request("/v1/threads/app-thread-legacy-rewind/rollback", {
+      method: "POST",
+      body: JSON.stringify({ turnId: "turn-2" }),
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.status).toBe(200);
+    expect(rollbackThread).toHaveBeenCalledWith({
+      numTurns: 1,
+      threadId: "app-thread-legacy-rewind",
+    });
+    expect(revertThread).not.toHaveBeenCalled();
   });
 
   it("serializes rewind with an app-server turn start", async () => {
@@ -2236,6 +2300,9 @@ describe("Codex Relay server routes", () => {
         };
       },
       readThread: vi.fn<() => Promise<unknown>>(async () => {
+        return appThread;
+      }),
+      resumeThread: vi.fn<() => Promise<unknown>>(async () => {
         queueMicrotask(() => {
           for (const handler of notificationHandlers) {
             handler({
@@ -2259,15 +2326,50 @@ describe("Codex Relay server routes", () => {
       headers: { "content-type": "application/json" },
     });
     const body = await response.text();
+    const stateEvents = body
+      .split("\n")
+      .filter((line) => line.startsWith("data: "))
+      .map((line) => JSON.parse(line.slice("data: ".length)) as Record<string, unknown>)
+      .filter((event) => event.type === "thread.state.changed");
 
     expect(response.status).toBe(200);
-    expect(appServer.readThread).toHaveBeenCalled();
-    expect(body).toContain('"state":"running"');
+    expect(appServer.resumeThread).toHaveBeenCalledWith({
+      excludeTurns: true,
+      threadId: "app-thread-empty-stream",
+    });
     expect(body).toContain('"state":"idle"');
-    expect(notificationHandlers).toHaveLength(0);
+    expect((stateEvents.at(-1)?.thread as { state?: string } | undefined)?.state).toBe("idle");
+    expect(notificationHandlers).toHaveLength(1);
     expect(requestHandlers).toHaveLength(0);
     expect(cleanupNotificationHandler).toHaveBeenCalledTimes(1);
     expect(cleanupRequestHandler).toHaveBeenCalledTimes(1);
+
+    appThread.status = { type: "idle" };
+    for (const handler of notificationHandlers) {
+      handler({
+        method: "item/completed",
+        params: {
+          item: {
+            id: "late-background-item",
+            type: "commandExecution",
+            command: "pnpm test",
+            aggregatedOutput: "passed",
+            status: "completed",
+          },
+          threadId: appThread.id,
+          turnId: "completed-turn",
+        },
+      });
+    }
+    const detailResponse = await app.request(`/v1/threads/${appThread.id}`);
+    const detail = await detailResponse.json();
+    expect(detail.messages).toContainEqual(
+      expect.objectContaining({
+        id: "late-background-item",
+        kind: "commandExecution",
+        role: "tool",
+      }),
+    );
   });
 
   it("does not accumulate preview probes or app-server handlers across cancelled attachments", async () => {
@@ -2342,7 +2444,7 @@ describe("Codex Relay server routes", () => {
         await vi.advanceTimersByTimeAsync(0);
 
         expect(fetchPreview).toHaveBeenCalledTimes(attachment);
-        expect(notificationHandlers).toHaveLength(1);
+        expect(notificationHandlers).toHaveLength(2);
         expect(requestHandlers).toHaveLength(1);
 
         await reader!.cancel("test cancellation");
@@ -2351,7 +2453,7 @@ describe("Codex Relay server routes", () => {
         expect(probeSignals[attachment - 1]?.aborted).toBe(true);
         await vi.advanceTimersByTimeAsync(4500);
         expect(fetchPreview).toHaveBeenCalledTimes(attachment);
-        expect(notificationHandlers).toHaveLength(0);
+        expect(notificationHandlers).toHaveLength(1);
         expect(requestHandlers).toHaveLength(0);
         expect(cleanupNotificationHandler).toHaveBeenCalledTimes(attachment);
         expect(cleanupRequestHandler).toHaveBeenCalledTimes(attachment);
@@ -4222,20 +4324,12 @@ describe("Codex Relay server routes", () => {
       preview: "Interruptible thread",
       createdAt: now,
       updatedAt: now,
-      status: { type: "running" },
+      status: { type: "idle" },
       cwd: workspacePath,
       source: "app-server",
       modelProvider: "openai",
       name: "Interruptible thread",
-      turns: [
-        {
-          id: "turn-interrupt",
-          items: [],
-          status: { type: "running" },
-          startedAt: now,
-          completedAt: null,
-        },
-      ],
+      turns: [],
     };
     const interruptTurn = vi.fn<() => Promise<void>>(async () => undefined);
     const startTurn = vi.fn<() => Promise<unknown>>(async () => ({
@@ -4387,57 +4481,60 @@ describe("Codex Relay server routes", () => {
       },
       readThread: vi.fn<() => Promise<unknown>>(async () => appThread),
       startThread: vi.fn<() => Promise<unknown>>(async () => appThread),
-      startTurn: vi.fn<() => Promise<unknown>>(async () => {
-        queueMicrotask(() => {
-          for (const handler of notificationHandlers) {
-            handler({
-              method: "turn/started",
-              params: {
-                threadId: appThread.id,
-                turn: { id: "turn-canonical-user" },
-              },
-            });
-            handler({
-              method: "item/completed",
-              params: {
-                item: {
-                  id: "user-canonical",
-                  content: [{ type: "text", text: "Remember the turn", text_elements: [] }],
-                  type: "userMessage",
+      startTurn: vi.fn<(params: { clientUserMessageId?: string }) => Promise<unknown>>(
+        async (params) => {
+          queueMicrotask(() => {
+            for (const handler of notificationHandlers) {
+              handler({
+                method: "turn/started",
+                params: {
+                  threadId: appThread.id,
+                  turn: { id: "turn-canonical-user" },
                 },
-                threadId: appThread.id,
-                turnId: "turn-canonical-user",
-              },
-            });
-            handler({
-              method: "item/completed",
-              params: {
-                item: {
-                  id: "assistant-canonical",
-                  text: "Remembered",
-                  type: "agentMessage",
+              });
+              handler({
+                method: "item/completed",
+                params: {
+                  item: {
+                    id: "user-canonical",
+                    clientId: params.clientUserMessageId,
+                    content: [{ type: "text", text: "Remember the turn", text_elements: [] }],
+                    type: "userMessage",
+                  },
+                  threadId: appThread.id,
+                  turnId: "turn-canonical-user",
                 },
-                threadId: appThread.id,
-                turnId: "turn-canonical-user",
-              },
-            });
-            handler({
-              method: "turn/completed",
-              params: {
-                threadId: appThread.id,
-                turnId: "turn-canonical-user",
-              },
-            });
-          }
-        });
-        return {
-          id: "turn-canonical-user",
-          items: [],
-          status: "inProgress",
-          startedAt: now,
-          completedAt: null,
-        };
-      }),
+              });
+              handler({
+                method: "item/completed",
+                params: {
+                  item: {
+                    id: "assistant-canonical",
+                    text: "Remembered",
+                    type: "agentMessage",
+                  },
+                  threadId: appThread.id,
+                  turnId: "turn-canonical-user",
+                },
+              });
+              handler({
+                method: "turn/completed",
+                params: {
+                  threadId: appThread.id,
+                  turnId: "turn-canonical-user",
+                },
+              });
+            }
+          });
+          return {
+            id: "turn-canonical-user",
+            items: [],
+            status: "inProgress",
+            startedAt: now,
+            completedAt: null,
+          };
+        },
+      ),
     };
     const app = createApp({
       appServer: appServer as never,
@@ -4477,6 +4574,9 @@ describe("Codex Relay server routes", () => {
     );
 
     expect(response.status).toBe(200);
+    expect(appServer.startTurn).toHaveBeenCalledWith(
+      expect.objectContaining({ clientUserMessageId: userEvents[0]?.message?.id }),
+    );
     expect(userEvents).toHaveLength(2);
     expect(userEvents[1]?.message).toMatchObject({
       id: "user-canonical",
@@ -4715,6 +4815,123 @@ describe("Codex Relay server routes", () => {
     expect(body).toContain('"delta":" world"');
     expect(body).not.toContain('"delta":"Hello world"');
     expect(body).toContain('"content":"Hello world"');
+  });
+
+  it("recovers missing assistant deltas from the completed app-server turn summary", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      startThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: "app-thread-summary-recovery",
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Summary recovery",
+        preview: "Summary recovery",
+        source: "app",
+        status: "idle",
+        turns: [],
+        updatedAt: now,
+      })),
+      startTurn: vi.fn<() => Promise<unknown>>(async () => {
+        queueMicrotask(() => {
+          for (const handler of notificationHandlers) {
+            handler({
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "Hello",
+                itemId: "assistant-summary-recovery",
+                threadId: "app-thread-summary-recovery",
+                turnId: "turn-summary-recovery",
+              },
+            });
+            handler({
+              method: "turn/completed",
+              params: {
+                threadId: "app-thread-summary-recovery",
+                turn: {
+                  id: "turn-summary-recovery",
+                  items: [
+                    {
+                      id: "assistant-summary-recovery",
+                      text: "Hello world",
+                      type: "agentMessage",
+                    },
+                  ],
+                  itemsView: "summary",
+                  status: "completed",
+                  error: null,
+                  startedAt: now,
+                  completedAt: now,
+                  durationMs: 1,
+                },
+              },
+            });
+          }
+        });
+        return {
+          id: "turn-summary-recovery",
+          items: [],
+          itemsView: "notLoaded",
+          status: "inProgress",
+          startedAt: now,
+          completedAt: null,
+        };
+      }),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "Summary recovery" }),
+      headers: { "content-type": "application/json" },
+    });
+    const response = await app.request("/v1/threads/app-thread-summary-recovery/runs/stream", {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Recover the final response" }),
+      headers: { "content-type": "application/json" },
+    });
+    const body = await response.text();
+    const events = body
+      .split("\n")
+      .filter((line) => line.startsWith("data: "))
+      .map((line) => JSON.parse(line.slice("data: ".length)) as Record<string, unknown>);
+    const completedMessageIndex = events.findIndex(
+      (event) =>
+        event.type === "thread.message.completed" &&
+        (event.message as { id?: string } | undefined)?.id === "assistant-summary-recovery" &&
+        (event.message as { content?: string } | undefined)?.content === "Hello world",
+    );
+    const completedStateIndex = events.findIndex(
+      (event) =>
+        event.type === "thread.state.changed" &&
+        (event.thread as { state?: string } | undefined)?.state === "completed",
+    );
+
+    expect(response.status).toBe(200);
+    expect(body).toContain('"delta":"Hello"');
+    expect(body).not.toContain('"delta":" world"');
+    expect(body).not.toContain("thread.error");
+    expect(completedMessageIndex).toBeGreaterThan(-1);
+    expect(completedStateIndex).toBeGreaterThan(completedMessageIndex);
+    expect(events[completedMessageIndex]?.message).toMatchObject({
+      content: "Hello world",
+      id: "assistant-summary-recovery",
+      state: "completed",
+      turnId: "turn-summary-recovery",
+    });
   });
 
   it("fails app-server streamed turns that complete without any response", async () => {
@@ -5086,6 +5303,126 @@ describe("Codex Relay server routes", () => {
     expect(body).toContain('"state":"completed"');
   });
 
+  it("ignores a late completion from the previous turn after queued handoff", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    let releaseFirstTurn!: () => void;
+    const firstTurnReleased = new Promise<void>((resolve) => {
+      releaseFirstTurn = resolve;
+    });
+    let turnCount = 0;
+    const threadId = "app-thread-late-previous-turn";
+    const startTurn = vi.fn<() => Promise<unknown>>(async () => {
+      turnCount += 1;
+      if (turnCount === 1) {
+        await firstTurnReleased;
+        return {
+          id: "turn-previous",
+          items: [{ id: "assistant-previous", text: "first direct reply", type: "agentMessage" }],
+          status: "completed",
+          startedAt: now,
+          completedAt: now,
+        };
+      }
+      queueMicrotask(() => {
+        for (const handler of notificationHandlers) {
+          handler({
+            method: "turn/completed",
+            params: {
+              threadId,
+              turn: {
+                id: "turn-previous",
+                items: [
+                  {
+                    id: "assistant-stale-previous",
+                    text: "stale previous summary",
+                    type: "agentMessage",
+                  },
+                ],
+                status: "completed",
+                error: null,
+                startedAt: now,
+                completedAt: now,
+              },
+            },
+          });
+          handler({
+            method: "item/completed",
+            params: {
+              item: { id: "assistant-current", text: "current queued reply", type: "agentMessage" },
+              threadId,
+              turnId: "turn-current",
+            },
+          });
+          handler({
+            method: "turn/completed",
+            params: { status: "completed", threadId, turnId: "turn-current" },
+          });
+        }
+      });
+      return {
+        id: "turn-current",
+        items: [],
+        status: "running",
+        startedAt: now,
+        completedAt: null,
+      };
+    });
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      startThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: threadId,
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Late previous turn",
+        preview: "Late previous turn",
+        source: "app",
+        status: "idle",
+        turns: [],
+        updatedAt: now,
+      })),
+      startTurn,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "Late previous turn" }),
+      headers: { "content-type": "application/json" },
+    });
+    const streamResponse = await app.request(`/v1/threads/${threadId}/runs/stream`, {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Initial run" }),
+      headers: { "content-type": "application/json" },
+    });
+    await waitUntil(() => expect(startTurn).toHaveBeenCalledTimes(1));
+    const queuedResponse = await app.request(`/v1/threads/${threadId}/input`, {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Queued run" }),
+      headers: { "content-type": "application/json" },
+    });
+    releaseFirstTurn();
+    const body = await streamResponse.text();
+
+    expect(queuedResponse.status).toBe(202);
+    expect(startTurn).toHaveBeenCalledTimes(2);
+    expect(body).toContain("first direct reply");
+    expect(body).toContain("current queued reply");
+    expect(body).not.toContain("stale previous summary");
+  });
+
   it("does not stream terminal thread status before late assistant items", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const notificationHandlers = new Set<(notification: unknown) => void>();
@@ -5178,6 +5515,143 @@ describe("Codex Relay server routes", () => {
     expect(response.status).toBe(200);
     expect(assistantIndex).toBeGreaterThan(-1);
     expect(completedStateIndex).toBeGreaterThan(assistantIndex);
+  });
+
+  it("keeps async agent delivery out of the turn's final response", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    const threadId = "app-thread-async-delivery";
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      startThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: threadId,
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Async delivery",
+        preview: "Async delivery",
+        source: "app",
+        status: "idle",
+        turns: [],
+        updatedAt: now,
+      })),
+      startTurn: vi.fn<() => Promise<unknown>>(async () => {
+        queueMicrotask(() => {
+          for (const handler of notificationHandlers) {
+            handler({
+              method: "turn/started",
+              params: { threadId, turnId: "turn-async-delivery" },
+            });
+            handler({
+              method: "item/started",
+              params: {
+                item: { id: "assistant-final", text: "", type: "agentMessage" },
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "final answer",
+                itemId: "assistant-final",
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "item/completed",
+              params: {
+                item: { id: "assistant-final", text: "final answer", type: "agentMessage" },
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "item/started",
+              params: {
+                item: {
+                  delivery: "async",
+                  id: "assistant-background",
+                  text: "",
+                  type: "agentMessage",
+                },
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "background note",
+                itemId: "assistant-background",
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "item/completed",
+              params: {
+                item: {
+                  delivery: "async",
+                  id: "assistant-background",
+                  text: "background note",
+                  type: "agentMessage",
+                },
+                threadId,
+                turnId: "turn-async-delivery",
+              },
+            });
+            handler({
+              method: "turn/completed",
+              params: { status: "completed", threadId, turnId: "turn-async-delivery" },
+            });
+          }
+        });
+        return {
+          id: "turn-async-delivery",
+          items: [],
+          status: "running",
+          startedAt: now,
+          completedAt: null,
+        };
+      }),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "Async delivery" }),
+      headers: { "content-type": "application/json" },
+    });
+    const streamResponse = await app.request(`/v1/threads/${threadId}/runs/stream`, {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Finish normally" }),
+      headers: { "content-type": "application/json" },
+    });
+    await streamResponse.text();
+    const detailResponse = await app.request(`/v1/threads/${threadId}`);
+    const detailBody = await detailResponse.json();
+
+    expect(detailResponse.status).toBe(200);
+    expect(detailBody.thread.lastResult).toBe("final answer");
+    expect(detailBody.messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "assistant-final", content: "final answer" }),
+        expect.objectContaining({ id: "assistant-background", content: "background note" }),
+      ]),
+    );
   });
 
   it("waits for late assistant notifications when startTurn returns completed without items", async () => {
@@ -5462,8 +5936,6 @@ describe("Codex Relay server routes", () => {
     expect(response.status).toBe(200);
     expect(appServer.resumeThread).toHaveBeenCalledWith(
       expect.objectContaining({
-        excludeTurns: false,
-        persistExtendedHistory: true,
         threadId: "app-thread-not-loaded",
       }),
     );
@@ -5547,8 +6019,11 @@ describe("Codex Relay server routes", () => {
     const body = await response.text();
 
     expect(response.status).toBe(200);
-    expect(appServer.readThread).toHaveBeenCalled();
+    expect(appServer.readThread).toHaveBeenCalledTimes(3);
     expect(appServer.startTurn).toHaveBeenCalledTimes(1);
+    expect(appServer.readThread.mock.invocationCallOrder[1]).toBeLessThan(
+      appServer.startTurn.mock.invocationCallOrder[0]!,
+    );
     expect(body).toContain("thread.message.delta");
     expect(body).toContain("pong");
   });
@@ -5712,13 +6187,20 @@ describe("Codex Relay server routes", () => {
     });
     await waitUntil(() => expect(approvalRequested).toBe(true));
 
-    const firstApproval = app.request("/v1/approvals/approval-42", {
+    const pendingDetailResponse = await app.request("/v1/threads/app-thread-approval");
+    const pendingDetailBody = await pendingDetailResponse.json();
+    const approvalId = pendingDetailBody.messages.find(
+      (message: { details?: { approvalId?: string } }) => message.details?.approvalId,
+    )?.details?.approvalId;
+    expect(approvalId).toMatch(/^approval-[a-f0-9]{24}$/);
+
+    const firstApproval = app.request(`/v1/approvals/${approvalId}`, {
       method: "POST",
       body: JSON.stringify({ decision: "approve" }),
       headers: { "content-type": "application/json" },
     });
     await waitUntil(() => expect(respondToRequest).toHaveBeenCalledTimes(1));
-    const duplicateApproval = app.request("/v1/approvals/approval-42", {
+    const duplicateApproval = app.request(`/v1/approvals/${approvalId}`, {
       method: "POST",
       body: JSON.stringify({ decision: "approve" }),
       headers: { "content-type": "application/json" },
@@ -5793,9 +6275,10 @@ describe("Codex Relay server routes", () => {
           inputRequested = true;
           for (const handler of requestHandlers) {
             handler({
-              id: 7,
+              id: "request-7",
               method: "item/tool/requestUserInput",
               params: {
+                isBlocking: false,
                 questions: [
                   {
                     header: "Scope",
@@ -5838,9 +6321,11 @@ describe("Codex Relay server routes", () => {
 
     const detailBeforeResponse = await app.request("/v1/threads/app-thread-input");
     const detailBeforeBody = await detailBeforeResponse.json();
+    const pendingInputRequest = detailBeforeBody.pendingInputRequests[0];
     expect(detailBeforeBody.pendingInputRequests).toContainEqual(
       expect.objectContaining({
-        id: "approval-7",
+        id: expect.stringMatching(/^approval-[a-f0-9]{24}$/),
+        isBlocking: false,
         questions: [
           expect.objectContaining({
             id: "scope",
@@ -5853,7 +6338,7 @@ describe("Codex Relay server routes", () => {
       expect.objectContaining({ kind: "structuredUserInput" }),
     );
 
-    const approvalResponse = await app.request("/v1/approvals/approval-7", {
+    const approvalResponse = await app.request(`/v1/approvals/${pendingInputRequest.id}`, {
       method: "POST",
       body: JSON.stringify({ decision: "approve", answers: ["Restart Vite"] }),
       headers: { "content-type": "application/json" },
@@ -5864,7 +6349,7 @@ describe("Codex Relay server routes", () => {
 
     expect(approvalResponse.status).toBe(200);
     expect(streamBody).toContain("thread.input_request.created");
-    expect(respondToRequest).toHaveBeenCalledWith(7, {
+    expect(respondToRequest).toHaveBeenCalledWith("request-7", {
       answers: { scope: { answers: ["Restart Vite"] } },
     });
     expect(streamBody).toContain('"state":"completed"');
@@ -6524,6 +7009,73 @@ describe("Codex Relay server routes", () => {
     expect(body).not.toHaveProperty("olderMessagesCursor");
   });
 
+  it("preserves cached full items when refreshed app-server history is summary-only", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const now = Date.now() / 1000;
+    const fullTurn = {
+      ...appServerTurn("turn-summary-history", "Full user message", now),
+      itemsView: "full",
+    };
+    const summaryTurn = {
+      ...fullTurn,
+      items: [fullTurn.items[1]],
+      itemsView: "summary",
+    };
+    const baseThread = appServerHistoryThread({
+      id: "app-thread-summary-history",
+      name: "Summary history",
+      turns: [fullTurn],
+      workspacePath,
+    });
+    let fullReadCount = 0;
+    const readThread = vi.fn<
+      (_threadId: string, options?: { includeTurns?: boolean }) => Promise<unknown>
+    >(async (_threadId, options) => {
+      if (options?.includeTurns === false) {
+        return { ...baseThread, turns: undefined };
+      }
+      fullReadCount += 1;
+      return {
+        ...baseThread,
+        turns: fullReadCount === 1 ? [fullTurn] : [summaryTurn],
+      };
+    });
+    const appServer = {
+      listThreads: vi.fn<() => Promise<unknown[]>>(async () => [baseThread]),
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const initialResponse = await app.request("/v1/threads/app-thread-summary-history");
+    const refreshedResponse = await app.request(
+      "/v1/threads/app-thread-summary-history?refresh=true",
+    );
+    const initialBody = await initialResponse.json();
+    const refreshedBody = await refreshedResponse.json();
+
+    expect(initialResponse.status).toBe(200);
+    expect(refreshedResponse.status).toBe(200);
+    expect(initialBody.messages.map((message: { id: string }) => message.id)).toEqual([
+      "turn-summary-history-user",
+      "turn-summary-history-assistant",
+    ]);
+    expect(refreshedBody.messages.map((message: { id: string }) => message.id)).toEqual([
+      "turn-summary-history-user",
+      "turn-summary-history-assistant",
+    ]);
+    expect(refreshedBody.thread.messageCount).toBe(2);
+  });
+
   it("loads app-server history from the rollout file when full thread reads hang", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
@@ -6601,6 +7153,269 @@ describe("Codex Relay server routes", () => {
       expect(body).not.toHaveProperty("hasMoreMessages");
       expect(body).not.toHaveProperty("olderMessagesCursor");
       expect(body.thread.messageCount).toBe(2);
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
+  it("prefers the app-server thread path when multiple rollout files share a thread id", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsRoot = join(codexHome, "sessions");
+    const sessionsDir = join(sessionsRoot, "2026", "08", "26");
+    await mkdir(sessionsDir, { recursive: true });
+    const threadId = "app-thread-selected-rollout";
+    const decoyPath = join(sessionsRoot, `rollout-decoy-${threadId}.jsonl`);
+    const selectedPath = join(
+      sessionsDir,
+      `rollout-2026-08-26T00-00-00-${threadId}_current-rollout.jsonl`,
+    );
+    const rolloutLines = (prompt: string, answer: string) =>
+      [
+        JSON.stringify({
+          payload: { turn_id: "turn-selected-rollout", type: "task_started" },
+          timestamp: "2026-08-26T00:00:00.000Z",
+          type: "event_msg",
+        }),
+        JSON.stringify({
+          payload: { message: prompt, type: "user_message" },
+          timestamp: "2026-08-26T00:00:01.000Z",
+          type: "event_msg",
+        }),
+        JSON.stringify({
+          payload: { message: answer, type: "agent_message" },
+          timestamp: "2026-08-26T00:00:02.000Z",
+          type: "event_msg",
+        }),
+      ].join("\n");
+    await writeFile(decoyPath, rolloutLines("old prompt", "old answer"));
+    await writeFile(
+      selectedPath,
+      `${rolloutLines("current prompt", "current answer")}\n${JSON.stringify({
+        payload: { message: "removed by revert", type: "agent_message" },
+        timestamp: "2026-08-26T00:00:03.000Z",
+        type: "event_msg",
+      })}`,
+    );
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    const appThread = {
+      id: threadId,
+      createdAt: now,
+      cwd: workspacePath,
+      modelProvider: "gpt-5.5",
+      name: "Selected rollout",
+      path: selectedPath,
+      preview: "Selected rollout",
+      source: "app",
+      status: { type: "notLoaded" },
+      updatedAt: now,
+    };
+    const readThread = vi.fn<
+      (_threadId: string, options?: { includeTurns?: boolean }) => Promise<unknown>
+    >(async () => appThread);
+    const appServer = {
+      listThreads: vi.fn<() => Promise<unknown[]>>(async () => [appThread]),
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const response = await app.request(`/v1/threads/${threadId}`);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(readThread).toHaveBeenCalledTimes(1);
+      expect(body.messages.map((message: { content: string }) => message.content)).toEqual([
+        "current prompt",
+        "current answer",
+        "removed by revert",
+      ]);
+
+      await writeFile(selectedPath, rolloutLines("reverted prompt", "reverted answer"));
+      for (const handler of notificationHandlers) {
+        handler({ method: "thread/reverted", params: { threadId } });
+      }
+      const revertedResponse = await app.request(`/v1/threads/${threadId}`);
+      const revertedBody = await revertedResponse.json();
+
+      expect(revertedResponse.status).toBe(200);
+      expect(revertedBody.messages.map((message: { content: string }) => message.content)).toEqual([
+        "reverted prompt",
+        "reverted answer",
+      ]);
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
+  it("replaces fallback rollout history when app-server later reports a different path", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsRoot = join(codexHome, "sessions");
+    const selectedDir = join(sessionsRoot, "2026", "08", "26");
+    await mkdir(selectedDir, { recursive: true });
+    const threadId = "app-thread-late-rollout-path";
+    const fallbackPath = join(sessionsRoot, `rollout-fallback-${threadId}.jsonl`);
+    const selectedPath = join(selectedDir, `rollout-selected-${threadId}.jsonl`);
+    const rolloutLines = (prompt: string, answer: string) =>
+      [
+        JSON.stringify({
+          payload: { turn_id: `turn-${prompt}`, type: "task_started" },
+          timestamp: "2026-08-26T00:00:00.000Z",
+          type: "event_msg",
+        }),
+        JSON.stringify({
+          payload: { message: prompt, type: "user_message" },
+          timestamp: "2026-08-26T00:00:01.000Z",
+          type: "event_msg",
+        }),
+        JSON.stringify({
+          payload: { message: answer, type: "agent_message" },
+          timestamp: "2026-08-26T00:00:02.000Z",
+          type: "event_msg",
+        }),
+      ].join("\n");
+    await writeFile(fallbackPath, rolloutLines("old prompt", "old answer"));
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const now = Date.now() / 1000;
+    let detailReadCount = 0;
+    const appThread = {
+      id: threadId,
+      createdAt: now,
+      cwd: workspacePath,
+      modelProvider: "gpt-5.5",
+      name: "Late rollout path",
+      preview: "Late rollout path",
+      source: "app",
+      status: { type: "notLoaded" },
+      updatedAt: now,
+    };
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread: vi.fn<() => Promise<unknown>>(async () => ({
+        ...appThread,
+        path: detailReadCount++ === 0 ? undefined : selectedPath,
+      })),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const fallbackResponse = await app.request(`/v1/threads/${threadId}`);
+      const fallbackBody = await fallbackResponse.json();
+      expect(fallbackBody.messages.map((message: { content: string }) => message.content)).toEqual([
+        "old prompt",
+        "old answer",
+      ]);
+
+      await writeFile(selectedPath, rolloutLines("current prompt", "current answer"));
+      const selectedResponse = await app.request(`/v1/threads/${threadId}`);
+      const selectedBody = await selectedResponse.json();
+
+      expect(selectedResponse.status).toBe(200);
+      expect(selectedBody.messages.map((message: { content: string }) => message.content)).toEqual([
+        "current prompt",
+        "current answer",
+      ]);
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
+  it("uses canonical app-server history instead of projecting paginated rollout records", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsDir = join(codexHome, "sessions", "2026", "08", "26");
+    await mkdir(sessionsDir, { recursive: true });
+    const threadId = "app-thread-paginated-rollout";
+    const rolloutPath = join(
+      sessionsDir,
+      `rollout-2026-08-26T00-00-00-${threadId}_rollout-id.jsonl`,
+    );
+    await writeFile(
+      rolloutPath,
+      [
+        JSON.stringify({
+          payload: { history_mode: "paginated", id: threadId },
+          timestamp: "2026-08-26T00:00:00.000Z",
+          type: "session_meta",
+        }),
+        JSON.stringify({
+          payload: { message: "stale raw projection", type: "agent_message" },
+          timestamp: "2026-08-26T00:00:01.000Z",
+          type: "event_msg",
+        }),
+      ].join("\n"),
+    );
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const now = Date.now() / 1000;
+    const canonicalThread = {
+      ...appServerHistoryThread({
+        id: threadId,
+        name: "Paginated history",
+        turns: [appServerTurn("turn-paginated", "canonical prompt", now)],
+        workspacePath,
+      }),
+      path: rolloutPath,
+    };
+    const readThread = vi.fn<
+      (_threadId: string, options?: { includeTurns?: boolean }) => Promise<unknown>
+    >(async (_threadId, options) => ({
+      ...canonicalThread,
+      turns: options?.includeTurns === false ? undefined : canonicalThread.turns,
+    }));
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const response = await app.request(`/v1/threads/${threadId}`);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(readThread).toHaveBeenCalledTimes(2);
+      expect(body.messages.map((message: { content: string }) => message.content)).toEqual([
+        "canonical prompt",
+        "Reply: canonical prompt",
+      ]);
+      expect(body.messages).not.toContainEqual(
+        expect.objectContaining({ content: "stale raw projection" }),
+      );
     } finally {
       process.env.CODEX_HOME = previousCodexHome;
     }
@@ -7398,6 +8213,97 @@ describe("Codex Relay server routes", () => {
     expect(body).not.toHaveProperty("olderMessagesCursor");
   });
 
+  it("does not let a stale background history read overwrite a live completed item", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const notificationHandlers = new Set<(notification: unknown) => void>();
+    const now = Date.now() / 1000;
+    const runningThread = {
+      id: "app-thread-background-race",
+      createdAt: now,
+      cwd: workspacePath,
+      modelProvider: "gpt-5.5",
+      name: "Background race",
+      preview: "Background race",
+      source: "app",
+      status: { type: "active" },
+      updatedAt: now,
+    };
+    let resolveHistory!: (thread: unknown) => void;
+    const history = new Promise<unknown>((resolve) => {
+      resolveHistory = resolve;
+    });
+    const readThread = vi.fn<
+      (_threadId: string, options?: { includeTurns?: boolean }) => Promise<unknown>
+    >(async (_threadId, options) =>
+      options?.includeTurns === true ? history : Promise.resolve(runningThread),
+    );
+    const appServer = {
+      onNotification(handler: (notification: unknown) => void) {
+        notificationHandlers.add(handler);
+        return () => notificationHandlers.delete(handler);
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread,
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const initialResponse = await app.request("/v1/threads/app-thread-background-race");
+    expect(initialResponse.status).toBe(200);
+    expect(readThread).toHaveBeenCalledWith("app-thread-background-race", {
+      includeTurns: true,
+    });
+
+    for (const handler of notificationHandlers) {
+      handler({
+        method: "item/completed",
+        params: {
+          item: {
+            id: "assistant-background-race",
+            text: "fresh live answer",
+            type: "agentMessage",
+          },
+          threadId: "app-thread-background-race",
+          turnId: "turn-background-race",
+        },
+      });
+    }
+    resolveHistory({
+      ...runningThread,
+      turns: [
+        {
+          id: "turn-background-race",
+          items: [
+            {
+              id: "assistant-background-race",
+              text: "stale snapshot answer",
+              type: "agentMessage",
+            },
+          ],
+          itemsView: "full",
+          status: { type: "completed" },
+          startedAt: now,
+          completedAt: now,
+        },
+      ],
+    });
+    await vi.waitFor(() => expect(readThread).toHaveBeenCalledTimes(2));
+    await Promise.resolve();
+
+    const settledResponse = await app.request("/v1/threads/app-thread-background-race");
+    const settledBody = await settledResponse.json();
+
+    expect(settledResponse.status).toBe(200);
+    expect(settledBody.messages).toEqual([
+      expect.objectContaining({ id: "assistant-background-race", content: "fresh live answer" }),
+    ]);
+  });
+
   it("streams run events for a known thread", async () => {
     const app = createApp({ codex: createMockCodex() });
 
@@ -7417,8 +8323,103 @@ describe("Codex Relay server routes", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/event-stream");
     expect(body).toContain("thread.message.created");
-    expect(body).toContain("thread.message.delta");
     expect(body).toContain("streamed: Stream this");
+  });
+
+  it("uses the last completed SDK agent message as the final response", async () => {
+    let thread: CodexThread;
+    thread = {
+      id: null,
+      async run() {
+        return { finalResponse: "Final answer" };
+      },
+      async runStreamed() {
+        async function* events() {
+          thread.id = "sdk-final-thread";
+          yield { type: "thread.started", thread_id: "sdk-final-thread" };
+          yield {
+            type: "item.started",
+            item: {
+              id: "file-change",
+              type: "file_change",
+              changes: [],
+            },
+          };
+          yield {
+            type: "item.completed",
+            item: {
+              id: "file-change",
+              type: "file_change",
+              changes: [{ kind: "update", path: "src/example.ts" }],
+            },
+          };
+          yield {
+            type: "item.completed",
+            item: {
+              id: "todo-list",
+              type: "todo_list",
+              items: [{ completed: true, text: "Verify the response" }],
+            },
+          };
+          yield {
+            type: "item.completed",
+            item: { id: "commentary", type: "agent_message", text: "Working on it" },
+          };
+          yield {
+            type: "item.completed",
+            item: { id: "final", type: "agent_message", text: "Final answer" },
+          };
+          yield { type: "turn.completed" };
+        }
+
+        return { events: events() };
+      },
+    };
+    const codex: CodexClient = {
+      startThread: () => thread,
+      resumeThread: () => thread,
+    };
+    const app = createApp({ appServer: null, codex });
+
+    const createResponse = await app.request("/v1/threads", {
+      method: "POST",
+      body: JSON.stringify({ title: "SDK final response" }),
+      headers: { "content-type": "application/json" },
+    });
+    const created = await createResponse.json();
+    const response = await app.request(`/v1/threads/${created.thread.id}/runs/stream`, {
+      method: "POST",
+      body: JSON.stringify({ prompt: "Answer this" }),
+      headers: { "content-type": "application/json" },
+    });
+    await response.text();
+    const detailResponse = await app.request("/v1/threads/sdk-final-thread");
+    const detail = await detailResponse.json();
+
+    expect(
+      detail.messages.find((message: { role: string }) => message.role === "assistant"),
+    ).toMatchObject({
+      content: "Final answer",
+      role: "assistant",
+      state: "completed",
+    });
+    expect(detail.messages).toContainEqual(
+      expect.objectContaining({
+        content: "1 file changed: src/example.ts",
+        kind: "fileChange",
+        role: "tool",
+      }),
+    );
+    expect(detail.messages).toContainEqual(
+      expect.objectContaining({
+        content: "[x] Verify the response",
+        kind: "plan",
+        role: "status",
+      }),
+    );
+    expect(
+      detail.messages.filter((message: { id: string }) => message.id === "file-change"),
+    ).toHaveLength(1);
   });
 
   it("rejects invalid payloads with a structured error", async () => {

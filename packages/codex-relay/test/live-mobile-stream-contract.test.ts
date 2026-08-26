@@ -49,11 +49,10 @@ liveDescribe("live mobile stream contract", () => {
     const thread = await appServer.startThread({
       approvalPolicy: "never",
       cwd: workspacePath,
-      experimentalRawEvents: false,
       model: null,
-      persistExtendedHistory: true,
       sandbox: "read-only",
       serviceTier: null,
+      threadSource: "codex-relay-test",
     });
 
     try {

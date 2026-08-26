@@ -178,7 +178,7 @@ function TabLayout() {
       client={queryClient}
       onSuccess={() => restoreChatStoreFromQueryCache(queryClient)}
       persistOptions={{
-        buster: "codex-relay-server-state-v1",
+        buster: "codex-relay-server-state-v2",
         dehydrateOptions: {
           shouldDehydrateQuery: shouldPersistQuery,
         },

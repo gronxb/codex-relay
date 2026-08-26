@@ -284,6 +284,7 @@ export const PendingInputRequestQuestionSchema = z.object({
 
 export const PendingInputRequestSchema = z.object({
   id: z.string().min(1),
+  isBlocking: z.boolean().default(true),
   questions: z.array(PendingInputRequestQuestionSchema),
   threadId: z.string().min(1),
   turnId: z.string().optional(),

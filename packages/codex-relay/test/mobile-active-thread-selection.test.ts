@@ -33,6 +33,17 @@ describe("mobile active thread refresh selection", () => {
       }),
     ).toBe("thread-fallback");
   });
+
+  it("replaces a cache-hydrated default with the first fresh server thread", () => {
+    expect(
+      activeThreadAfterRefresh({
+        currentActiveThreadId: "thread-stale-default",
+        missingActiveThreadRestored: false,
+        preferFirstThread: true,
+        threads: [threadSummary("thread-fresh-default"), threadSummary("thread-stale-default")],
+      }),
+    ).toBe("thread-fresh-default");
+  });
 });
 
 function threadSummary(id: string): ThreadSummary {

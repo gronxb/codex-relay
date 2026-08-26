@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { sep } from "node:path";
 
 import {
   resolveCodexAppServerMode,
@@ -49,18 +50,19 @@ describe("Codex app-server spawn resolution", () => {
     expect(mode).toEqual({ fallbackToStdio: false, mode: "stdio" });
   });
 
-  it("uses a shell for the default npm command on Windows", () => {
+  it("uses the packaged Codex CLI by default on Windows", () => {
     const spawnConfig = resolveCodexAppServerSpawn({
       env: {},
       platform: "win32",
     });
 
-    expect(spawnConfig).toEqual({
-      command: "codex",
-      args: ["app-server", "--listen", "stdio://"],
-      shell: true,
-      windowsHide: true,
-    });
+    expect(spawnConfig.command).toBe(process.execPath);
+    expect(spawnConfig.args.slice(1)).toEqual(["app-server", "--listen", "stdio://"]);
+    expect(spawnConfig.args[0]).toContain(
+      ["node_modules", "@openai", "codex", "bin", "codex.js"].join(sep),
+    );
+    expect(spawnConfig.shell).toBe(false);
+    expect(spawnConfig.windowsHide).toBe(true);
   });
 
   it("uses a shell for Windows command shims", () => {
@@ -91,27 +93,28 @@ describe("Codex app-server spawn resolution", () => {
     });
   });
 
-  it("spawns the command directly on POSIX platforms", () => {
+  it("uses the packaged Codex CLI by default on POSIX platforms", () => {
     const spawnConfig = resolveCodexAppServerSpawn({
       env: {},
       platform: "linux",
     });
 
-    expect(spawnConfig).toEqual({
-      command: "codex",
-      args: ["app-server", "--listen", "stdio://"],
-      shell: false,
-      windowsHide: false,
-    });
+    expect(spawnConfig.command).toBe(process.execPath);
+    expect(spawnConfig.args.slice(1)).toEqual(["app-server", "--listen", "stdio://"]);
+    expect(spawnConfig.args[0]).toContain(
+      ["node_modules", "@openai", "codex", "bin", "codex.js"].join(sep),
+    );
+    expect(spawnConfig.shell).toBe(false);
+    expect(spawnConfig.windowsHide).toBe(false);
   });
 
   it("listens on the shared Unix socket in shared mode", () => {
-    expect(resolveCodexSharedAppServerSpawn({ env: {}, platform: "linux" })).toEqual({
-      command: "codex",
-      args: ["app-server", "--listen", "unix://"],
-      shell: false,
-      windowsHide: false,
-    });
+    const spawnConfig = resolveCodexSharedAppServerSpawn({ env: {}, platform: "linux" });
+
+    expect(spawnConfig.command).toBe(process.execPath);
+    expect(spawnConfig.args.slice(1)).toEqual(["app-server", "--listen", "unix://"]);
+    expect(spawnConfig.shell).toBe(false);
+    expect(spawnConfig.windowsHide).toBe(false);
   });
 
   it("rejects unknown app-server modes", () => {
@@ -124,16 +127,14 @@ describe("Codex app-server spawn resolution", () => {
   });
 
   it("listens on a loopback WebSocket in shared mode on native Windows", () => {
-    expect(
-      resolveCodexSharedAppServerSpawn({
-        env: { CODEX_RELAY_APP_SERVER_MODE: "socket" },
-        platform: "win32",
-      }),
-    ).toEqual({
-      command: "codex",
-      args: ["app-server", "--listen", "ws://127.0.0.1:8788"],
-      shell: true,
-      windowsHide: true,
+    const spawnConfig = resolveCodexSharedAppServerSpawn({
+      env: { CODEX_RELAY_APP_SERVER_MODE: "socket" },
+      platform: "win32",
     });
+
+    expect(spawnConfig.command).toBe(process.execPath);
+    expect(spawnConfig.args.slice(1)).toEqual(["app-server", "--listen", "ws://127.0.0.1:8788"]);
+    expect(spawnConfig.shell).toBe(false);
+    expect(spawnConfig.windowsHide).toBe(true);
   });
 });

@@ -614,10 +614,12 @@ function useThreadDrawerActions({
   workspacePath: string | undefined;
 }) {
   const pendingDrawerActionTaskRef = useRef<{ cancel: () => void } | undefined>(undefined);
+  const threadSelectionGenerationRef = useRef(0);
 
   useEffect(
     () => () => {
       pendingDrawerActionTaskRef.current?.cancel();
+      threadSelectionGenerationRef.current += 1;
     },
     [],
   );
@@ -627,24 +629,24 @@ function useThreadDrawerActions({
   }, []);
 
   const activateSelectedThread = useCallback(
-    async (threadId: string) => {
+    async (threadId: string, selectionGeneration: number) => {
       const selectedThread = threadsById[threadId];
       setActiveThread(threadId);
       setThreadMessagesLoading(threadId, true);
       try {
         const response = await fetchThreadState(queryClient, threadId);
-        setThreadDetailState(
-          queryClient,
-          response.thread,
-          response.messages,
-          response.pendingInputRequests,
-        );
+        if (selectionGeneration !== threadSelectionGenerationRef.current) {
+          return;
+        }
         setActiveThread(response.thread.id);
         if (response.thread.state === "running") {
           requestThreadStreamReconnect(threadId);
         }
         setConnection("connected");
       } catch (caught) {
+        if (selectionGeneration !== threadSelectionGenerationRef.current) {
+          return;
+        }
         syncPairedSessionState();
         setThreadRunningState(queryClient, selectedThread?.id ?? threadId, false);
         setConnection(
@@ -663,11 +665,13 @@ function useThreadDrawerActions({
       hapticSelection();
       navigation.closeDrawer();
       pendingDrawerActionTaskRef.current?.cancel();
+      const selectionGeneration = threadSelectionGenerationRef.current + 1;
+      threadSelectionGenerationRef.current = selectionGeneration;
       if (chatStore$.activeThreadId.peek() === threadId) {
         return;
       }
       pendingDrawerActionTaskRef.current = InteractionManager.runAfterInteractions(() => {
-        void activateSelectedThread(threadId);
+        void activateSelectedThread(threadId, selectionGeneration);
       });
     },
     [activateSelectedThread, navigation],

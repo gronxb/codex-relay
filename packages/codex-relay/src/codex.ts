@@ -1,5 +1,4 @@
-import { Codex } from "@openai/codex-sdk";
-import type { KnownReasoningEffort } from "./api-schema.js";
+import { Codex, type ThreadOptions as SdkThreadOptions } from "@openai/codex-sdk";
 
 export type CodexRunResult = unknown;
 
@@ -14,14 +13,7 @@ export type CodexThread = {
   runStreamed?(prompt: string, options?: unknown): Promise<CodexStreamedResult>;
 };
 
-export type CodexThreadOptions = {
-  approvalPolicy?: "never" | "on-request" | "on-failure" | "untrusted";
-  model?: string;
-  modelReasoningEffort?: KnownReasoningEffort;
-  sandboxMode?: "read-only" | "workspace-write" | "danger-full-access";
-  workingDirectory?: string;
-  skipGitRepoCheck?: boolean;
-};
+export type CodexThreadOptions = SdkThreadOptions;
 
 export type CodexClient = {
   startThread(options?: CodexThreadOptions): CodexThread;
@@ -68,11 +60,17 @@ export function extractStreamText(event: unknown) {
     record.item && typeof record.item === "object"
       ? (record.item as Record<string, unknown>)
       : undefined;
+  const error =
+    record.error && typeof record.error === "object"
+      ? (record.error as Record<string, unknown>)
+      : undefined;
   const candidate =
     record.delta ??
     record.text ??
     record.message ??
+    error?.message ??
     item?.text ??
+    item?.message ??
     item?.aggregated_output ??
     item?.command;
 

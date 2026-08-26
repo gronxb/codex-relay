@@ -312,6 +312,9 @@ importers:
       '@noble/hashes':
         specifier: 2.2.0
         version: 2.2.0
+      '@openai/codex':
+        specifier: 0.149.1
+        version: 0.149.1
       '@openai/codex-sdk':
         specifier: 0.149.1
         version: 0.149.1
