@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.8
+
+### Patch Changes
+
+- bdc4b5a: Restore fast thread history loading and keep relay version mismatches as sidebar warnings.
+
 ## 1.4.0-ship.7
 
 ### Patch Changes
