@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.11
+
+### Patch Changes
+
+- bdc4b5a: Restore fast thread history loading and keep relay version mismatches as sidebar warnings.
+
 ## 1.4.10
 
 ### Patch Changes
