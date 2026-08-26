@@ -5528,7 +5528,7 @@ function appServerUserMessageText(item: Extract<AppServerThreadItem, { type: "us
     .map((content) => {
       switch (content.type) {
         case "text":
-          return content.text;
+          return isCodexInjectedContextBlock(content.text) ? "" : content.text;
         case "image":
         case "localImage":
         case "document":
@@ -5542,6 +5542,28 @@ function appServerUserMessageText(item: Extract<AppServerThreadItem, { type: "us
     .filter(Boolean)
     .join("\n\n");
   return promptMarkdownWithSkills(promptWithAppServerImageReferences(text, item.content), skills);
+}
+
+function isAppServerInjectedContextMessage(item: AppServerThreadItem) {
+  if (item.type !== "userMessage" || !("content" in item) || !Array.isArray(item.content)) {
+    return false;
+  }
+  const content = (item as Extract<AppServerThreadItem, { type: "userMessage" }>).content;
+  return (
+    content.length > 0 &&
+    content.every((input) => input.type === "text" && isCodexInjectedContextBlock(input.text))
+  );
+}
+
+function isCodexInjectedContextBlock(value: string) {
+  const text = value.trim();
+  return (
+    (text.startsWith("<recommended_plugins>") && text.endsWith("</recommended_plugins>")) ||
+    (text.startsWith("# AGENTS.md instructions for ") &&
+      text.includes("\n\n<INSTRUCTIONS>") &&
+      text.endsWith("</INSTRUCTIONS>")) ||
+    (text.startsWith("<environment_context>") && text.endsWith("</environment_context>"))
+  );
 }
 
 function appServerUserMessageDetails(item: Extract<AppServerThreadItem, { type: "userMessage" }>) {
@@ -7206,9 +7228,13 @@ function rolloutResponseItemMessageContent(
       return [];
     }
     const contentItem = item as Record<string, unknown>;
-    return contentItem.type === expectedType && typeof contentItem.text === "string"
-      ? [contentItem.text]
-      : [];
+    if (contentItem.type !== expectedType || typeof contentItem.text !== "string") {
+      return [];
+    }
+    if (role === "user" && isCodexInjectedContextBlock(contentItem.text)) {
+      return [];
+    }
+    return [contentItem.text];
   });
   return text.length > 0 ? text.join("\n\n") : undefined;
 }
@@ -7582,6 +7608,9 @@ function mapAppServerItem(threadId: string, turn: AppServerTurn, item: AppServer
 
   switch (item.type) {
     case "userMessage": {
+      if (isAppServerInjectedContextMessage(item)) {
+        return undefined;
+      }
       const userItem = item as Extract<AppServerThreadItem, { type: "userMessage" }>;
       return ChatMessageSchema.parse({
         ...base,
@@ -7955,8 +7984,11 @@ function countThreadMessages(thread: AppServerThread) {
     thread.turns?.reduce(
       (count, turn) =>
         count +
-        turn.items.filter((item) => item.type === "userMessage" || item.type === "agentMessage")
-          .length,
+        turn.items.filter(
+          (item) =>
+            item.type === "agentMessage" ||
+            (item.type === "userMessage" && !isAppServerInjectedContextMessage(item)),
+        ).length,
       0,
     ) ?? 0
   );

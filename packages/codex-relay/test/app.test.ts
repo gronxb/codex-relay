@@ -127,6 +127,20 @@ function appServerTurn(id: string, text: string, timestamp: number) {
   };
 }
 
+function codexInjectedContextBlocks(workspacePath: string) {
+  return [
+    "<recommended_plugins>\nAvailable plugins\n</recommended_plugins>",
+    [
+      `# AGENTS.md instructions for ${workspacePath}`,
+      "",
+      "<INSTRUCTIONS>",
+      "Keep internal context private.",
+      "</INSTRUCTIONS>",
+    ].join("\n"),
+    ["<environment_context>", `  <cwd>${workspacePath}</cwd>`, "</environment_context>"].join("\n"),
+  ];
+}
+
 function testPairingTranscript(input: {
   approvalCode: string;
   clientEphemeralPublicKey: string;
@@ -3170,6 +3184,70 @@ describe("Codex Relay server routes", () => {
       const imageResponse = await app.request(attachment.url);
       expect(imageResponse.status).toBe(200);
     }
+  });
+
+  it("hides Codex-injected context from app-server user message history", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const now = Date.now() / 1000;
+    const appServer = {
+      onNotification() {
+        return () => undefined;
+      },
+      onRequest() {
+        return () => undefined;
+      },
+      readThread: vi.fn<() => Promise<unknown>>(async () => ({
+        id: "app-thread-injected-context",
+        createdAt: now,
+        cwd: workspacePath,
+        modelProvider: "gpt-5.5",
+        name: "Injected context history",
+        preview: "Injected context history",
+        source: "app",
+        status: "idle",
+        turns: [
+          {
+            id: "turn-1",
+            completedAt: now,
+            items: [
+              {
+                id: "injected-context-1",
+                content: codexInjectedContextBlocks(workspacePath).map((text) => ({
+                  text,
+                  text_elements: [],
+                  type: "text",
+                })),
+                type: "userMessage",
+              },
+              {
+                id: "user-1",
+                content: [{ text: "ㅎㅇ", text_elements: [], type: "text" }],
+                type: "userMessage",
+              },
+              { id: "assistant-1", text: "안녕하세요", type: "agentMessage" },
+            ],
+            startedAt: now,
+            status: "completed",
+          },
+        ],
+        updatedAt: now,
+      })),
+    };
+    const app = createApp({
+      appServer: appServer as never,
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    const response = await app.request("/v1/threads/app-thread-injected-context");
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.thread.messageCount).toBe(2);
+    expect(body.messages.map((message: { content: string }) => message.content)).toEqual([
+      "ㅎㅇ",
+      "안녕하세요",
+    ]);
   });
 
   it("normalizes markdown skill mentions from app-server user message history", async () => {
@@ -7790,6 +7868,71 @@ describe("Codex Relay server routes", () => {
       expect(body.messages[1].details.patch).toContain("*** Add File");
       expect(body.messages[1].details.patchOriginalLength).toBe(patch.length);
       expect(body.messages[1].details.patchTruncated).toBe(false);
+    } finally {
+      process.env.CODEX_HOME = previousCodexHome;
+    }
+  });
+
+  it("hides Codex-injected context from rollout user message history", async () => {
+    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+    const codexHome = await mkdtemp(join(tmpdir(), "codex-relay-home-"));
+    const sessionsDir = join(codexHome, "sessions", "2026", "05", "02");
+    await mkdir(sessionsDir, { recursive: true });
+    const threadId = "app-thread-rollout-injected-context";
+    await writeFile(
+      join(sessionsDir, `rollout-2026-05-02T00-00-00-${threadId}.jsonl`),
+      [
+        JSON.stringify({
+          payload: {
+            content: codexInjectedContextBlocks(workspacePath).map((text) => ({
+              text,
+              type: "input_text",
+            })),
+            role: "user",
+            type: "message",
+          },
+          timestamp: "2026-05-02T00:00:00.000Z",
+          type: "response_item",
+        }),
+        JSON.stringify({
+          payload: {
+            content: [{ text: "ㅎㅇ", type: "input_text" }],
+            id: "user-1",
+            role: "user",
+            type: "message",
+          },
+          timestamp: "2026-05-02T00:00:01.000Z",
+          type: "response_item",
+        }),
+        JSON.stringify({
+          payload: {
+            content: [{ text: "안녕하세요", type: "output_text" }],
+            id: "assistant-1",
+            role: "assistant",
+            type: "message",
+          },
+          timestamp: "2026-05-02T00:00:02.000Z",
+          type: "response_item",
+        }),
+      ].join("\n"),
+    );
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = codexHome;
+    const app = createApp({
+      codex: createMockCodex(),
+      workspacePath,
+    });
+
+    try {
+      const response = await app.request(`/v1/threads/${threadId}`);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.thread.messageCount).toBe(2);
+      expect(body.messages.map((message: { content: string }) => message.content)).toEqual([
+        "ㅎㅇ",
+        "안녕하세요",
+      ]);
     } finally {
       process.env.CODEX_HOME = previousCodexHome;
     }
