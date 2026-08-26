@@ -188,7 +188,7 @@ jobs:
           git push --force-with-lease origin HEAD:refs/heads/changeset-release/npm-main
 
       - name: Update mobile release branch
-        if: steps.mobile-release-plan.outputs.deploy == 'true'
+        if: steps.mobile-release-plan.outputs.deploy == 'true' && steps.mobile-release-plan.outputs.relay-package-version == ''
         run: |
           git switch --detach "$GITHUB_SHA"
           git switch --create changeset-release/mobile-main "$GITHUB_SHA"
@@ -220,7 +220,7 @@ jobs:
                 ].join("\n"),
               });
             }
-            if (process.env.MOBILE_RELEASE_VERSION) {
+            if (process.env.MOBILE_RELEASE_VERSION && !process.env.RELAY_RELEASE_VERSION) {
               releases.push({
                 branch: "changeset-release/mobile-main",
                 title: `chore: release @codex-relay/mobile@${process.env.MOBILE_RELEASE_VERSION} (app-version ${process.env.IOS_APP_VERSION})`,

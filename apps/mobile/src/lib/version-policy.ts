@@ -1,10 +1,11 @@
 import type { VersionResponse } from "codex-relay/api-schema";
+import relayPackage from "codex-relay/package.json";
 
 // Kept in the OTA-delivered JS bundle so compatibility can move with app updates.
 export const relayCompatibilityPolicy = {
-  packageVersion: "1.4.5",
+  packageVersion: relayPackage.version,
 } as const;
-export const relayUpdateCommand = `npx codex-relay@${relayCompatibilityPolicy.packageVersion}`;
+export const relayUpdateCommand = "npx codex-relay@latest";
 
 export type RelayVersionCompatibility =
   | {
@@ -64,6 +65,16 @@ export function evaluateRelayVersion(
     serverPackageVersion: version.packageVersion,
     updateCommand: relayUpdateCommand,
   };
+}
+
+export function requireCompatibleRelayVersion(version: VersionResponse) {
+  const compatibility = evaluateRelayVersion(version, undefined);
+  if (!compatibility?.compatible) {
+    throw new Error(
+      `${compatibility?.reason ?? "The relay version could not be verified."} Run ${relayUpdateCommand}.`,
+    );
+  }
+  return compatibility;
 }
 
 function compareRelayVersions(current: string, required: string) {

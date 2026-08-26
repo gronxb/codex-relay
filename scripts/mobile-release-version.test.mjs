@@ -101,3 +101,19 @@ test("defines independent npm and mobile version commands", () => {
   assert.match(releaseWorkflow, /changeset-release\/mobile-main/);
   assert.doesNotMatch(releaseWorkflow, /changesets\/action/);
 });
+
+test("waits for the relay package release before preparing the mobile OTA", () => {
+  const releaseWorkflow = readFileSync(
+    new URL("../.github/workflows/release.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    releaseWorkflow,
+    /if: steps\.mobile-release-plan\.outputs\.deploy == 'true' && steps\.mobile-release-plan\.outputs\.relay-package-version == ''/,
+  );
+  assert.match(
+    releaseWorkflow,
+    /if \(process\.env\.MOBILE_RELEASE_VERSION && !process\.env\.RELAY_RELEASE_VERSION\)/,
+  );
+});

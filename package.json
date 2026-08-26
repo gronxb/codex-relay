@@ -22,7 +22,7 @@
     "version-packages:npm": "node scripts/version-packages.mjs npm",
     "version-packages:mobile": "node scripts/version-packages.mjs mobile",
     "release": "changeset publish",
-    "test:release": "node --test scripts/mobile-release-version.test.mjs && pnpm --filter @codex-relay/mobile exec vitest run src/lib/mobile-release-version.test.ts",
+    "test:release": "node --test scripts/mobile-release-version.test.mjs && pnpm --filter @codex-relay/mobile exec vitest run src/lib/mobile-release-version.test.ts src/lib/version-policy.test.ts",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter codex-relay test",
     "test:live:mobile-stream": "CODEX_RELAY_LIVE_APP_SERVER_TEST=1 pnpm --filter codex-relay test -- live-mobile-stream-contract.test.ts"

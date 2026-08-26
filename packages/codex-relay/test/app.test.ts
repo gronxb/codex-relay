@@ -6,6 +6,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { fromByteArray, toByteArray } from "base64-js";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
@@ -22,6 +23,8 @@ import type { PushNotificationSender, RelayPushNotification } from "../src/push-
 import { createServerIdentity } from "../src/secure-transport.js";
 
 const execFileAsync = promisify(execFile);
+const requirePackage = createRequire(import.meta.url);
+const relayPackage = requirePackage("../package.json") as { version: string };
 
 function createMockCodex(handlers?: {
   onResumeThread?: (threadId: string, options: Parameters<CodexClient["resumeThread"]>[1]) => void;
@@ -212,7 +215,7 @@ describe("Codex Relay server routes", () => {
       ok: true,
       service: "codex-relay-server",
       packageName: "codex-relay",
-      packageVersion: expect.any(String),
+      packageVersion: relayPackage.version,
     });
   });
 
