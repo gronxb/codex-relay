@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.9
+
+### Patch Changes
+
+- 5d6da00: Update `@openai/codex-sdk` to `0.149.1`.
+
 ## 1.4.8
 
 ### Patch Changes
