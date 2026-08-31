@@ -311,6 +311,10 @@ export class CodexAppServerClient {
     return this.activeMode;
   }
 
+  isThreadSubscribed(threadId: string) {
+    return this.subscribedThreadIds.has(threadId);
+  }
+
   initialize() {
     return this.ensureInitialized();
   }

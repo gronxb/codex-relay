@@ -5918,19 +5918,20 @@ describe("Codex Relay server routes", () => {
     expect(body).toContain('"state":"completed"');
   });
 
-  it("resumes not-loaded app-server threads before continuing a streamed turn", async () => {
+  it("resumes persisted app-server threads when the client is not subscribed", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
     const notificationHandlers = new Set<(notification: unknown) => void>();
     const now = Date.now() / 1000;
+    let subscribed = false;
     const appThread = {
-      id: "app-thread-not-loaded",
+      id: "app-thread-unsubscribed",
       createdAt: now,
       cwd: workspacePath,
       modelProvider: "gpt-5.5",
       name: "Past thread",
       preview: "First message",
       source: "app",
-      status: { type: "notLoaded" },
+      status: { type: "idle" },
       turns: [
         {
           id: "turn-existing",
@@ -5957,13 +5958,17 @@ describe("Codex Relay server routes", () => {
       onRequest() {
         return () => undefined;
       },
+      isThreadSubscribed: vi.fn<() => boolean>(() => subscribed),
       readThread: vi.fn<() => Promise<unknown>>(async () => appThread),
-      resumeThread: vi.fn<() => Promise<unknown>>(async () => ({
-        ...appThread,
-        status: { type: "idle" },
-      })),
+      resumeThread: vi.fn<() => Promise<unknown>>(async () => {
+        subscribed = true;
+        return appThread;
+      }),
       startThread: vi.fn<() => Promise<unknown>>(async () => appThread),
       startTurn: vi.fn<() => Promise<unknown>>(async () => {
+        if (!subscribed) {
+          throw new Error("Expected thread/resume before turn/start.");
+        }
         queueMicrotask(() => {
           for (const handler of notificationHandlers) {
             handler({
@@ -5971,14 +5976,14 @@ describe("Codex Relay server routes", () => {
               params: {
                 delta: "continued reply",
                 itemId: "assistant-continued",
-                threadId: "app-thread-not-loaded",
+                threadId: "app-thread-unsubscribed",
                 turnId: "turn-continued",
               },
             });
             handler({
               method: "turn/completed",
               params: {
-                threadId: "app-thread-not-loaded",
+                threadId: "app-thread-unsubscribed",
                 turn: {
                   id: "turn-continued",
                   items: [],
@@ -6007,7 +6012,7 @@ describe("Codex Relay server routes", () => {
       workspacePath,
     });
 
-    const response = await app.request("/v1/threads/app-thread-not-loaded/runs/stream", {
+    const response = await app.request("/v1/threads/app-thread-unsubscribed/runs/stream", {
       method: "POST",
       body: JSON.stringify({ prompt: "Continue this" }),
       headers: { "content-type": "application/json" },
@@ -6017,7 +6022,7 @@ describe("Codex Relay server routes", () => {
     expect(response.status).toBe(200);
     expect(appServer.resumeThread).toHaveBeenCalledWith(
       expect.objectContaining({
-        threadId: "app-thread-not-loaded",
+        threadId: "app-thread-unsubscribed",
       }),
     );
     expect(appServer.startTurn).toHaveBeenCalledTimes(1);
