@@ -58,12 +58,12 @@ describe("mobile stream contract", () => {
       })),
       startTurn: vi.fn<() => Promise<unknown>>(async () => {
         queueMicrotask(() => {
-          for (const handler of notificationHandlers) {
-            handler({
+          const notifications = [
+            {
               method: "thread/status/changed",
               params: { status: { type: "active" }, threadId: "app-thread-mobile-contract" },
-            });
-            handler({
+            },
+            {
               method: "turn/started",
               params: {
                 threadId: "app-thread-mobile-contract",
@@ -74,16 +74,8 @@ describe("mobile stream contract", () => {
                   completedAt: null,
                 },
               },
-            });
-            handler({
-              method: "item/started",
-              params: {
-                item: { id: "assistant-mobile-contract", text: "", type: "agentMessage" },
-                threadId: "app-thread-mobile-contract",
-                turnId: "turn-mobile-contract",
-              },
-            });
-            handler({
+            },
+            {
               method: "item/agentMessage/delta",
               params: {
                 delta: "hi",
@@ -91,20 +83,20 @@ describe("mobile stream contract", () => {
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
-            });
-            handler({
+            },
+            {
               method: "item/completed",
               params: {
                 item: { id: "assistant-mobile-contract", text: "hi", type: "agentMessage" },
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
-            });
-            handler({
+            },
+            {
               method: "thread/status/changed",
               params: { status: { type: "idle" }, threadId: "app-thread-mobile-contract" },
-            });
-            handler({
+            },
+            {
               method: "turn/completed",
               params: {
                 threadId: "app-thread-mobile-contract",
@@ -118,7 +110,12 @@ describe("mobile stream contract", () => {
                   durationMs: 1,
                 },
               },
-            });
+            },
+          ];
+          for (const notification of notifications) {
+            for (const handler of notificationHandlers) {
+              handler(notification);
+            }
           }
         });
         return {
@@ -156,6 +153,16 @@ describe("mobile stream contract", () => {
 
     const consumed = consumeAsMobileChatStream(body, "app-thread-mobile-contract");
     expect(consumed.errors).toEqual([]);
+    const assistantCreatedIndex = consumed.events.findIndex(
+      (event) =>
+        event.type === "thread.message.created" && event.message.id === "assistant-mobile-contract",
+    );
+    const assistantDeltaIndex = consumed.events.findIndex(
+      (event) =>
+        event.type === "thread.message.delta" && event.messageId === "assistant-mobile-contract",
+    );
+    expect(assistantCreatedIndex).toBeGreaterThan(-1);
+    expect(assistantCreatedIndex).toBeLessThan(assistantDeltaIndex);
     expect(consumed.eventTypes).toContain("thread.message.delta");
     expect(consumed.terminalThreadIds).toContain("app-thread-mobile-contract");
 
@@ -596,10 +603,12 @@ function consumeTerminalSequenceAsMobileChatScreen(events: StreamThreadRunEvent[
 
 function consumeAsMobileChatStream(body: string, threadId: string) {
   const errors: Error[] = [];
+  const events: StreamThreadRunEvent[] = [];
   const eventTypes: string[] = [];
   const terminalThreadIds: string[] = [];
   const dispatcher = createThreadRunSseDispatcher({
     onEvent(event) {
+      events.push(event);
       eventTypes.push(event.type);
       handleThreadRunStreamEvent(event, {
         fallbackThreadId: threadId,
@@ -626,5 +635,5 @@ function consumeAsMobileChatStream(body: string, threadId: string) {
   }
   dispatcher.flush();
 
-  return { errors, eventTypes, terminalThreadIds };
+  return { errors, events, eventTypes, terminalThreadIds };
 }

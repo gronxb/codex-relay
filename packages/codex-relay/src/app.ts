@@ -4075,11 +4075,27 @@ async function streamRunningAppServerThread(input: {
               return;
             }
             if (!input.messagesByThreadId.get(input.threadId)?.some((item) => item.id === itemId)) {
-              appendMessageWithId(input.messagesByThreadId, input.threadId, itemId, {
-                role: "assistant",
-                content: "",
-                state: "streaming",
-                turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+              const createdMessage = appendMessageWithId(
+                input.messagesByThreadId,
+                input.threadId,
+                itemId,
+                {
+                  role: "assistant",
+                  content: "",
+                  state: "streaming",
+                  turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+                },
+              );
+              threadSummary = updateThread(
+                input.threads,
+                input.messagesByThreadId,
+                input.threadId,
+                { state: "running" },
+              );
+              sendSse(input.controller, input.encoder, input.secureSession, {
+                type: "thread.message.created",
+                thread: threadSummary,
+                message: createdMessage,
               });
             }
             const isAsyncAgentMessage = asyncAgentMessageIds.has(itemId);
@@ -4828,11 +4844,27 @@ async function runAppServerPromptStreamed(input: {
               return;
             }
             if (!input.messagesByThreadId.get(activeThreadId)?.some((item) => item.id === itemId)) {
-              appendMessageWithId(input.messagesByThreadId, activeThreadId, itemId, {
-                role: "assistant",
-                content: "",
-                state: "streaming",
-                turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+              const createdMessage = appendMessageWithId(
+                input.messagesByThreadId,
+                activeThreadId,
+                itemId,
+                {
+                  role: "assistant",
+                  content: "",
+                  state: "streaming",
+                  turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+                },
+              );
+              threadSummary = updateThread(
+                input.threads,
+                input.messagesByThreadId,
+                activeThreadId,
+                { state: "running" },
+              );
+              sendSse(input.controller, input.encoder, input.secureSession, {
+                type: "thread.message.created",
+                thread: threadSummary,
+                message: createdMessage,
               });
             }
             const isAsyncAgentMessage = asyncAgentMessageIds.has(itemId);
