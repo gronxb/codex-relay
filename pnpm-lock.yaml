@@ -7,6 +7,9 @@ settings:
 overrides:
   '@libsql/isomorphic-ws>ws': 8.21.0
 
+patchedDependencies:
+  '@hot-updater/react-native@1.0.0-rc.1': be64865de4397011e507d3118d304ffdef8e899c24b1211378d77b4b71e5621b
+
 importers:
 
   .:
@@ -46,7 +49,7 @@ importers:
         version: 5.2.13(@types/react@19.2.14)(react-native-gesture-handler@2.31.2(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.3.1(react-native-worklets@0.8.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       '@hot-updater/react-native':
         specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
+        version: 1.0.0-rc.1(patch_hash=be64865de4397011e507d3118d304ffdef8e899c24b1211378d77b4b71e5621b)(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       '@legendapp/list':
         specifier: 3.0.0
         version: 3.0.0(react-dom@19.2.3(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
@@ -11224,7 +11227,7 @@ snapshots:
       mime: 4.1.0
       verkit: 0.3.2
 
-  '@hot-updater/react-native@1.0.0-rc.1(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)':
+  '@hot-updater/react-native@1.0.0-rc.1(patch_hash=be64865de4397011e507d3118d304ffdef8e899c24b1211378d77b4b71e5621b)(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@hot-updater/core': 1.0.0-rc.0
       '@hot-updater/plugin-core': 1.0.0-rc.0
