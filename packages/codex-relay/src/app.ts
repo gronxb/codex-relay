@@ -3742,6 +3742,11 @@ async function resumeAppServerThreadIfNeeded(
   input: QueuedThreadInput,
   runtime: ReturnType<typeof resolveAppServerRuntime>,
 ) {
+  if (appServer.isThreadSubscribed?.(threadId) === false) {
+    await resumeAppServerThread(appServer, threadId, input, runtime);
+    return;
+  }
+
   if (typeof appServer.readThread !== "function") {
     return;
   }
