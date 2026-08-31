@@ -32,6 +32,10 @@ import { hapticSelection } from "@/lib/haptics";
 import { PromptMarkdownText } from "./PromptMarkdownText";
 import { ProtocolActivityCard } from "./ProtocolActivityCard";
 import { messageSegmentRenderKey } from "./message-segment-key";
+import {
+  messageCodeContentForRender,
+  messageMarkdownContentForRender,
+} from "./message-markdown-content";
 import type { WorkspaceMarkdownPreviewTarget } from "./workspace-preview/markdown-target";
 
 const DATA_URI_PATTERN = /data:[^;\s]+;base64,[A-Za-z0-9+/=\n\r]+/g;
@@ -357,7 +361,7 @@ export const MessageBubble = memo(function MessageBubble({
                   allowFontScaling={false}
                   key={messageSegmentRenderKey(segment, index)}
                   maxFontSizeMultiplier={1}
-                  markdown={segment.content.trimEnd() || " "}
+                  markdown={messageMarkdownContentForRender(segment.content)}
                   selectable
                   // Tiny Codex deltas restart the native fade before intermediate text is presented.
                   streamingAnimation={false}
@@ -972,7 +976,7 @@ function parseMarkdownSegments(markdown: string): MarkdownSegment[] {
     if (fenceMatch) {
       if (isInCodeBlock) {
         segments.push({
-          code: trimCodeFenceContent(codeLines.join("\n")),
+          code: messageCodeContentForRender(codeLines.join("\n")),
           kind: "code",
           language: codeLanguage,
         });
@@ -1003,7 +1007,7 @@ function parseMarkdownSegments(markdown: string): MarkdownSegment[] {
 
   if (isInCodeBlock) {
     segments.push({
-      code: trimCodeFenceContent(codeLines.join("\n")),
+      code: messageCodeContentForRender(codeLines.join("\n")),
       kind: "code",
       language: codeLanguage,
     });
@@ -1017,10 +1021,6 @@ function parseMarkdownSegments(markdown: string): MarkdownSegment[] {
   }
 
   return segments.length > 0 ? segments : [{ content: markdown, kind: "markdown" }];
-}
-
-function trimCodeFenceContent(code: string) {
-  return code.replace(/^\n/, "").replace(/\n$/, "");
 }
 
 function normalizeCodeLanguage(value: string) {
