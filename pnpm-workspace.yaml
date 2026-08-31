@@ -15,6 +15,3 @@ minimumReleaseAge: 0
 
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
-
-patchedDependencies:
-  "@hot-updater/expo@1.0.0-rc.2": patches/@hot-updater__expo@1.0.0-rc.2.patch

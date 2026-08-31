@@ -92,7 +92,7 @@
   },
   "devDependencies": {
     "@hot-updater/cloudflare": "1.0.0-rc.2",
-    "@hot-updater/expo": "1.0.0-rc.2",
+    "@hot-updater/expo": "1.0.0-rc.3",
     "@shikijs/monaco": "4.0.2",
     "@types/react": "~19.2.2",
     "dotenv": "^17.4.2",
