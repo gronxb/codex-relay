@@ -1,6 +1,12 @@
 packages:
   - apps/*
   - packages/*
+catalogs:
+  hot-updater-preview:
+    "@hot-updater/cloudflare": https://pkg.pr.new/@hot-updater/cloudflare@ebd0db7
+    "@hot-updater/expo": https://pkg.pr.new/@hot-updater/expo@ebd0db7
+    "@hot-updater/react-native": https://pkg.pr.new/@hot-updater/react-native@ebd0db7
+    hot-updater: https://pkg.pr.new/hot-updater@ebd0db7
 allowBuilds:
   esbuild: true
   msgpackr-extract: true
