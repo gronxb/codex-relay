@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.9
+
+### Patch Changes
+
+- c005033: Render assistant text deltas immediately instead of revealing the full response after completion.
+
 ## 1.4.0-ship.8
 
 ### Patch Changes
