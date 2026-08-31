@@ -86,7 +86,25 @@ describe("mobile stream contract", () => {
             {
               method: "item/agentMessage/delta",
               params: {
-                delta: "hi",
+                delta: "first",
+                itemId: "assistant-mobile-contract",
+                threadId: "app-thread-mobile-contract",
+                turnId: "turn-mobile-contract",
+              },
+            },
+            {
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "\n",
+                itemId: "assistant-mobile-contract",
+                threadId: "app-thread-mobile-contract",
+                turnId: "turn-mobile-contract",
+              },
+            },
+            {
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "second",
                 itemId: "assistant-mobile-contract",
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
@@ -95,7 +113,11 @@ describe("mobile stream contract", () => {
             {
               method: "item/completed",
               params: {
-                item: { id: "assistant-mobile-contract", text: "hi", type: "agentMessage" },
+                item: {
+                  id: "assistant-mobile-contract",
+                  text: "first\nsecond",
+                  type: "agentMessage",
+                },
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
@@ -174,6 +196,11 @@ describe("mobile stream contract", () => {
     expect(consumed.events[assistantCreatedIndex]).toMatchObject({
       message: { state: "streaming" },
     });
+    expect(
+      consumed.events
+        .filter((event) => event.type === "thread.message.delta")
+        .map((event) => event.delta),
+    ).toEqual(["first", "\n", "second"]);
     expect(consumed.eventTypes).toContain("thread.message.delta");
     expect(consumed.terminalThreadIds).toContain("app-thread-mobile-contract");
 
@@ -181,7 +208,7 @@ describe("mobile stream contract", () => {
     expect(chatStore$.threadsById["app-thread-mobile-contract"].state.peek()).toBe("completed");
     expect(messages.map((message) => [message.role, message.content])).toEqual([
       ["user", "Reply with hi"],
-      ["assistant", "hi"],
+      ["assistant", "first\nsecond"],
     ]);
     expect(messages.find((message) => message.role === "assistant")?.state).toBe("completed");
   });

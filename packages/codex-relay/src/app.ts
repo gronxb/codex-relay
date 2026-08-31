@@ -4075,7 +4075,7 @@ async function streamRunningAppServerThread(input: {
           case "item/agentMessage/delta": {
             observedTurnActivity = true;
             const itemId = firstString(params, ["itemId"]);
-            const delta = firstString(params, ["delta"]);
+            const delta = streamDelta(params);
             if (!itemId || !delta) {
               return;
             }
@@ -4849,7 +4849,7 @@ async function runAppServerPromptStreamed(input: {
           }
           case "item/agentMessage/delta": {
             const itemId = firstString(params, ["itemId"]);
-            const delta = firstString(params, ["delta"]);
+            const delta = streamDelta(params);
             if (!itemId || !delta) {
               return;
             }
@@ -8844,6 +8844,11 @@ function firstString(record: Record<string, unknown> | undefined, keys: string[]
     }
   }
   return undefined;
+}
+
+function streamDelta(record: Record<string, unknown> | undefined) {
+  const value = record?.delta;
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function firstNumber(record: Record<string, unknown> | undefined, keys: string[]) {

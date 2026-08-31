@@ -667,13 +667,11 @@ class HybridDirectFetch: HybridDirectFetchSpec {
                 guard
                     let status,
                     status < 400,
-                    !data.isEmpty,
-                    let text = String(data: data, encoding: .utf8),
-                    !text.isEmpty
+                    !data.isEmpty
                 else {
                     return
                 }
-                onChunk(DirectFetchStreamChunk(bodyString: text))
+                Self.emitStreamChunk(data, onChunk: onChunk)
             }
 
             func finalize() {
@@ -1002,7 +1000,14 @@ class HybridDirectFetch: HybridDirectFetchSpec {
             return
         }
 
-        onChunk(DirectFetchStreamChunk(bodyString: text))
+        let chunk = DirectFetchStreamChunk(bodyString: text)
+        if Thread.isMainThread {
+            onChunk(chunk)
+        } else {
+            DispatchQueue.main.sync {
+                onChunk(chunk)
+            }
+        }
     }
 
     fileprivate static func headerValue(_ name: String, in headers: [[String: String]]) -> String? {
