@@ -31,6 +31,7 @@ import { hapticSelection } from "@/lib/haptics";
 
 import { PromptMarkdownText } from "./PromptMarkdownText";
 import { ProtocolActivityCard } from "./ProtocolActivityCard";
+import { messageSegmentRenderKey } from "./message-segment-key";
 import type { WorkspaceMarkdownPreviewTarget } from "./workspace-preview/markdown-target";
 
 const DATA_URI_PATTERN = /data:[^;\s]+;base64,[A-Za-z0-9+/=\n\r]+/g;
@@ -343,10 +344,10 @@ export const MessageBubble = memo(function MessageBubble({
             <ThemedText type="code" themeColor="textSecondary" style={styles.assistantLabel}>
               Codex
             </ThemedText>
-            {markdownSegments.map((segment) =>
+            {markdownSegments.map((segment, index) =>
               segment.kind === "code" ? (
                 <HighlightedCodeBlock
-                  key={`code-${segment.language}-${segment.code}`}
+                  key={messageSegmentRenderKey(segment, index)}
                   code={segment.code}
                   deferHighlight={message.state === "streaming"}
                   language={segment.language}
@@ -354,11 +355,12 @@ export const MessageBubble = memo(function MessageBubble({
               ) : (
                 <EnrichedMarkdownText
                   allowFontScaling={false}
-                  key={`markdown-${segment.content}`}
+                  key={messageSegmentRenderKey(segment, index)}
                   maxFontSizeMultiplier={1}
                   markdown={segment.content.trimEnd() || " "}
                   selectable
-                  streamingAnimation={message.state === "streaming"}
+                  // Tiny Codex deltas restart the native fade before intermediate text is presented.
+                  streamingAnimation={false}
                   markdownStyle={assistantMarkdownStyle}
                 />
               ),
