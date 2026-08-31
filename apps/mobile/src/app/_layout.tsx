@@ -245,7 +245,7 @@ const hotUpdaterApiKey =
 
 if (hotUpdaterBaseUrl) {
   HotUpdater.init({
-    analytics: true,
+    insights: true,
     baseURL: hotUpdaterBaseUrl,
     requestHeaders: hotUpdaterApiKey ? { "x-api-key": hotUpdaterApiKey } : undefined,
   });

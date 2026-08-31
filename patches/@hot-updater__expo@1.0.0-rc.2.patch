@@ -1,0 +1,136 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -47,4 +47,3 @@ let node_stream_promises = require("node:stream/promises");
+ let node_stream = require("node:stream");
+ let node_buffer = require("node:buffer");
+-let expo_config_js = require("expo/config.js");
+ let uuidv7 = require("uuidv7");
+@@ -6208,3 +6207,21 @@ createExeca(mapScriptAsync, {}, deepScriptOptions, setScriptSync);
+ const { sendMessage, getOneMessage, getEachMessage, getCancelSignal } = getIpcExport();
+ //#endregion
++//#region src/expoConfig.ts
++const importExpoConfigModule = (specifier) => import(specifier);
++const isMissingModule = (error, specifier) => error instanceof Error && "code" in error && error.code === "ERR_MODULE_NOT_FOUND" && error.message.includes(specifier);
++const loadExpoConfig = async () => {
++	try {
++		const module = await importExpoConfigModule("expo/config.js");
++		return module.getConfig ? module : module.default;
++	} catch (error) {
++		if (!isMissingModule(error, "expo/config.js")) throw error;
++	}
++	const module = await importExpoConfigModule("expo/config/index.js");
++	return module.getConfig ? module : module.default;
++};
++const getConfig = async (...args) => {
++	const expoConfig = await loadExpoConfig();
++	return expoConfig.getConfig(...args);
++};
++//#endregion
+ //#region src/resolveMain.ts
+@@ -6275,16 +6292,16 @@ const getHotUpdaterExpoPluginProps = (plugins) => {
+ };
+-const getExpoFingerprintExtraSources = (cwd) => {
+-	const { exp } = (0, expo_config_js.getConfig)(cwd, { skipSDKVersionRequirement: true });
+-	const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
+-	if (publicKeyPath === void 0) return [];
+-	if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
+-	return [publicKeyPath];
+-};
++const getExpoFingerprintExtraSources = async (cwd) => {
++  const { exp } = await getConfig(cwd, { skipSDKVersionRequirement: true });
++  const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
++  if (publicKeyPath === void 0) return [];
++  if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
++  return [publicKeyPath];
++};
+ const getExpoBundleSigningPublicKey = async (cwd) => {
+-	const { exp } = (0, expo_config_js.getConfig)(cwd, { skipSDKVersionRequirement: true });
+-	const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
+-	if (publicKeyPath === void 0) return null;
+-	if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
+-	return { publicKey: await (0, _hot_updater_cli_tools.readBundleSigningPublicKeyFile)(publicKeyPath, { cwd }) };
+-};
++  const { exp } = await getConfig(cwd, { skipSDKVersionRequirement: true });
++  const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
++  if (publicKeyPath === void 0) return null;
++  if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
++  return { publicKey: await (0, _hot_updater_cli_tools.readBundleSigningPublicKeyFile)(publicKeyPath, { cwd }) };
++};
+ const isHermesEnabled = (cwd, platform) => {
+diff --git a/dist/index.d.cts b/dist/index.d.cts
+--- a/dist/index.d.cts
++++ b/dist/index.d.cts
+@@ -3,3 +3,3 @@ import { BasePluginArgs, BuildPlugin, BuildPluginConfig } from "@hot-updater/plugin-core";
+ //#region src/expo.d.ts
+-declare const getExpoFingerprintExtraSources: (cwd: string) => string[];
++declare const getExpoFingerprintExtraSources: (cwd: string) => Promise<string[]>;
+ declare const getExpoBundleSigningPublicKey: (cwd: string) => Promise<{
+diff --git a/dist/index.d.mts b/dist/index.d.mts
+--- a/dist/index.d.mts
++++ b/dist/index.d.mts
+@@ -3,3 +3,3 @@ import { BasePluginArgs, BuildPlugin, BuildPluginConfig } from "@hot-updater/plugin-core";
+ //#region src/expo.d.ts
+-declare const getExpoFingerprintExtraSources: (cwd: string) => string[];
++declare const getExpoFingerprintExtraSources: (cwd: string) => Promise<string[]>;
+ declare const getExpoBundleSigningPublicKey: (cwd: string) => Promise<{
+diff --git a/dist/index.mjs b/dist/index.mjs
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -21,4 +21,3 @@ import { finished } from "node:stream/promises";
+ import { Duplex, PassThrough, Readable, Transform, Writable, getDefaultHighWaterMark } from "node:stream";
+ import { Buffer as Buffer$1 } from "node:buffer";
+-import { getConfig } from "expo/config.js";
+ import { uuidv7 } from "uuidv7";
+@@ -6206,3 +6205,21 @@ createExeca(mapScriptAsync, {}, deepScriptOptions, setScriptSync);
+ const { sendMessage, getOneMessage, getEachMessage, getCancelSignal } = getIpcExport();
+ //#endregion
++//#region src/expoConfig.ts
++const importExpoConfigModule = (specifier) => import(specifier);
++const isMissingModule = (error, specifier) => error instanceof Error && "code" in error && error.code === "ERR_MODULE_NOT_FOUND" && error.message.includes(specifier);
++const loadExpoConfig = async () => {
++	try {
++		const module = await importExpoConfigModule("expo/config.js");
++		return module.getConfig ? module : module.default;
++	} catch (error) {
++		if (!isMissingModule(error, "expo/config.js")) throw error;
++	}
++	const module = await importExpoConfigModule("expo/config/index.js");
++	return module.getConfig ? module : module.default;
++};
++const getConfig = async (...args) => {
++	const expoConfig = await loadExpoConfig();
++	return expoConfig.getConfig(...args);
++};
++//#endregion
+ //#region src/resolveMain.ts
+@@ -6273,16 +6290,16 @@ const getHotUpdaterExpoPluginProps = (plugins) => {
+ };
+-const getExpoFingerprintExtraSources = (cwd) => {
+-	const { exp } = getConfig(cwd, { skipSDKVersionRequirement: true });
+-	const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
+-	if (publicKeyPath === void 0) return [];
+-	if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
+-	return [publicKeyPath];
+-};
++const getExpoFingerprintExtraSources = async (cwd) => {
++  const { exp } = await getConfig(cwd, { skipSDKVersionRequirement: true });
++  const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
++  if (publicKeyPath === void 0) return [];
++  if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
++  return [publicKeyPath];
++};
+ const getExpoBundleSigningPublicKey = async (cwd) => {
+-	const { exp } = getConfig(cwd, { skipSDKVersionRequirement: true });
+-	const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
+-	if (publicKeyPath === void 0) return null;
+-	if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
+-	return { publicKey: await readBundleSigningPublicKeyFile(publicKeyPath, { cwd }) };
+-};
++  const { exp } = await getConfig(cwd, { skipSDKVersionRequirement: true });
++  const publicKeyPath = getHotUpdaterExpoPluginProps(exp.plugins)?.publicKeyPath;
++  if (publicKeyPath === void 0) return null;
++  if (typeof publicKeyPath !== "string" || !publicKeyPath.trim()) throw new Error("@hot-updater/expo publicKeyPath must be a non-empty path.");
++  return { publicKey: await readBundleSigningPublicKeyFile(publicKeyPath, { cwd }) };
++};
+ const isHermesEnabled = (cwd, platform) => {

@@ -17,4 +17,4 @@ overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
 
 patchedDependencies:
-  "@hot-updater/react-native@1.0.0-rc.1": patches/@hot-updater__react-native@1.0.0-rc.1.patch
+  "@hot-updater/expo@1.0.0-rc.2": patches/@hot-updater__expo@1.0.0-rc.2.patch

@@ -96,6 +96,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
         "@hot-updater/expo",
         {
           channel: "production",
+          publicKeyPath: "./keys/public-key.pem",
         },
       ],
       "react-native-enriched-markdown",
