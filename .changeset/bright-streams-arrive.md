@@ -2,4 +2,4 @@
 "codex-relay": patch
 ---
 
-Create assistant messages before forwarding delta-first app-server streams so mobile clients render responses progressively.
+Keep started assistant messages in a streaming state and create missing messages before forwarding app-server deltas so mobile clients render responses progressively.

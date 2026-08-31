@@ -76,6 +76,14 @@ describe("mobile stream contract", () => {
               },
             },
             {
+              method: "item/started",
+              params: {
+                item: { id: "assistant-mobile-contract", text: "", type: "agentMessage" },
+                threadId: "app-thread-mobile-contract",
+                turnId: "turn-mobile-contract",
+              },
+            },
+            {
               method: "item/agentMessage/delta",
               params: {
                 delta: "hi",
@@ -163,6 +171,9 @@ describe("mobile stream contract", () => {
     );
     expect(assistantCreatedIndex).toBeGreaterThan(-1);
     expect(assistantCreatedIndex).toBeLessThan(assistantDeltaIndex);
+    expect(consumed.events[assistantCreatedIndex]).toMatchObject({
+      message: { state: "streaming" },
+    });
     expect(consumed.eventTypes).toContain("thread.message.delta");
     expect(consumed.terminalThreadIds).toContain("app-thread-mobile-contract");
 

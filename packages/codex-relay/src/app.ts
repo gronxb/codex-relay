@@ -4032,7 +4032,7 @@ async function streamRunningAppServerThread(input: {
             if (!item || typeof item !== "object") {
               return;
             }
-            const message = upsertAppServerItemMessage(
+            let message = upsertAppServerItemMessage(
               input.messagesByThreadId,
               input.threadId,
               firstString(params, ["turnId"]) ?? activeTurnId,
@@ -4040,6 +4040,11 @@ async function streamRunningAppServerThread(input: {
             );
             if (!message) {
               return;
+            }
+            if (notification.method === "item/started") {
+              message = updateMessage(input.messagesByThreadId, input.threadId, message.id, {
+                state: "streaming",
+              });
             }
             const isAsyncAgentMessage = isAsyncAppServerAgentMessage(item as AppServerThreadItem);
             if (isAsyncAgentMessage) {
@@ -4802,7 +4807,7 @@ async function runAppServerPromptStreamed(input: {
               return;
             }
             const turnId = firstString(params, ["turnId"]) ?? activeTurnId;
-            const message = upsertAppServerItemMessage(
+            let message = upsertAppServerItemMessage(
               input.messagesByThreadId,
               activeThreadId,
               turnId,
@@ -4810,6 +4815,11 @@ async function runAppServerPromptStreamed(input: {
             );
             if (!message) {
               return;
+            }
+            if (notification.method === "item/started") {
+              message = updateMessage(input.messagesByThreadId, activeThreadId, message.id, {
+                state: "streaming",
+              });
             }
             const isAsyncAgentMessage = isAsyncAppServerAgentMessage(item as AppServerThreadItem);
             if (isAsyncAgentMessage) {
