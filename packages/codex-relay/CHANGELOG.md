@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.13
+
+### Patch Changes
+
+- fe8e795: Resume persisted app-server threads before starting turns so mobile clients continue receiving streamed responses after relay reconnections.
+
 ## 1.4.12
 
 ### Patch Changes
