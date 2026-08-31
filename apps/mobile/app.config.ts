@@ -86,8 +86,6 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       "expo-notifications",
       "expo-system-ui",
       "expo-web-browser",
-      // Expo mods execute in reverse registration order, so this post-processes Hot Updater.
-      "./plugins/with-hot-updater-android-public-key",
       [
         "@hot-updater/expo",
         {
