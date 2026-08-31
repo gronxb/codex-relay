@@ -35,7 +35,7 @@ pnpm hot-updater deploy -p ios -t <ios-app-version>
 6. Report the deployment result:
 
 - Success requires build complete, storage upload complete, database update complete, and `Deployment Successful (...)`.
-- Include the deployment id from the success line.
+- Include the Release ID and Bundle ID from the deployment summary.
 - If it fails, report the failing phase and the relevant error output.
 
 ## Notes

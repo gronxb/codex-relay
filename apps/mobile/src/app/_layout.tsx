@@ -87,7 +87,7 @@ async function checkForLaunchUpdate() {
       `Default channel: ${HotUpdater.getDefaultChannel()}`,
       `Cohort: ${HotUpdater.getCohort()}`,
       `Bundle: ${HotUpdater.getBundleId()}`,
-      `Min bundle: ${HotUpdater.getMinBundleId()}`,
+      `Minimum release: ${HotUpdater.getMinimumReleaseId()}`,
     ].join("\n"),
   );
 

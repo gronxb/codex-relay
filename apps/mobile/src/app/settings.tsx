@@ -966,7 +966,7 @@ function settingsErrorMessage(error: unknown) {
 function appliedHotUpdateBundleSuffix() {
   try {
     const bundleId = HotUpdater.getBundleId();
-    if (!bundleId || bundleId === HotUpdater.getMinBundleId()) {
+    if (!bundleId || bundleId === HotUpdater.getMinimumReleaseId()) {
       return undefined;
     }
     return bundleId.slice(-8);

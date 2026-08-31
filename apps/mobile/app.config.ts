@@ -86,7 +86,14 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       "expo-notifications",
       "expo-system-ui",
       "expo-web-browser",
-      "@hot-updater/react-native",
+      // Expo mods execute in reverse registration order, so this post-processes Hot Updater.
+      "./plugins/with-hot-updater-android-public-key",
+      [
+        "@hot-updater/expo",
+        {
+          channel: "production",
+        },
+      ],
       "react-native-enriched-markdown",
       [
         "expo-secure-store",
