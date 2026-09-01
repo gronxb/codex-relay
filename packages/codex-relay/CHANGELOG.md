@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.4.14
+
+### Patch Changes
+
+- 72af772: Keep started assistant messages in a streaming state, create missing messages before forwarding app-server deltas, and preserve whitespace-only deltas such as line breaks.
+
 ## 1.4.13
 
 ### Patch Changes
