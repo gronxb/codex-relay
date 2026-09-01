@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.10
+
+### Patch Changes
+
+- 72af772: Deliver iOS LAN stream callbacks progressively on the main queue, and preserve trailing Markdown whitespace and code-block newlines while assistant messages stream.
+
 ## 1.4.0-ship.9
 
 ### Patch Changes
