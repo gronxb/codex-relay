@@ -58,12 +58,12 @@ describe("mobile stream contract", () => {
       })),
       startTurn: vi.fn<() => Promise<unknown>>(async () => {
         queueMicrotask(() => {
-          for (const handler of notificationHandlers) {
-            handler({
+          const notifications = [
+            {
               method: "thread/status/changed",
               params: { status: { type: "active" }, threadId: "app-thread-mobile-contract" },
-            });
-            handler({
+            },
+            {
               method: "turn/started",
               params: {
                 threadId: "app-thread-mobile-contract",
@@ -74,37 +74,59 @@ describe("mobile stream contract", () => {
                   completedAt: null,
                 },
               },
-            });
-            handler({
+            },
+            {
               method: "item/started",
               params: {
                 item: { id: "assistant-mobile-contract", text: "", type: "agentMessage" },
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
-            });
-            handler({
+            },
+            {
               method: "item/agentMessage/delta",
               params: {
-                delta: "hi",
+                delta: "first",
                 itemId: "assistant-mobile-contract",
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
-            });
-            handler({
-              method: "item/completed",
+            },
+            {
+              method: "item/agentMessage/delta",
               params: {
-                item: { id: "assistant-mobile-contract", text: "hi", type: "agentMessage" },
+                delta: "\n",
+                itemId: "assistant-mobile-contract",
                 threadId: "app-thread-mobile-contract",
                 turnId: "turn-mobile-contract",
               },
-            });
-            handler({
+            },
+            {
+              method: "item/agentMessage/delta",
+              params: {
+                delta: "second",
+                itemId: "assistant-mobile-contract",
+                threadId: "app-thread-mobile-contract",
+                turnId: "turn-mobile-contract",
+              },
+            },
+            {
+              method: "item/completed",
+              params: {
+                item: {
+                  id: "assistant-mobile-contract",
+                  text: "first\nsecond",
+                  type: "agentMessage",
+                },
+                threadId: "app-thread-mobile-contract",
+                turnId: "turn-mobile-contract",
+              },
+            },
+            {
               method: "thread/status/changed",
               params: { status: { type: "idle" }, threadId: "app-thread-mobile-contract" },
-            });
-            handler({
+            },
+            {
               method: "turn/completed",
               params: {
                 threadId: "app-thread-mobile-contract",
@@ -118,7 +140,12 @@ describe("mobile stream contract", () => {
                   durationMs: 1,
                 },
               },
-            });
+            },
+          ];
+          for (const notification of notifications) {
+            for (const handler of notificationHandlers) {
+              handler(notification);
+            }
           }
         });
         return {
@@ -156,6 +183,24 @@ describe("mobile stream contract", () => {
 
     const consumed = consumeAsMobileChatStream(body, "app-thread-mobile-contract");
     expect(consumed.errors).toEqual([]);
+    const assistantCreatedIndex = consumed.events.findIndex(
+      (event) =>
+        event.type === "thread.message.created" && event.message.id === "assistant-mobile-contract",
+    );
+    const assistantDeltaIndex = consumed.events.findIndex(
+      (event) =>
+        event.type === "thread.message.delta" && event.messageId === "assistant-mobile-contract",
+    );
+    expect(assistantCreatedIndex).toBeGreaterThan(-1);
+    expect(assistantCreatedIndex).toBeLessThan(assistantDeltaIndex);
+    expect(consumed.events[assistantCreatedIndex]).toMatchObject({
+      message: { state: "streaming" },
+    });
+    expect(
+      consumed.events
+        .filter((event) => event.type === "thread.message.delta")
+        .map((event) => event.delta),
+    ).toEqual(["first", "\n", "second"]);
     expect(consumed.eventTypes).toContain("thread.message.delta");
     expect(consumed.terminalThreadIds).toContain("app-thread-mobile-contract");
 
@@ -163,7 +208,7 @@ describe("mobile stream contract", () => {
     expect(chatStore$.threadsById["app-thread-mobile-contract"].state.peek()).toBe("completed");
     expect(messages.map((message) => [message.role, message.content])).toEqual([
       ["user", "Reply with hi"],
-      ["assistant", "hi"],
+      ["assistant", "first\nsecond"],
     ]);
     expect(messages.find((message) => message.role === "assistant")?.state).toBe("completed");
   });
@@ -596,10 +641,12 @@ function consumeTerminalSequenceAsMobileChatScreen(events: StreamThreadRunEvent[
 
 function consumeAsMobileChatStream(body: string, threadId: string) {
   const errors: Error[] = [];
+  const events: StreamThreadRunEvent[] = [];
   const eventTypes: string[] = [];
   const terminalThreadIds: string[] = [];
   const dispatcher = createThreadRunSseDispatcher({
     onEvent(event) {
+      events.push(event);
       eventTypes.push(event.type);
       handleThreadRunStreamEvent(event, {
         fallbackThreadId: threadId,
@@ -626,5 +673,5 @@ function consumeAsMobileChatStream(body: string, threadId: string) {
   }
   dispatcher.flush();
 
-  return { errors, eventTypes, terminalThreadIds };
+  return { errors, events, eventTypes, terminalThreadIds };
 }

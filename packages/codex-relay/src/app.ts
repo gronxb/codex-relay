@@ -4032,7 +4032,7 @@ async function streamRunningAppServerThread(input: {
             if (!item || typeof item !== "object") {
               return;
             }
-            const message = upsertAppServerItemMessage(
+            let message = upsertAppServerItemMessage(
               input.messagesByThreadId,
               input.threadId,
               firstString(params, ["turnId"]) ?? activeTurnId,
@@ -4040,6 +4040,11 @@ async function streamRunningAppServerThread(input: {
             );
             if (!message) {
               return;
+            }
+            if (notification.method === "item/started") {
+              message = updateMessage(input.messagesByThreadId, input.threadId, message.id, {
+                state: "streaming",
+              });
             }
             const isAsyncAgentMessage = isAsyncAppServerAgentMessage(item as AppServerThreadItem);
             if (isAsyncAgentMessage) {
@@ -4070,16 +4075,32 @@ async function streamRunningAppServerThread(input: {
           case "item/agentMessage/delta": {
             observedTurnActivity = true;
             const itemId = firstString(params, ["itemId"]);
-            const delta = firstString(params, ["delta"]);
+            const delta = streamDelta(params);
             if (!itemId || !delta) {
               return;
             }
             if (!input.messagesByThreadId.get(input.threadId)?.some((item) => item.id === itemId)) {
-              appendMessageWithId(input.messagesByThreadId, input.threadId, itemId, {
-                role: "assistant",
-                content: "",
-                state: "streaming",
-                turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+              const createdMessage = appendMessageWithId(
+                input.messagesByThreadId,
+                input.threadId,
+                itemId,
+                {
+                  role: "assistant",
+                  content: "",
+                  state: "streaming",
+                  turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+                },
+              );
+              threadSummary = updateThread(
+                input.threads,
+                input.messagesByThreadId,
+                input.threadId,
+                { state: "running" },
+              );
+              sendSse(input.controller, input.encoder, input.secureSession, {
+                type: "thread.message.created",
+                thread: threadSummary,
+                message: createdMessage,
               });
             }
             const isAsyncAgentMessage = asyncAgentMessageIds.has(itemId);
@@ -4786,7 +4807,7 @@ async function runAppServerPromptStreamed(input: {
               return;
             }
             const turnId = firstString(params, ["turnId"]) ?? activeTurnId;
-            const message = upsertAppServerItemMessage(
+            let message = upsertAppServerItemMessage(
               input.messagesByThreadId,
               activeThreadId,
               turnId,
@@ -4794,6 +4815,11 @@ async function runAppServerPromptStreamed(input: {
             );
             if (!message) {
               return;
+            }
+            if (notification.method === "item/started") {
+              message = updateMessage(input.messagesByThreadId, activeThreadId, message.id, {
+                state: "streaming",
+              });
             }
             const isAsyncAgentMessage = isAsyncAppServerAgentMessage(item as AppServerThreadItem);
             if (isAsyncAgentMessage) {
@@ -4823,16 +4849,32 @@ async function runAppServerPromptStreamed(input: {
           }
           case "item/agentMessage/delta": {
             const itemId = firstString(params, ["itemId"]);
-            const delta = firstString(params, ["delta"]);
+            const delta = streamDelta(params);
             if (!itemId || !delta) {
               return;
             }
             if (!input.messagesByThreadId.get(activeThreadId)?.some((item) => item.id === itemId)) {
-              appendMessageWithId(input.messagesByThreadId, activeThreadId, itemId, {
-                role: "assistant",
-                content: "",
-                state: "streaming",
-                turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+              const createdMessage = appendMessageWithId(
+                input.messagesByThreadId,
+                activeThreadId,
+                itemId,
+                {
+                  role: "assistant",
+                  content: "",
+                  state: "streaming",
+                  turnId: firstString(params, ["turnId"]) ?? activeTurnId,
+                },
+              );
+              threadSummary = updateThread(
+                input.threads,
+                input.messagesByThreadId,
+                activeThreadId,
+                { state: "running" },
+              );
+              sendSse(input.controller, input.encoder, input.secureSession, {
+                type: "thread.message.created",
+                thread: threadSummary,
+                message: createdMessage,
               });
             }
             const isAsyncAgentMessage = asyncAgentMessageIds.has(itemId);
@@ -8802,6 +8844,11 @@ function firstString(record: Record<string, unknown> | undefined, keys: string[]
     }
   }
   return undefined;
+}
+
+function streamDelta(record: Record<string, unknown> | undefined) {
+  const value = record?.delta;
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function firstNumber(record: Record<string, unknown> | undefined, keys: string[]) {
