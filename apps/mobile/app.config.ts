@@ -1,4 +1,10 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+import { config } from "dotenv";
+
+config({ path: ".env.hotupdater", quiet: true });
+
+const hotUpdaterApiKey =
+  process.env.EXPO_PUBLIC_HOT_UPDATER_API_KEY?.trim() || process.env.HOT_UPDATER_API_KEY?.trim();
 
 export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
@@ -86,7 +92,13 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       "expo-notifications",
       "expo-system-ui",
       "expo-web-browser",
-      "@hot-updater/react-native",
+      [
+        "@hot-updater/expo",
+        {
+          channel: "production",
+          publicKeyPath: "./keys/public-key.pem",
+        },
+      ],
       "react-native-enriched-markdown",
       [
         "expo-secure-store",
@@ -111,6 +123,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       reactCompiler: true,
     },
     extra: {
+      hotUpdaterApiKey,
       router: {},
       eas: {
         projectId: "6659e28f-2ac7-4055-8f56-7b4ca5e65847",

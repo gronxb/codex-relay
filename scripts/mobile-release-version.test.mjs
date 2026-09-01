@@ -117,3 +117,14 @@ test("waits for the relay package release before preparing the mobile OTA", () =
     /if \(process\.env\.MOBILE_RELEASE_VERSION && !process\.env\.RELAY_RELEASE_VERSION\)/,
   );
 });
+
+test("checks v1 infrastructure and Release state around an OTA deploy", () => {
+  const releaseWorkflow = readFileSync(
+    new URL("../.github/workflows/release.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(releaseWorkflow, /hot-updater doctor --server-base-url/);
+  assert.match(releaseWorkflow, /hot-updater release list -p ios --limit 5 --json/);
+  assert.doesNotMatch(releaseWorkflow, /hot-updater bundle list -p ios/);
+});

@@ -14,4 +14,5 @@ expo-env.d.ts
 .hot-updater/output
 .hot-updater/log
 # hot-updater
-keys/
+/keys/*
+!/keys/public-key.pem
