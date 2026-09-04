@@ -43,6 +43,8 @@
   },
   "devDependencies": {
     "nitrogen": "0.35.6",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
     "react-native-builder-bob": "^0.40.18",
     "react-native-nitro-modules": "^0.35.5",
     "typescript": "^5.8.3"
