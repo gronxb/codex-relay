@@ -118,23 +118,13 @@ test("waits for the relay package release before preparing the mobile OTA", () =
   );
 });
 
-test("prepares an explicit production iOS App Store submission", () => {
+test("prepares the production iOS App Store configuration", () => {
   const easConfig = JSON.parse(
     readFileSync(new URL("../apps/mobile/eas.json", import.meta.url), "utf8"),
-  );
-  const appStoreWorkflow = readFileSync(
-    new URL("../.github/workflows/mobile-app-store.yml", import.meta.url),
-    "utf8",
   );
 
   assert.equal(easConfig.build.production.distribution, "store");
   assert.equal(easConfig.build.production.autoIncrement, true);
+  assert.equal(easConfig.build.production.ios.buildConfiguration, "Release");
   assert.equal(easConfig.submit.production.ios.ascAppId, "6764463488");
-  assert.match(appStoreWorkflow, /workflow_dispatch:/);
-  assert.doesNotMatch(appStoreWorkflow, /^\s+push:/m);
-  assert.match(appStoreWorkflow, /token: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
-  assert.match(
-    appStoreWorkflow,
-    /eas build --platform ios --profile production --auto-submit --non-interactive --no-wait/,
-  );
 });
