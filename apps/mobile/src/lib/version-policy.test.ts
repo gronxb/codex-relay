@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import relayPackage from "codex-relay/package.json";
 
 import {
   evaluateRelayVersion,
@@ -16,25 +15,10 @@ function relayVersion(packageVersion: string) {
   };
 }
 
-function previousPatchVersion(version: string) {
-  const [major, minor, patch] = version.split(".").map(Number);
-  return `${major}.${minor}.${patch - 1}`;
-}
-
-function nextPatchVersion(version: string) {
-  const [major, minor, patch] = version.split(".").map(Number);
-  return `${major}.${minor}.${patch + 1}`;
-}
-
-function nextMajorVersion(version: string) {
-  const [major] = version.split(".").map(Number);
-  return `${major + 1}.0.0`;
-}
-
 describe("relay version policy", () => {
-  it("reports an older relay for the sidebar using the bundled relay package version", () => {
-    const requiredVersion = relayPackage.version;
-    const olderVersion = previousPatchVersion(requiredVersion);
+  it("warns when the connected relay is below the 1.5.0 minimum", () => {
+    const requiredVersion = "1.5.0";
+    const olderVersion = "1.4.14";
 
     expect(relayCompatibilityPolicy.packageVersion).toBe(requiredVersion);
     expect(relayUpdateCommand).toBe("npx codex-relay@latest");
@@ -46,24 +30,17 @@ describe("relay version policy", () => {
   });
 
   it("accepts the required release and newer same-major releases", () => {
-    const newerVersion = nextPatchVersion(relayPackage.version);
-
-    expect(evaluateRelayVersion(relayVersion(relayPackage.version), undefined)).toMatchObject({
-      compatible: true,
-      current: relayPackage.version,
-    });
-    expect(evaluateRelayVersion(relayVersion(newerVersion), undefined)).toMatchObject({
-      compatible: true,
-      current: newerVersion,
-    });
+    for (const packageVersion of ["1.5.0", "1.5.1", "1.6.0"]) {
+      expect(evaluateRelayVersion(relayVersion(packageVersion), undefined)).toMatchObject({
+        compatible: true,
+        current: packageVersion,
+        required: "1.5.0",
+      });
+    }
   });
 
   it("rejects prereleases, unparseable versions, and unsupported major releases", () => {
-    for (const packageVersion of [
-      `${relayPackage.version}-beta.1`,
-      "latest",
-      nextMajorVersion(relayPackage.version),
-    ]) {
+    for (const packageVersion of ["1.5.0-beta.1", "latest", "2.0.0"]) {
       expect(evaluateRelayVersion(relayVersion(packageVersion), undefined)).toMatchObject({
         compatible: false,
         current: packageVersion,
@@ -75,7 +52,7 @@ describe("relay version policy", () => {
     expect(evaluateRelayVersion(undefined, new Error("offline"))).toMatchObject({
       compatible: false,
       current: "Unavailable",
-      required: relayPackage.version,
+      required: "1.5.0",
     });
   });
 });

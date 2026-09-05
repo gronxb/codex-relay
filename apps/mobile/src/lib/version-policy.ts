@@ -1,9 +1,8 @@
 import type { VersionResponse } from "codex-relay/api-schema";
-import relayPackage from "codex-relay/package.json";
 
 // Kept in the OTA-delivered JS bundle so compatibility can move with app updates.
 export const relayCompatibilityPolicy = {
-  packageVersion: relayPackage.version,
+  packageVersion: "1.5.0",
 } as const;
 export const relayUpdateCommand = "npx codex-relay@latest";
 
