@@ -11,8 +11,8 @@ import { Fonts } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
 const MARKDOWN_SELECTION_MENU_CONFIG = {
-  copyAsMarkdown: true,
-  copyImageUrl: true,
+  copyAsMarkdown: { enabled: true },
+  copyImageUrl: { enabled: true },
 } satisfies TextSelectionMenuConfig;
 
 export function WorkspaceMarkdownPreview({ markdown }: { markdown: string }) {

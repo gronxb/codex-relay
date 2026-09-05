@@ -117,3 +117,14 @@ test("waits for the relay package release before preparing the mobile OTA", () =
     /if \(process\.env\.MOBILE_RELEASE_VERSION && !process\.env\.RELAY_RELEASE_VERSION\)/,
   );
 });
+
+test("prepares the production iOS App Store configuration", () => {
+  const easConfig = JSON.parse(
+    readFileSync(new URL("../apps/mobile/eas.json", import.meta.url), "utf8"),
+  );
+
+  assert.equal(easConfig.build.production.distribution, "store");
+  assert.equal(easConfig.build.production.autoIncrement, true);
+  assert.equal(easConfig.build.production.ios.buildConfiguration, "Release");
+  assert.equal(easConfig.submit.production.ios.ascAppId, "6764463488");
+});

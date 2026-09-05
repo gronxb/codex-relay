@@ -4,7 +4,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.4.0",
+    version: "1.5.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
@@ -12,6 +12,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      deploymentTarget: "16.4",
       supportsTablet: true,
       infoPlist: {
         NSAppTransportSecurity: {
@@ -87,7 +88,6 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       "expo-system-ui",
       "expo-web-browser",
       "@hot-updater/react-native",
-      "react-native-enriched-markdown",
       [
         "expo-secure-store",
         {
@@ -97,9 +97,6 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       [
         "expo-build-properties",
         {
-          ios: {
-            deploymentTarget: "16.4",
-          },
           android: {
             usesCleartextTraffic: true,
           },
