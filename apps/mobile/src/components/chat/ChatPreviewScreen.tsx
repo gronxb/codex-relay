@@ -51,7 +51,7 @@ export function ChatPreviewScreen() {
   const [runtimeMode, setRuntimeMode] = useState<RuntimeMode>("default");
   const [collaborationMode, setCollaborationMode] = useState<ThreadCollaborationMode>("default");
   const composerFocusRequestKey = 0;
-  const [selectedModel, setSelectedModel] = useState("gpt-6-astra");
+  const [selectedModel, setSelectedModel] = useState("gpt-5.6-sol");
   const [selectedReasoningEffort, setSelectedReasoningEffort] = useState<
     ReasoningEffort | undefined
   >("medium");

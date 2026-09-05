@@ -1,6 +1,5 @@
 ---
 "codex-relay": minor
-"@codex-relay/mobile": patch
 ---
 
-Add GPT-6 Astra support, upgrade the mobile app to Expo SDK 57, and prepare the iOS 1.5.0 App Store release.
+Upgrade the bundled Codex CLI and SDK to 0.153.2 for the codex-relay 1.5.0 release.
