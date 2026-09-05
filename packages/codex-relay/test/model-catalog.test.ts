@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
 import { CodexAppServerClient } from "../src/app-server.js";
 import type { CodexClient } from "../src/codex.js";
+import { normalizeRuntimePreferencesForModels } from "../../../apps/mobile/src/components/chat/model-picker-options.js";
 
 const unusedCodex: CodexClient = {
   resumeThread() {
@@ -56,6 +57,7 @@ describe("model catalog", () => {
     expect(body.models).toHaveLength(4);
     expect(body.models[0]).toMatchObject({
       model: "gpt-6-astra",
+      isDefault: true,
       defaultReasoningEffort: "medium",
       supportedReasoningEfforts: ["low", "medium", "high", "xhigh", "max"],
       reasoningEffortOptions: [
@@ -68,6 +70,7 @@ describe("model catalog", () => {
     });
     expect(body.models[1]).toMatchObject({
       model: "gpt-5.6-sol",
+      isDefault: false,
       defaultReasoningEffort: "low",
       supportedReasoningEfforts: ["low", "medium", "high", "xhigh", "max", "ultra"],
       reasoningEffortOptions: [
@@ -86,6 +89,55 @@ describe("model catalog", () => {
         { reasoningEffort: "future", description: "future description" },
       ]),
     });
+    expect(
+      normalizeRuntimePreferencesForModels(body.models, { runtimeMode: "default" }),
+    ).toMatchObject({
+      model: "gpt-6-astra",
+      reasoningEffort: "medium",
+    });
+    expect(
+      normalizeRuntimePreferencesForModels(body.models, {
+        runtimeMode: "default",
+        model: "gpt-5.6-sol",
+        reasoningEffort: "high",
+      }),
+    ).toMatchObject({ model: "gpt-5.6-sol", reasoningEffort: "high" });
+  });
+
+  it("keeps the host default when Astra is unavailable", async () => {
+    const appServer = new CodexAppServerClient();
+    vi.spyOn(appServer, "listModels").mockResolvedValue([
+      model({
+        id: "gpt-5.6-sol",
+        displayName: "GPT-5.6-Sol",
+        defaultReasoningEffort: "low",
+        efforts: ["low", "medium"],
+      }),
+    ]);
+    const app = createApp({
+      appServer,
+      codex: unusedCodex,
+      workspacePath: "/tmp/codex-relay-model-catalog",
+    });
+    const body = await (await app.request("/v1/models")).json();
+    expect(body.models).toHaveLength(1);
+    expect(body.models[0]).toMatchObject({ model: "gpt-5.6-sol", isDefault: true });
+  });
+
+  it("uses Astra when the host catalog cannot be loaded", async () => {
+    const appServer = new CodexAppServerClient();
+    vi.spyOn(appServer, "listModels").mockRejectedValue(new Error("offline"));
+    const app = createApp({
+      appServer,
+      codex: unusedCodex,
+      workspacePath: "/tmp/codex-relay-model-catalog",
+    });
+    const body = await (await app.request("/v1/models")).json();
+    expect(body.models[0]).toMatchObject({
+      model: "gpt-6-astra",
+      displayName: "GPT-6 Astra",
+      isDefault: true,
+    });
   });
 });
 
@@ -103,6 +155,7 @@ function model({
   return {
     id,
     model: id,
+    isDefault: id === "gpt-5.6-sol",
     displayName,
     description: `${displayName} description`,
     defaultReasoningEffort,

@@ -4129,7 +4129,7 @@ describe("Codex Relay server routes", () => {
           mode: "plan",
           settings: {
             developer_instructions: null,
-            model: "gpt-5.5",
+            model: "gpt-6-astra",
             reasoning_effort: null,
           },
         },
@@ -4203,7 +4203,7 @@ describe("Codex Relay server routes", () => {
           mode: "default",
           settings: {
             developer_instructions: null,
-            model: "gpt-5.5",
+            model: "gpt-6-astra",
             reasoning_effort: null,
           },
         },

@@ -7,6 +7,7 @@ export const previewModels: CodexModel[] = [
     displayName: "GPT-6 Astra",
     efforts: ["low", "medium", "high", "xhigh", "max"],
     id: "gpt-6-astra",
+    isDefault: true,
   }),
   previewModel({
     defaultReasoningEffort: "low",
@@ -35,7 +36,6 @@ export const previewModels: CodexModel[] = [
     displayName: "GPT-5.5",
     efforts: ["low", "medium", "high", "xhigh"],
     id: "gpt-5.5",
-    isDefault: true,
   }),
 ];
 
