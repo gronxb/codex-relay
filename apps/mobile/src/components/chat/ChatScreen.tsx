@@ -33,6 +33,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   AppState,
   Keyboard,
@@ -184,14 +185,14 @@ const MIN_CHAT_PANE_WIDTH = 420;
 const MIN_PREVIEW_PANE_WIDTH = 360;
 const EMPTY_SKILLS: AgentSkill[] = [];
 const EMPTY_THREADS: ThreadSummary[] = [];
-let isHandlingPairingLink = false;
-let lastHandledPairingUrl: string | undefined;
 
 type ChatScreenProps = {
   initialPairingUrl?: string | null;
 };
 
 export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
+  const isHandlingPairingLink = useRef(false);
+  const lastHandledPairingUrl = useRef<string | undefined>(undefined);
   const { width } = useWindowDimensions();
   const { isSidebarVisible, toggleSidebar } = useIpadSplitLayout();
   const [pasteApprovalCode, setPasteApprovalCode] = useState<string | undefined>(undefined);
@@ -1276,14 +1277,15 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       const pairingUrl = url?.trim();
       if (
         !pairingUrl?.startsWith("codex-relay://pair") ||
-        pairingUrl === lastHandledPairingUrl ||
-        isHandlingPairingLink
+        (pairingUrl === lastHandledPairingUrl.current && hasCodexRelaySession()) ||
+        isHandlingPairingLink.current
       ) {
         return;
       }
 
-      isHandlingPairingLink = true;
+      isHandlingPairingLink.current = true;
       setPastePairing(true);
+      setPastePairOpen(true);
       setPasteApprovalCode(undefined);
       setPasteApprovalServerUrl(undefined);
       try {
@@ -1298,15 +1300,19 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         clearServerState(queryClient);
         syncPairedSessionState();
         setPastePairOpen(false);
-        lastHandledPairingUrl = pairingUrl;
+        lastHandledPairingUrl.current = pairingUrl;
         setPasteApprovalCode(undefined);
         setPasteApprovalServerUrl(undefined);
         hapticSuccess();
         await refresh();
-      } catch {
-        Alert.alert("Pairing failed", pairingFailureAlertMessage);
+      } catch (caught) {
+        setPastePairOpen(false);
+        Alert.alert(
+          "Pairing failed",
+          caught instanceof Error ? caught.message : pairingFailureAlertMessage,
+        );
       } finally {
-        isHandlingPairingLink = false;
+        isHandlingPairingLink.current = false;
         setPastePairing(false);
       }
     },
@@ -1314,21 +1320,11 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   );
 
   useEffect(() => {
-    let isMounted = true;
+    // Expo Router delivers deep links to /pair. The background chat screen must
+    // not race that route for an approval code that only its hidden UI can show.
     if (initialPairingUrl) {
       void handlePairingLink(initialPairingUrl);
     }
-    void Linking.getInitialURL().then((url) => {
-      if (isMounted) {
-        void handlePairingLink(url);
-      }
-    });
-    const unsubscribe = subscribeToPairingLinks(handlePairingLink);
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
   }, [handlePairingLink, initialPairingUrl]);
 
   const closeScannerSurface = useCallback(async () => {
@@ -2441,10 +2437,13 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
               </Pressable>
             </View>
             <View style={styles.manualFields}>
+              {isPairing && !pasteApprovalCode ? (
+                <ActivityIndicator accessibilityLabel="Connecting to your computer" />
+              ) : null}
               <ThemedText type="small" themeColor="textSecondary">
                 {pasteApprovalCode
-                  ? "Finish pairing from the Terminal window where codex-relay is running."
-                  : "QR recognized. Connecting to the relay..."}
+                  ? "If the relay is running interactively, switch to that terminal, check that this code matches, then type y and press Enter at the approval prompt."
+                  : "Finding your computer on LAN or Tailscale..."}
               </ThemedText>
               {pasteApprovalCode ? (
                 <View style={styles.manualApproval}>
@@ -2453,7 +2452,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
                     {pasteApprovalCode}
                   </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Run this on your computer:
+                    Alternatively, copy this command and run it in a new terminal on your computer:
                   </ThemedText>
                   <CopyableCommand
                     command={approvalCommand(pasteApprovalCode, pasteApprovalServerUrl)}
@@ -2740,13 +2739,6 @@ function agentSkillsFromPromptSkills(skills: ApiPromptSkill[], availableSkills: 
   });
 }
 
-function subscribeToPairingLinks(onUrl: (url: string) => void) {
-  const urlListener = Linking.addEventListener("url", (event) => {
-    onUrl(event.url);
-  });
-  return () => urlListener.remove();
-}
-
 function mergeAgentSkills(currentSkills: AgentSkill[], nextSkills: AgentSkill[]) {
   const seen = new Set(currentSkills.map(agentSkillKey));
   const merged = [...currentSkills];
@@ -2847,7 +2839,7 @@ function delay(ms: number) {
 }
 
 function approvalMessage(approvalCode: string, serverUrl?: string) {
-  return `Run ${approvalCommand(approvalCode, serverUrl)} in the server terminal.`;
+  return `Check code ${approvalCode} in the running relay terminal and type y then Enter when prompted. Alternatively, run ${approvalCommand(approvalCode, serverUrl)} in a new terminal on your computer.`;
 }
 
 function readScannedPayload(result: unknown) {
