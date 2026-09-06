@@ -182,7 +182,22 @@ serve(
       }),
     );
   },
-);
+).on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code !== "EADDRINUSE") {
+    throw error;
+  }
+
+  console.error(`Codex Relay could not start: ${hostname}:${port} is already in use.`);
+  console.error("Another Codex Relay instance or another application may be listening there.");
+  console.error("If it is your existing relay, print its pairing QR with:");
+  console.error(`  ${npxCommand} qr`);
+  console.error("To stop a background relay using this data directory:");
+  console.error(`  ${npxCommand} stop`);
+  console.error("Otherwise, identify the listener before stopping it:");
+  console.error(`  lsof -nP -iTCP:${port} -sTCP:LISTEN`);
+  console.error("To run a separate relay, use a free PORT and a separate CODEX_RELAY_HOME.");
+  stopRelayAppServer(1);
+});
 
 function stopRelayAppServer(exitCode: number) {
   relayAppServer?.close();
