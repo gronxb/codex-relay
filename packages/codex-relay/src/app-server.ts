@@ -319,31 +319,35 @@ export class CodexAppServerClient {
     return this.ensureInitialized();
   }
 
-  async listThreads(limit = 80) {
-    const threads: AppServerThread[] = [];
-    const seenCursors = new Set<string>();
-    let cursor: string | undefined;
-    do {
-      const response = await this.request<{
-        data: AppServerThread[];
-        nextCursor?: string | null;
-      }>("thread/list", {
-        archived: false,
-        limit,
-        sortDirection: "desc",
-        sortKey: "recency_at",
-        sourceKinds: ["cli", "vscode", "exec", "appServer"],
-        ...(cursor ? { cursor, useStateDbOnly: true } : {}),
-      });
-      threads.push(...response.data);
-      const nextCursor = response.nextCursor ?? undefined;
-      if (!nextCursor || seenCursors.has(nextCursor)) {
-        break;
-      }
-      seenCursors.add(nextCursor);
-      cursor = nextCursor;
-    } while (cursor);
-    return threads;
+  async listThreads(limit = Number(process.env.CODEX_RELAY_THREAD_LIST_LIMIT ?? 20)) {
+    if (!Number.isSafeInteger(limit) || limit < 1) {
+      throw new Error("CODEX_RELAY_THREAD_LIST_LIMIT must be a positive integer.");
+    }
+    const startedAt = Date.now();
+    const params = {
+      archived: false,
+      limit,
+      sortDirection: "desc",
+      sortKey: "recency_at",
+      sourceKinds: ["cli", "vscode", "exec", "appServer"],
+    };
+    // Rescanning legacy rollouts on every refresh can exceed the mobile timeout.
+    // Modern Codex sessions are indexed as they are written.
+    let response = await this.request<{ data: AppServerThread[] }>("thread/list", {
+      ...params,
+      useStateDbOnly: true,
+    });
+    if (response.data.length === 0) {
+      // Let Codex discover older history when there is no indexed history yet.
+      response = await this.request<{ data: AppServerThread[] }>("thread/list", params);
+    }
+    relayDebugLog("thread.list.completed", {
+      durationMs: Date.now() - startedAt,
+      limit,
+      count: response.data.length,
+    });
+    // A limit is a total bound, not a page size followed by an unbounded scan.
+    return response.data.slice(0, limit);
   }
 
   async readThread(threadId: string, options: { includeTurns?: boolean } = {}) {
