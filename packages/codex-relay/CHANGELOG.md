@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.5.1
+
+### Patch Changes
+
+- 7a18692: Report an occupied server port with recovery instructions instead of an unhandled Node error.
+
 ## 1.5.0
 
 ### Minor Changes
