@@ -20,7 +20,12 @@ npx codex-relay@latest
 
 The CLI prints a QR code, a mobile URL, and a `codex-relay://pair...` pairing payload. Scan the QR code from the mobile app. If the relay detects multiple possible network addresses, the QR includes them and the app automatically uses the first address it can reach. If scanning is not available, paste the full pairing payload into the app.
 
-When the app shows an approval code, approve it on the computer:
+When the app shows an approval code, the interactive relay terminal shows the
+same code and asks `Approve? [y/N]`. Check that the codes match, then type `y`
+and press Enter in that terminal. Other input leaves the request unapproved.
+No second terminal is needed.
+
+For background relays or non-interactive output, use the approval command:
 
 ```sh
 npx codex-relay@latest approve XXXX-XXXX

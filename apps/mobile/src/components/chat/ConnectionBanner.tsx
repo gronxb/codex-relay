@@ -130,7 +130,7 @@ export function ConnectionBanner({
               icon="check"
               label="3"
               title="Scan and approve"
-              body="Scan the QR shown in Terminal. When a code appears, approve it on your computer."
+              body="Scan the QR shown in Terminal. Approve in the running relay terminal when prompted, or use the command shown on your phone in a new terminal."
             />
           </View>
           <View style={styles.pairActions}>

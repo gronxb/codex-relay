@@ -1,5 +1,8 @@
 import "react-native-get-random-values";
 
+import { errorMessage } from "./api-error-message";
+import { firstReachablePairingUrl } from "./pairing-reachability";
+
 import {
   ArchiveThreadResponseSchema,
   CheckoutWorkspaceBranchRequestSchema,
@@ -225,7 +228,26 @@ export async function pairWithQrPayload(
   const pairingPayload = parsePairingQrPayload(payload);
   const connectionErrors: PairingCandidateConnectionError[] = [];
 
-  for (const serverUrl of pairingPayload.serverUrls) {
+  const reachableUrl = await firstReachablePairingUrl(
+    pairingPayload.serverUrls,
+    async (serverUrl) => {
+      const response = await fetchWithNetworkContext(`${serverUrl}${apiPaths.version}`, {
+        timeoutMs: pairingConnectTimeoutMs,
+      });
+      if (!response.ok || !VersionResponseSchema.safeParse(await response.json()).success) {
+        throw new Error(`No Codex Relay found at ${serverUrl}.`);
+      }
+    },
+  ).catch(() => {
+    throw new Error(
+      "Could not reach your computer. Check that the relay is running and both devices are on the same LAN or connected to Tailscale.",
+    );
+  });
+  const serverUrls = [
+    reachableUrl,
+    ...pairingPayload.serverUrls.filter((url) => url !== reachableUrl),
+  ];
+  for (const serverUrl of serverUrls) {
     try {
       const paired = await pairWithApproval(serverUrl, pairingPayload.serverPublicKey, handlers);
       saveCodexRelayServerUrlCandidates([paired.serverUrl, ...pairingPayload.serverUrls]);
@@ -1322,17 +1344,6 @@ function authorizationHeader() {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function errorMessage(payload: unknown, fallback: string) {
-  return payload &&
-    typeof payload === "object" &&
-    "error" in payload &&
-    payload.error &&
-    typeof payload.error === "object" &&
-    "message" in payload.error
-    ? String(payload.error.message)
-    : fallback;
 }
 
 function errorCode(payload: unknown) {
