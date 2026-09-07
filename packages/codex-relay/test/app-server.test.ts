@@ -196,7 +196,7 @@ describe("CodexAppServerClient shared socket mode", () => {
     }
   });
 
-  it("lists every root thread page without rescanning rollout files after the first page", async () => {
+  it("bounds the recent thread list and never follows older history cursors", async () => {
     const codexHome = await mkdtemp(join(socketTempRoot, "codex-relay-app-server-pages-"));
     const socketPath = join(codexHome, "app-server-control", "app-server-control.sock");
     const server = await startSharedSocketServer(socketPath, (request) => {
@@ -219,25 +219,65 @@ describe("CodexAppServerClient shared socket mode", () => {
       const threads = await client.listThreads(1);
       const requests = server.requests.filter((request) => request.method === "thread/list");
 
-      expect(threads.map((thread) => thread.id)).toEqual(["thread-newer", "thread-older"]);
-      expect(requests).toHaveLength(2);
+      expect(threads.map((thread) => thread.id)).toEqual(["thread-newer"]);
+      expect(requests).toHaveLength(1);
       expect(requests[0]?.params).toMatchObject({
         limit: 1,
         sortKey: "recency_at",
         sortDirection: "desc",
         sourceKinds: ["cli", "vscode", "exec", "appServer"],
       });
-      expect(requests[0]?.params).not.toHaveProperty("useStateDbOnly");
-      expect(requests[1]?.params).toMatchObject({
-        cursor: "page-2",
-        useStateDbOnly: true,
-      });
+      expect(requests[0]?.params).toHaveProperty("useStateDbOnly", true);
+      expect(requests[0]?.params).not.toHaveProperty("cursor");
     } finally {
       client.close();
       await server.close();
       await rm(codexHome, { force: true, recursive: true });
     }
   });
+
+  it("discovers history for an empty index and defaults to twenty recent threads", async () => {
+    const codexHome = await mkdtemp(join(socketTempRoot, "codex-relay-empty-index-"));
+    const socketPath = join(codexHome, "app-server-control", "app-server-control.sock");
+    const server = await startSharedSocketServer(socketPath, (request) => {
+      if (request.method !== "thread/list") return {};
+      return request.params?.useStateDbOnly
+        ? { data: [], nextCursor: null }
+        : { data: [{ id: "legacy-thread" }], nextCursor: "older" };
+    });
+    vi.stubEnv("CODEX_HOME", codexHome);
+    vi.stubEnv("CODEX_RELAY_APP_SERVER_MODE", "socket");
+    vi.stubEnv("CODEX_RELAY_THREAD_LIST_LIMIT", "20");
+    const client = new CodexAppServerClient();
+    try {
+      await expect(client.listThreads()).resolves.toEqual([{ id: "legacy-thread" }]);
+      const requests = server.requests.filter((request) => request.method === "thread/list");
+      expect(requests).toHaveLength(2);
+      expect(requests[0]?.params).toMatchObject({ limit: 20, useStateDbOnly: true });
+      expect(requests[1]?.params).toMatchObject({ limit: 20 });
+      expect(requests[1]?.params).not.toHaveProperty("useStateDbOnly");
+      expect(requests[1]?.params).not.toHaveProperty("cursor");
+      vi.stubEnv("CODEX_RELAY_THREAD_LIST_LIMIT", "10");
+      await client.listThreads();
+      expect(
+        server.requests.filter((request) => request.method === "thread/list").at(-1)?.params,
+      ).toHaveProperty("limit", 10);
+    } finally {
+      client.close();
+      await server.close();
+      await rm(codexHome, { force: true, recursive: true });
+    }
+  });
+
+  it.each(["0", "-1", "1.5", "NaN"])(
+    "rejects invalid thread limits before connecting: %s",
+    async (limit) => {
+      vi.stubEnv("CODEX_RELAY_THREAD_LIST_LIMIT", limit);
+      const client = new CodexAppServerClient();
+      await expect(client.listThreads()).rejects.toThrow("positive integer");
+      client.close();
+    },
+  );
 
   it.skipIf(process.platform === "win32")(
     "replaces a stale Unix socket after a slow shared app-server startup",
