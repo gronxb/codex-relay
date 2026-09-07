@@ -7,7 +7,7 @@ allowed-tools: Bash(pnpm:*)
 # Hot Updater QA Ship
 
 Deploy the current iOS OTA bundle to the configured production channel with
-rollout `0`, then attach exactly one target cohort to the newly deployed bundle.
+rollout `0`, then attach exactly one target cohort to the newly created Bundle.
 
 ## Required Input
 
@@ -51,9 +51,9 @@ pnpm hot-updater deploy -p ios -t <ios-app-version> -r 0
    storage upload complete, database update complete, and
    `Deployment Successful (<bundle-id>)`.
 
-6. Extract `<bundle-id>` from the deployment success line.
+6. Extract `<bundle-id>` from the `ID` row in the deployment summary.
 
-7. Attach the target cohort to that exact bundle without prompting:
+7. Attach the target cohort to that exact Bundle without prompting:
 
 ```bash
 pnpm hot-updater bundle update <bundle-id> --target-cohorts "<target-cohort>" -y
@@ -66,25 +66,28 @@ update command:
 pnpm hot-updater bundle update <bundle-id> --target-cohorts "<target-cohort>" -y --json
 ```
 
-8. Verify the bundle metadata:
+8. Verify the Bundle state:
 
 ```bash
 pnpm hot-updater bundle show <bundle-id> --json
 ```
 
-Confirm the resulting bundle is for `ios`, targets the current iOS app version,
-has `rolloutCohortCount` equal to `0`, and has `targetCohorts` equal to an array
-containing exactly the requested target cohort.
+Confirm the resulting Bundle has `id` equal to the deployed Bundle ID, `platform`
+equal to `ios`, `target_app_version` equal to the current iOS app
+version, `rollout_cohort_count` equal to `0`, and `target_cohorts` equal to an
+array containing exactly the requested target cohort.
 
 ## Failure Handling
 
 - If the app version command fails, report the error and do not deploy.
 - If deploy fails, stop immediately. Do not run `bundle update`.
-- If the success line does not contain a bundle id, run
-  `pnpm hot-updater bundle list -p ios --limit 5 --json` and identify the most
-  recent iOS bundle for the current target app version before updating it.
-- If `bundle update` fails, report the deploy bundle id and the update error.
-- If verification fails, report the mismatch and the bundle id.
+- If the deployment summary does not contain a Bundle ID, run
+  `pnpm hot-updater bundle list -p ios --target-app-version <ios-app-version> --limit 5 --json`
+  and identify the newly created Bundle before updating it.
+- If the Bundle ID is unavailable, stop rather than guessing which Bundle was
+  created.
+- If `bundle update` fails, report the Bundle ID and update error.
+- If verification fails, report the mismatch and Bundle ID.
 
 ## Notes
 
