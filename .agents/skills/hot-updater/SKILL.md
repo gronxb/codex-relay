@@ -1,6 +1,6 @@
 ---
 name: hot-updater
-description: Use when working with Hot Updater CLI setup, deployment, bundle inventory, bundle enable/disable, rollback, channels, database migration, diagnostics, or AI-assisted React Native OTA operations.
+description: Use when working with Hot Updater v1 CLI setup, deployment, immutable Bundle inventory, mutable Release policy, rollback, channels, database migration, diagnostics, or AI-assisted React Native OTA operations.
 metadata:
   author: hot-updater
   version: "1.0.0"
@@ -9,8 +9,8 @@ metadata:
 # Hot Updater CLI
 
 Use this skill when a task involves Hot Updater's CLI, `hot-updater.config.ts`,
-React Native OTA deployment, bundle operations, rollback, or release-channel
-management.
+React Native OTA deployment, Bundle artifacts, Release policy, rollback, or
+release-channel management.
 
 ## Operating Rules
 
@@ -23,15 +23,14 @@ management.
 - Before running `npx hot-updater doctor`, make sure the server base URL is
   available. If the user did not provide it and it is not obvious from local
   config, ask for the update server URL first.
-- Treat `deploy`, `bundle enable`, `bundle disable`, `rollback`, and database
-  migration as state-changing operations.
-- Use `--json` only with read-only commands documented here as supporting it;
-  if a target project uses an older CLI without that option, fall back to the
-  human-readable output.
+- Treat `deploy`, Release mutations, `bundle delete`, `storage prune --yes`,
+  and database migration as state-changing operations.
+- Use `--json` only with commands documented here as supporting it. If a target
+  project uses an older CLI without that option, fall back to human-readable
+  output for read-only commands.
 - For non-interactive shells, use `-y` only when the user already requested the
   exact mutation or the target is unambiguous.
-- After mutating bundle state, verify with `bundle list` or the relevant
-  provider state.
+- After mutating Release policy, verify with `release show` or `release list`.
 - If `deploy` fails, stop the deploy workflow. Do not keep retrying fixes,
   edit setup, change credentials, install dependencies, or run migrations
   unless the user explicitly asks for that follow-up. Analyze only the failed
@@ -47,13 +46,13 @@ Users may invoke this skill with prompts such as:
 ```txt
 $hot-updater deploy using the current app version
 $hot-updater deploy the current iOS app version to production
-$hot-updater roll back the most recently deployed bundle
-$hot-updater list iOS bundles on the production channel
-$hot-updater run doctor with server URL https://updates.example.com/api/check-update
+$hot-updater roll back the most recently deployed release
+$hot-updater list iOS releases on the production channel
+$hot-updater run doctor with server URL https://updates.example.com
 ```
 
 Translate the request into the safest CLI flow. If a state-changing request is
-missing a required platform, bundle target, or server URL that cannot be
+missing a required platform, Release target, or server URL that cannot be
 inferred from local context, ask one concise question before mutating anything.
 For deploy channel, use the CLI default `production` unless the user names
 another channel or local context clearly indicates one.
@@ -75,30 +74,31 @@ npx hot-updater deploy -p android -t <android-app-version>
 ```
 
 If deploying both platforms, run one platform at a time and verify each result
-with `npx hot-updater bundle list -p <platform> --limit 5 --json` when
+with `npx hot-updater release list -p <platform> --limit 5 --json` when
 supported, or without `--json` as a fallback.
 
 If a deploy command fails, do not continue to the next platform or attempt an
 automatic repair. Report the failure analysis and wait for a new user request.
 
-### Recent Bundle Rollback
+### Recent Release Rollback
 
 When the user asks to roll back the most recent deployment without naming a
-bundle:
+Release:
 
-1. Run `npx hot-updater bundle list --json --limit 10`.
-2. Choose the most recent enabled bundle from the JSON result.
-3. Use that bundle's `channel`, `platform`, and `id` for a scoped rollback:
+1. Run `npx hot-updater release list --json --limit 10`.
+2. Choose the most recent enabled Release from the JSON result.
+3. Disable that exact Release:
 
 ```sh
-npx hot-updater rollback <channel> -p <platform> --target <bundle-id> -y
+npx hot-updater release disable <release-id> -y --json
 ```
 
-If the most recent bundle is already disabled, tell the user and ask whether to
-roll back the next enabled bundle. After rollback, verify with:
+If there is no enabled Release, report that there is nothing to roll back.
+After rollback, verify with:
 
 ```sh
-npx hot-updater bundle list -c <channel> -p <platform> --limit 5 --json
+npx hot-updater release show <release-id> --json
+npx hot-updater release list -c <channel> -p <platform> --limit 5 --json
 ```
 
 If `--json` is unavailable, rerun the same command without `--json`.
@@ -117,8 +117,8 @@ npx hot-updater console
 
 - `init` creates or updates project configuration. Because it is interactive,
   tell the user to run it directly instead of choosing answers for them.
-- `doctor` checks local setup and server health. Provide `--server-base-url`;
-  if the user has not provided one, ask for it before running the command.
+- `doctor` checks local setup and server health. Provide the v1 server base URL,
+  without a v0 `/api/check-update` suffix; the CLI appends `/version`.
 - `app-version` reads native iOS and Android app versions. `--json` returns
   `{ "android": string | null, "ios": string | null }` on CLIs that support it.
 - `console` opens the local management console.
@@ -145,38 +145,39 @@ Important options:
 | `-m, --message <message>`          | Custom deployment message.                    |
 | `-i, --interactive`                | Guided deployment flow.                       |
 
-### Bundle Inventory and State
+### Bundle Inventory
 
 ```sh
 npx hot-updater bundle list
-npx hot-updater bundle list -c production -p ios --limit 10
-npx hot-updater bundle list -c production -p ios --limit 10 --json
+npx hot-updater bundle list -p ios --limit 10 --json
 npx hot-updater bundle list --json
-npx hot-updater bundle disable <bundle-id>
-npx hot-updater bundle enable <bundle-id>
+npx hot-updater bundle show <bundle-id> --json
+npx hot-updater bundle delete <bundle-id>
 ```
 
-- `bundle list` shows the most recent bundles first.
-- `--json` is available for raw bundle data on CLIs that support it.
-- `bundle disable` and `bundle enable` read the bundle, mutate enabled state,
-  commit the change, then re-read to verify.
-- In CI or other non-interactive shells, pass `-y` to `enable` or `disable`.
+- Bundles are immutable artifacts. Channel, rollout, enabled state, target app
+  version, and target cohorts belong to Releases.
+- A Bundle can be deleted only after every referencing Release is disabled and
+  hard-deleted. Preview `storage prune` before deleting unreferenced objects.
 
-### Rollback
+### Release Policy
 
 ```sh
-npx hot-updater rollback <channel>
-npx hot-updater rollback production -p ios
-npx hot-updater rollback production -p ios --target <bundle-id> -y
+npx hot-updater release list -c production -p ios --limit 10 --json
+npx hot-updater release show <release-id> --json
+npx hot-updater release update <release-id> --rollout-cohort-count 250 -y --json
+npx hot-updater release enable <release-id> -y --json
+npx hot-updater release disable <release-id> -y --json
+npx hot-updater release promote <source-release-id> --target <channel> -y
 ```
 
-- Rollback disables the latest enabled bundle on the channel.
-- Without `-p`, rollback applies to both iOS and Android.
-- The next most recent enabled bundle on the same channel and platform becomes
-  the fallback.
-- If no previous enabled bundle exists, the app falls back to the JavaScript
-  bundle shipped in the native binary.
-- Use `--target <bundle-id>` to retry a partial rollback for exactly one bundle.
+- Deploy and promotion create independent Release IDs, even when Releases
+  reference the same Bundle.
+- Roll back by disabling the exact Release ID. Compatible devices then resolve
+  to an earlier enabled Release or the JavaScript bundle in the native binary.
+- `--rollout-cohort-count` uses a value from 0 to 1000; deploy's `--rollout`
+  option uses a percentage from 0 to 100.
+- In CI or other non-interactive shells, pass `-y` to Release mutations.
 
 ### Channels
 

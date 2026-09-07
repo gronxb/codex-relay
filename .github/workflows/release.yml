@@ -161,6 +161,21 @@ jobs:
           install -d -m 700 keys
           printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
 
+      - name: Verify Hot Updater v1 infrastructure
+        if: steps.mobile-release.outputs.deploy == 'true'
+        working-directory: apps/mobile
+        run: |
+          server_base_url="$(node -e '
+            const { parsed = {} } = require("dotenv").config({ path: ".env", quiet: true });
+            const value = parsed.EXPO_PUBLIC_HOT_UPDATER_BASE_URL?.trim();
+            if (!value) {
+              console.error("EXPO_PUBLIC_HOT_UPDATER_BASE_URL is missing");
+              process.exit(1);
+            }
+            process.stdout.write(value);
+          ')"
+          pnpm hot-updater doctor --server-base-url "$server_base_url"
+
       - name: Deploy iOS OTA update
         if: steps.mobile-release.outputs.deploy == 'true'
         timeout-minutes: 30
@@ -170,7 +185,7 @@ jobs:
       - name: Verify iOS OTA update
         if: steps.mobile-release.outputs.deploy == 'true'
         working-directory: apps/mobile
-        run: pnpm hot-updater bundle list -p ios --limit 5 --json
+        run: pnpm hot-updater release list -p ios --limit 5 --json
 
       - name: Configure release commit author
         if: steps.mobile-release-plan.outputs.relay-package-version != '' || steps.mobile-release-plan.outputs.deploy == 'true'

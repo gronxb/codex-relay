@@ -7,6 +7,7 @@ import { HotUpdater } from "@hot-updater/react-native";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import Constants from "expo-constants";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { router, Stack } from "expo-router";
@@ -236,10 +237,17 @@ function TabLayout() {
 }
 
 const hotUpdaterBaseUrl = process.env.EXPO_PUBLIC_HOT_UPDATER_BASE_URL?.trim();
+const hotUpdaterApiKey =
+  process.env.EXPO_PUBLIC_HOT_UPDATER_API_KEY?.trim() ||
+  (typeof Constants.expoConfig?.extra?.hotUpdaterApiKey === "string"
+    ? Constants.expoConfig.extra.hotUpdaterApiKey.trim()
+    : undefined);
 
 if (hotUpdaterBaseUrl) {
   HotUpdater.init({
+    insights: true,
     baseURL: hotUpdaterBaseUrl,
+    requestHeaders: hotUpdaterApiKey ? { "x-api-key": hotUpdaterApiKey } : undefined,
   });
 }
 
