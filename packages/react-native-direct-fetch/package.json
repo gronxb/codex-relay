@@ -42,9 +42,11 @@
     "codegen": "nitrogen --logLevel=\"debug\" && pnpm run build && node post-script.js"
   },
   "devDependencies": {
-    "nitrogen": "0.35.6",
+    "nitrogen": "0.37.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
     "react-native-builder-bob": "^0.40.18",
-    "react-native-nitro-modules": "^0.35.5",
+    "react-native-nitro-modules": "^0.37.1",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {

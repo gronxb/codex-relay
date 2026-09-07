@@ -181,7 +181,7 @@ import {
 import { resolveWorkspaceTerminalShell } from "./workspace-terminal-shell.js";
 
 const defaultWorkspacePath = process.cwd();
-const defaultCodexModel = "gpt-5.5";
+const defaultCodexModel = "gpt-6-astra";
 const execFileAsync = promisify(execFile);
 const IMAGE_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
 const WORKSPACE_FILE_PREVIEW_MAX_BYTES = 256 * 1024;
@@ -1407,11 +1407,18 @@ export function createApp(options: AppOptions = {}) {
   app.get(apiPaths.models, async (c) => {
     try {
       const models = appServer ? await appServer.listModels() : fallbackModels();
+      const hasAstra = models.some((model) => model.model === defaultCodexModel);
       return secureJson(
         c,
         options.pairing,
         secureSessionsByTokenHash,
-        ListModelsResponseSchema.parse({ models: models.map(mapAppServerModel) }),
+        ListModelsResponseSchema.parse({
+          models: models.map((model) =>
+            mapAppServerModel(
+              hasAstra ? { ...model, isDefault: model.model === defaultCodexModel } : model,
+            ),
+          ),
+        }),
       );
     } catch {
       return secureJson(
@@ -7939,7 +7946,7 @@ function fallbackModels(): AppServerModel[] {
     {
       id: defaultCodexModel,
       model: defaultCodexModel,
-      displayName: "GPT-5.5",
+      displayName: "GPT-6 Astra",
       description: "Default Codex model",
       isDefault: true,
       defaultReasoningEffort: "medium",
@@ -7948,6 +7955,7 @@ function fallbackModels(): AppServerModel[] {
         { reasoningEffort: "medium" },
         { reasoningEffort: "high" },
         { reasoningEffort: "xhigh" },
+        { reasoningEffort: "max" },
       ],
       additionalSpeedTiers: ["fast"],
       serviceTiers: [

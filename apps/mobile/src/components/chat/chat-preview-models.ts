@@ -2,6 +2,14 @@ import type { CodexModel, ReasoningEffort } from "codex-relay/api-schema";
 
 export const previewModels: CodexModel[] = [
   previewModel({
+    defaultReasoningEffort: "medium",
+    description: "Most capable model for the hardest end-to-end work.",
+    displayName: "GPT-6 Astra",
+    efforts: ["low", "medium", "high", "xhigh", "max"],
+    id: "gpt-6-astra",
+    isDefault: true,
+  }),
+  previewModel({
     defaultReasoningEffort: "low",
     description: "Latest frontier agentic coding model.",
     displayName: "GPT-5.6-Sol",
@@ -28,7 +36,6 @@ export const previewModels: CodexModel[] = [
     displayName: "GPT-5.5",
     efforts: ["low", "medium", "high", "xhigh"],
     id: "gpt-5.5",
-    isDefault: true,
   }),
 ];
 

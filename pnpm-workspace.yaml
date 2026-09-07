@@ -4,6 +4,7 @@ packages:
 allowBuilds:
   esbuild: true
   msgpackr-extract: true
+  react-native-enriched-markdown: true
   sharp: true
   workerd: true
 

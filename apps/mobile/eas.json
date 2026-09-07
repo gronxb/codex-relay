@@ -27,10 +27,18 @@
       "env": {
         "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
       },
-      "autoIncrement": true
+      "autoIncrement": true,
+      "distribution": "store",
+      "ios": {
+        "buildConfiguration": "Release"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6764463488"
+      }
+    }
   }
 }
