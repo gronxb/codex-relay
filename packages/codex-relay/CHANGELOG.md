@@ -1,5 +1,17 @@
 # codex-relay
 
+## 1.5.1
+
+### Patch Changes
+
+- 7a18692: Report an occupied server port with recovery instructions instead of an unhandled Node error.
+
+## 1.5.0
+
+### Minor Changes
+
+- c5bfb32: Release codex-relay 1.5.0 with Codex SDK and bundled CLI 0.153.4. Warn in the mobile app when the connected relay is older than 1.5.0. Deliver the compatibility warning through the existing OTA release workflow for the current App Store binary.
+
 ## 1.4.14
 
 ### Patch Changes
