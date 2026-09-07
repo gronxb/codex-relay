@@ -1,5 +1,15 @@
 # codex-relay
 
+## 1.5.2
+
+### Patch Changes
+
+- 81c3934: Approve pairing directly in the interactive relay terminal by confirming the code and typing y followed by Enter. Keep the approval command for background relays, and explain both options on the phone.
+
+  Make the pairing route own deep links, show connection progress immediately, probe candidate addresses concurrently, and preserve timeout details in network errors.
+
+- 28dfb8b: Read recent sessions from the Codex index and limit the list to 20 by default, avoiding mobile timeouts from repeatedly scanning large legacy histories. Add CODEX_RELAY_THREAD_LIST_LIMIT to control the visible history size without deleting history.
+
 ## 1.5.1
 
 ### Patch Changes
