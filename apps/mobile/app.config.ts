@@ -100,7 +100,6 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
           publicKeyPath: "./keys/public-key.pem",
         },
       ],
-      "react-native-enriched-markdown",
       [
         "expo-secure-store",
         {

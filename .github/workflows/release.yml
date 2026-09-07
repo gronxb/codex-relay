@@ -185,7 +185,7 @@ jobs:
       - name: Verify iOS OTA update
         if: steps.mobile-release.outputs.deploy == 'true'
         working-directory: apps/mobile
-        run: pnpm hot-updater release list -p ios --limit 5 --json
+        run: pnpm hot-updater bundle list -p ios --limit 5 --json
 
       - name: Configure release commit author
         if: steps.mobile-release-plan.outputs.relay-package-version != '' || steps.mobile-release-plan.outputs.deploy == 'true'
