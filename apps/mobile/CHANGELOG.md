@@ -1,5 +1,13 @@
 # @codex-relay/mobile
 
+## 1.4.0-ship.12
+
+### Patch Changes
+
+- 81c3934: Approve pairing directly in the interactive relay terminal by confirming the code and typing y followed by Enter. Keep the approval command for background relays, and explain both options on the phone.
+
+  Make the pairing route own deep links, show connection progress immediately, probe candidate addresses concurrently, and preserve timeout details in network errors.
+
 ## 1.4.0-ship.11
 
 ### Patch Changes
