@@ -1,6 +1,6 @@
 # Hosted Hot Updater Console
 
-Status: deployment configuration and runtime checks are ready; GitHub OAuth Client Secret setup and authenticated remote QA are pending.
+Status: deployed with GitHub OAuth; final RC and authenticated remote QA completed on 2026-09-08.
 
 The console template is infrastructure-neutral and deploys through Nitro.
 Modex uses its optional Cloudflare example for dogfood because the existing
@@ -10,12 +10,13 @@ or a running `hot-updater console` process after deployment.
 
 | Setting             | Value                                                    |
 | ------------------- | -------------------------------------------------------- |
-| Intended URL        | `https://modex-hot-updater-console.gron1gh1.workers.dev` |
+| Console URL         | `https://modex-hot-updater-console.gron1gh1.workers.dev` |
 | Console Worker      | `modex-hot-updater-console`                              |
 | Existing OTA Worker | `codex-relay-ota`                                        |
 | D1 database         | `codex-relay`                                            |
 | R2 bucket           | `codex-relay-storage`                                    |
-| Console package     | `@hot-updater/console@1.0.0-rc.7`                        |
+| Console package     | `@hot-updater/console@1.0.0-rc.9`                        |
+| Local console CLI   | `hot-updater@1.0.0-rc.11`                                |
 | Cloudflare provider | `@hot-updater/cloudflare@1.0.0-rc.5`                     |
 | Host source         | `https://github.com/hot-updater/console`                 |
 | Configuration       | `deployments/hot-updater-console/wrangler.jsonc`         |
@@ -35,8 +36,8 @@ pnpm install --frozen-lockfile
 pnpm exec wrangler whoami
 ```
 
-The dogfood checkout follows the merged template main branch at `40acd9a`
-([template PR #4](https://github.com/hot-updater/console/pull/4)).
+The dogfood checkout follows the merged template main branch at `27d54b7`
+([template PR #7](https://github.com/hot-updater/console/pull/7)).
 
 Configure the GitHub OAuth App **Modex Hot Updater Console** with homepage
 `https://modex-hot-updater-console.gron1gh1.workers.dev` and callback
@@ -90,8 +91,36 @@ Before recording the deployment as complete, verify on the actual HTTPS URL:
 
 Do not alter production bundle rollout settings just to test hosting.
 
-Deployment version and remote QA evidence will be added after OAuth setup and
-remote verification are complete.
+### Dogfood record (2026-09-08)
+
+Worker version: `cc4dfd5a-e0b7-4a80-bd4f-d61dd8ee365b`.
+
+- Approved GitHub login works with the exact verified-email allowlist.
+- Anonymous sign-in rendering, null session, and protected read/write/download
+  rejection were verified on the actual HTTPS origin.
+- Bundles shows three releases, including two active installations for the
+  enabled production release. Insights shows three reporting installations;
+  Distribution shows app version 1.5.0 with two known-bundle installations and
+  one unknown-bundle installation, matching the local console.
+- All events shows 20 rows on the first page and two on the next. Refreshing the
+  cursor URL retains the older records.
+- Authenticated bundle download: 9,376,048 bytes, 39 ZIP entries; CRC validation
+  passed. SHA-256: `3e124836b0e3a6f82b4e602f702026bb351b284c71a19750cec57e51cfa1a38e`.
+- The hosted sign-in page fits a 390px viewport. Dashboard cards were checked
+  locally with real and dense synthetic data at 320px and 390px, without
+  horizontal overflow.
+- App usage and Distribution both measure 430px high on the hosted desktop
+  dashboard; the local CLI console shows the same alignment and real data.
+- Changing App usage to 7d shows WAU while Bundle activity retains its own
+  24h selection.
+- After the sign-out request fix, the final RC returns to the sign-in page,
+  clears the browser session, and rejects a protected download with HTTP 401.
+  Refreshing retains the signed-out state.
+- The mobile app typecheck passes with CLI `1.0.0-rc.11`; the actual local
+  `pnpm hot-updater console` was restarted and verified at port 1422.
+
+The remote QA reads production data and downloads an existing artifact; it
+makes no changes to rollout settings or existing database/storage resources.
 
 ## Update and recover
 
