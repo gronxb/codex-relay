@@ -15,8 +15,8 @@ or a running `hot-updater console` process after deployment.
 | Existing OTA Worker | `codex-relay-ota`                                        |
 | D1 database         | `codex-relay`                                            |
 | R2 bucket           | `codex-relay-storage`                                    |
-| Console package     | `@hot-updater/console@1.0.0-rc.9`                        |
-| Local console CLI   | `hot-updater@1.0.0-rc.11`                                |
+| Console package     | `@hot-updater/console@1.0.0-rc.10`                       |
+| Local console CLI   | `hot-updater@1.0.0-rc.12`                                |
 | Cloudflare provider | `@hot-updater/cloudflare@1.0.0-rc.5`                     |
 | Host source         | `https://github.com/hot-updater/console`                 |
 | Configuration       | `deployments/hot-updater-console/wrangler.jsonc`         |
@@ -36,8 +36,8 @@ pnpm install --frozen-lockfile
 pnpm exec wrangler whoami
 ```
 
-The dogfood checkout follows the merged template main branch at `27d54b7`
-([template PR #7](https://github.com/hot-updater/console/pull/7)).
+The dogfood checkout follows the merged template main branch at `7705833`
+([template PR #8](https://github.com/hot-updater/console/pull/8)).
 
 Configure the GitHub OAuth App **Modex Hot Updater Console** with homepage
 `https://modex-hot-updater-console.gron1gh1.workers.dev` and callback
@@ -93,7 +93,9 @@ Do not alter production bundle rollout settings just to test hosting.
 
 ### Dogfood record (2026-09-08)
 
-Worker version: `cc4dfd5a-e0b7-4a80-bd4f-d61dd8ee365b`.
+Worker version: `d790b340-c659-4df5-9c94-c31e7414d64c`.
+
+The record includes initial hosted QA and subsequent RC checks.
 
 - Approved GitHub login works with the exact verified-email allowlist.
 - Anonymous sign-in rendering, null session, and protected read/write/download
@@ -116,8 +118,17 @@ Worker version: `cc4dfd5a-e0b7-4a80-bd4f-d61dd8ee365b`.
 - After the sign-out request fix, the final RC returns to the sign-in page,
   clears the browser session, and rejects a protected download with HTTP 401.
   Refreshing retains the signed-out state.
-- The mobile app typecheck passes with CLI `1.0.0-rc.11`; the actual local
+- The mobile app typecheck passes with CLI `1.0.0-rc.12`; the actual local
   `pnpm hot-updater console` was restarted and verified at port 1422.
+- Console `1.0.0-rc.10` applies
+  [mobile sidebar fix #1282](https://github.com/gronxb/hot-updater/pull/1282).
+  The local WebKit console was checked at 320px and 390px: the Sheet renders,
+  navigation closes it, and Close/Escape return focus to the menu trigger.
+- The updated HTTPS console was checked with an authenticated browser at 320px
+  and 390px. The menu fits without horizontal overflow, closes after navigation
+  and via Close, and can reopen. Desktop App usage and Distribution remain
+  430px high. Anonymous session and protected read/write/download checks pass
+  on this Worker version.
 
 The remote QA reads production data and downloads an existing artifact; it
 makes no changes to rollout settings or existing database/storage resources.
