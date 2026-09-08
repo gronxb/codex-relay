@@ -18,10 +18,10 @@
       "computedHash": "38114e3270f12c0fcc2334cc54155f0b3717904928d32a8005ec4ff095b99e20"
     },
     "hot-updater": {
-      "source": ".agents/skills/hot-updater",
-      "sourceType": "local",
-      "skillPath": ".agents/skills/hot-updater/SKILL.md",
-      "computedHash": "52965683d3f92f5466ebedc1a1046bc3a3f3af048b304b460a6ccd537d88cee1"
+      "source": "hot-updater/skills",
+      "sourceType": "github",
+      "skillPath": "skills/hot-updater/SKILL.md",
+      "computedHash": "4a44b86cb5582a4450c4d62b7e1dbcdaed57d28c1c3dadda45b75f3387cb7714"
     },
     "react-devtools": {
       "source": "callstackincubator/agent-react-devtools",
