@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.env*
+!env.example
+api-key.local
+*.pem
+*.zip
+*.secret

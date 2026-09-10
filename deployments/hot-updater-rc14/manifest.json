@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "provider": "cloudflare",
+  "cliVersion": "1.0.0-rc.14",
+  "providerVersion": "1.0.0-rc.14",
+  "serverVersion": "1.0.0-rc.14",
+  "infrastructureGeneration": 1,
+  "packages": {
+    "hot-updater": "1.0.0-rc.14",
+    "@hot-updater/server": "1.0.0-rc.14",
+    "@hot-updater/react-native": "1.0.0-rc.14",
+    "@hot-updater/cloudflare": "1.0.0-rc.14",
+    "@hot-updater/expo": "1.0.0-rc.14",
+    "dotenv": "16.6.1"
+  },
+  "requiredInputs": {
+    "workerName": null,
+    "accountId": null,
+    "d1DatabaseId": null,
+    "d1DatabaseName": null,
+    "bucketName": null
+  },
+  "upgradeRequirements": ["1.0.0"],
+  "operation": "upgrade",
+  "build": "expo",
+  "files": {
+    ".gitignore": "59cd2a37b8b7432e8dbbde0cf8fe35adcf3b2b7a2f2fbd3b531c3b004f4a8eea",
+    "app/api-key.config.ts": "379c5b599c5f95327f49a440fb0629ebd43d0ade1eaf9d0bd67099aee07e7d9a",
+    "app/hot-updater.config.ts": "c500f331b270dba2335e75663c81a75f52aef30f975eaea857eb2b9aa8ba44b8",
+    "app/provision-api-key.mjs": "14c7b6de34b4401b4218033a04c27d9ba4ba8c188b7a2ae738a17d06048e27ad",
+    "app/verify-server.mjs": "c4b8dffbd847bcc55f882c694f19519c9c94e85e1b72cdca90ae18eb22237c20",
+    "COMMON.md": "f44ce84340d14aeb8a78e9dcaab37af82dca21a63f31b1c9cccb5c7bb8b714a6",
+    "env.example": "04eec8ec69f92a3e84b2296fe8fc8f1eb0e5382cd495e53ddeb3ee94c00a2905",
+    "ENVIRONMENT.md": "1a82eccb7e76855aec997fc5d47b360a1acf3aec1fae3b184b991ba84801cd34",
+    "SETUP.md": "b856230c6cbaa324216378a9bb8cfdebcb7850f4825029894e5f0866a604ef22",
+    "upgrades/1.0.0.md": "826ca90fea465c6c893183b932f86004d841a8d39e663d1ea499e9f582a6bca5",
+    "upgrades/README.md": "63ca66486c526c7695484437852b4ac0b4e74fd035f43150e851dfb946d4ad1a",
+    "worker/dist/index.js": "2ab5c2afd9b6536b38f547902dadf41b8376720d19e936cf79558e8fe56c026f",
+    "worker/dist/index.js.map": "a40b1056662918fa837b163685cb9648338488e42a44ea99284f6b5a042279a3",
+    "worker/dist/README.md": "f26c5a02736c3b13732400b56d8a344d21633cf07c698a899793f5331f737c29",
+    "worker/migrations/0001_hot-updater_1.0.0.sql": "58e9b32cb3241170017fb55adf6b09f73a963c944d1dd70791235dd950471a1f",
+    "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
+    "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"
+  }
+}

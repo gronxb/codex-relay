@@ -1,0 +1,12 @@
+{
+  "name": "hot-updater-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "migrations": "wrangler d1 migrations apply --remote"
+  },
+  "devDependencies": {
+    "wrangler": "4.129.0"
+  }
+}

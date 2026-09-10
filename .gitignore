@@ -53,3 +53,4 @@ apps/mobile/android/
 .omx/
 # hot-updater
 .hot-updater/output
+.codex/hot-updater-rc14/

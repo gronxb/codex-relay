@@ -1,6 +1,9 @@
 # Hosted Hot Updater Console
 
-Status: deployed with GitHub OAuth; final RC and authenticated remote QA completed on 2026-09-08.
+Status: historical Cloudflare deployment. The former Console Worker has been removed.
+The active Console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com),
+deployed with Ship. See [the rc.14 upgrade record](../deployments/hot-updater-rc14/README.md)
+for the current server, schema migration and verification procedure.
 
 The console template is infrastructure-neutral and deploys through Nitro.
 Modex uses its optional Cloudflare example for dogfood because the existing
