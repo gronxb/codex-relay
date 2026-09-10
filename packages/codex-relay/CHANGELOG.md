@@ -1,5 +1,12 @@
 # codex-relay
 
+## 1.5.3
+
+### Patch Changes
+
+- 290d078: Default to GPT-6 Astra when available while preserving explicit model selections. Warn when the connected codex-relay package is older than 1.5.0. This mobile OTA requires the Expo 57 App Store 1.5.0 binary and targets app version 1.5.0 through the existing release workflow.
+- 290d078: Upgrade the bundled Codex CLI and SDK to 0.153.2 for the codex-relay 1.5.0 release.
+
 ## 1.5.2
 
 ### Patch Changes
