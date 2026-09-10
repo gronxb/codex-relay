@@ -16,6 +16,25 @@ The production target is generation 1:
 The former `modex-hot-updater-console` Cloudflare Worker no longer exists; its
 old deployment documentation is historical. Do not recreate it during upgrades.
 
+## Completed production deployment
+
+The rc.14 OTA Worker, both D1 migration phases and Ship Console are deployed.
+The Console image is `ship/codex-relay:20260910124600`, built from companion
+checkout commit `08fafb2283058e24264326eb86044bc67894d0c1`.
+
+The signed iOS OTA targets app version `1.5.0`, channel `production`, with 100%
+rollout and no forced restart:
+
+- Source commit: `3a562d351d583f400afdc7d49d0767407ef41222`
+- Release ID: `01a08b62-c3eb-7e13-8507-c9ef394d0458`
+- Artifact Bundle ID: `01a08b61-67d6-78cd-aacf-af17471fd8a5`
+
+The CLI deployment ID and the app's displayed short ID refer to the Release.
+Artifact download and signature verification passed. An existing iOS 1.5.0
+simulator binary applied the OTA after restart and displayed `current`; production
+Insights recorded `UPDATE_APPLIED` with SDK `1.0.0-rc.14` for the new Bundle.
+Detailed verified observations are in `deployment.json`.
+
 ## Migration and future releases
 
 rc.14 changed the generation 1 initializer without providing an incremental RC
