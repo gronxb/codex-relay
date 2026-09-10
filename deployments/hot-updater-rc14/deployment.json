@@ -86,6 +86,21 @@
       },
       "observation": "Signed deployment completed; catalog generation 16 has two releases and passes preflight. The 9,377,329-byte artifact downloads and verifies with the retained public signing key (SHA-256 3b4487297f6e7e9f498b1fe8279bf136b687bb520bae59d36ee3d6f3023679d2). The existing iOS 1.5.0 simulator binary downloaded and applied this update after restart, displays current status, and reported UPDATE_APPLIED and UNCHANGED with SDK 1.0.0-rc.14 for this bundle. No new native binary was installed.",
       "checkedAt": "2026-09-10T12:59:57.786228+00:00"
+    },
+    {
+      "id": "upgrades/1.0.0.md/ios.ota.download-verification",
+      "target": {
+        "platform": "ios",
+        "channel": "production",
+        "targetAppVersion": "1.5.0",
+        "rolloutPercent": 100,
+        "isForceUpdate": false,
+        "releaseId": "01a08b6c-c41a-7ec9-a4dc-a6556938d94d",
+        "bundleId": "01a08b6b-76cb-750c-9e2b-14470d0ca3e3",
+        "sourceCommit": "a4618c0695c7e99b02dffa490770c2ed15d33036"
+      },
+      "observation": "User-requested second signed OTA deployed successfully; catalog generation 17 with three releases passes preflight. Download and signature verification pass (9,377,329 bytes; SHA-256 d8903cce1bb9b82f664a019ba8d7cfa46a690fea435255cb4db14802dbbe9007). Hermes is unchanged from the immediately preceding bundle, so that path reuses it without a diff patch. The rc.14 simulator downloaded and staged the update, reporting one UPDATE_DOWNLOADED event with SDK 1.0.0-rc.14; production iOS pending installations increased from zero to one. The simulator remains at restart ready. Console Downloaded measures pending installations, not cumulative downloads.",
+      "checkedAt": "2026-09-10T13:07:44.952346+00:00"
     }
   ]
 }
