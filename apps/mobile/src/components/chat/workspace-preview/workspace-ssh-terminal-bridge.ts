@@ -3,7 +3,9 @@ import { bridge, createWebView } from "@webview-bridge/react-native";
 import type { WorkspaceTerminalOutputResponse } from "codex-relay/api-schema";
 
 export type WorkspaceSshTerminalState = {
+  copySelectionRequestId?: number;
   fontSize?: number;
+  selectionMode?: boolean;
   reconnectRequestId?: number;
   terminalId: string;
   workspacePath?: string;
@@ -17,6 +19,7 @@ export type WorkspaceSshTerminalSessionStatus =
 
 type WorkspaceSshTerminalBridgeShape = WorkspaceSshTerminalState & {
   closeSession(request: WorkspaceSshTerminalSessionRequest): Promise<void>;
+  copySelection(request: WorkspaceSshTerminalCopyRequest): Promise<void>;
   reportError(request: WorkspaceSshTerminalErrorRequest): Promise<void>;
   reportReady(request: WorkspaceSshTerminalReadyRequest): Promise<void>;
   reportSessionStatus(request: WorkspaceSshTerminalStatusRequest): Promise<void>;
@@ -31,6 +34,10 @@ type WorkspaceSshTerminalBridgeShape = WorkspaceSshTerminalState & {
 
 type WorkspaceSshTerminalReadyRequest = {
   terminalId: string;
+};
+
+type WorkspaceSshTerminalCopyRequest = WorkspaceSshTerminalReadyRequest & {
+  text: string;
 };
 
 type WorkspaceSshTerminalErrorRequest = WorkspaceSshTerminalReadyRequest & {
@@ -67,6 +74,7 @@ type WorkspaceSshTerminalWriteRequest = WorkspaceSshTerminalSessionRequest & {
 
 type WorkspaceSshTerminalBridgeHandlers = {
   closeSession(sessionId: string): Promise<void>;
+  copySelection(text: string): Promise<void>;
   reportError(message: string): void;
   reportReady(): void;
   reportSessionStatus(
@@ -115,6 +123,11 @@ export const workspaceSshTerminalBridge = bridge<WorkspaceSshTerminalBridgeShape
     await workspaceSshTerminalBridgeHandlers
       .get(request.terminalId)
       ?.closeSession(request.sessionId);
+  },
+  async copySelection(request) {
+    await workspaceSshTerminalBridgeHandlers
+      .get(request.terminalId)
+      ?.copySelection(request.text);
   },
   async reportError(request) {
     workspaceSshTerminalBridgeHandlers.get(request.terminalId)?.reportError(request.message);

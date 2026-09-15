@@ -66,7 +66,9 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
   const [terminalInputValue, setTerminalInputValue] = useState("");
   const [isCtrlActive, setIsCtrlActive] = useState(false);
   const [isShortcutsExpanded, setIsShortcutsExpanded] = useState(false);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [terminalFontSize, setTerminalFontSize] = useState(defaultTerminalFontSize);
+  const [copySelectionRequestId, setCopySelectionRequestId] = useState(0);
   const [reconnectRequestId, setReconnectRequestId] = useState(0);
   const [terminalSessionStatus, setTerminalSessionStatus] =
     useState<WorkspaceSshTerminalSessionStatus>("connecting");
@@ -183,11 +185,17 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
     );
     setTerminalFontSize(clampedFontSize);
     postWorkspaceSshTerminalState({
+      copySelectionRequestId,
       fontSize: clampedFontSize,
       reconnectRequestId,
+      selectionMode: isSelectionMode,
       terminalId,
       workspacePath,
     });
+  };
+
+  const requestCopySelection = () => {
+    setCopySelectionRequestId((value) => value + 1);
   };
 
   const requestTerminalReconnect = () => {
@@ -197,8 +205,10 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
     setTerminalSessionStatus("reconnecting");
     setTerminalSessionMessage("Reconnecting to the existing terminal session");
     postWorkspaceSshTerminalState({
+      copySelectionRequestId,
       fontSize: terminalFontSize,
       reconnectRequestId: nextReconnectRequestId,
+      selectionMode: isSelectionMode,
       terminalId,
       workspacePath,
     });
@@ -217,6 +227,11 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
           activeSessionWorkspacePathRef.current = null;
         }
       },
+      async copySelection(text) {
+        if (text) {
+          await Clipboard.setStringAsync(text);
+        }
+      },
       reportError(message) {
         setIsTerminalReady(true);
         setTerminalError(message);
@@ -225,8 +240,10 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
         setIsTerminalReady(true);
         setTerminalError(null);
         postWorkspaceSshTerminalState({
+          copySelectionRequestId,
           fontSize: terminalFontSize,
           reconnectRequestId,
+          selectionMode: isSelectionMode,
           terminalId,
           workspacePath,
         });
@@ -319,16 +336,32 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
         );
       },
     });
-  }, [reconnectRequestId, terminalFontSize, terminalId, workspacePath]);
+  }, [
+    copySelectionRequestId,
+    isSelectionMode,
+    reconnectRequestId,
+    terminalFontSize,
+    terminalId,
+    workspacePath,
+  ]);
 
   useEffect(() => {
     postWorkspaceSshTerminalState({
+      copySelectionRequestId,
       fontSize: terminalFontSize,
       reconnectRequestId,
+      selectionMode: isSelectionMode,
       terminalId,
       workspacePath,
     });
-  }, [reconnectRequestId, terminalFontSize, terminalId, workspacePath]);
+  }, [
+    copySelectionRequestId,
+    isSelectionMode,
+    reconnectRequestId,
+    terminalFontSize,
+    terminalId,
+    workspacePath,
+  ]);
 
   useEffect(
     () => () => {
@@ -545,6 +578,17 @@ export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: str
                 <TerminalShortcutButton label="-" onPress={() => void sendTerminalInput("-")} />
               </View>
               <View style={styles.terminalShortcutRow}>
+                <TerminalShortcutButton
+                  accessibilityLabel="Toggle terminal selection mode"
+                  active={isSelectionMode}
+                  label="Select"
+                  onPress={() => setIsSelectionMode((value) => !value)}
+                />
+                <TerminalShortcutButton
+                  accessibilityLabel="Copy terminal selection"
+                  label="Copy"
+                  onPress={requestCopySelection}
+                />
                 <TerminalShortcutButton
                   label="A-"
                   onPress={() => setFontSize(terminalFontSize - 1)}
