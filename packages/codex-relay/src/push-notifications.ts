@@ -12,13 +12,14 @@ export type RelayPushNotification = {
     threadId: string;
     turnId?: string;
   };
-  title: "Codex Relay";
+  title: string;
   to: string;
 };
 
 export type PushNotificationEvent = {
   intent: PushNotificationIntent;
   threadId: string;
+  threadTitle?: string;
   turnId?: string;
 };
 
@@ -79,23 +80,39 @@ export function createExpoPushNotificationSender(
 }
 
 export function createPushNotificationDispatcher(input: {
+  readRemainingUsagePercent?: () => Promise<number | undefined>;
   sender: PushNotificationSender;
   sessions: PairingSessionStore;
 }): PushNotificationDispatcher {
   return {
     async dispatch(event) {
       const subscriptions = await input.sessions.listActivePushNotificationSubscriptions();
-      const selectedTokens = new Set(
+      const selectedSubscriptions = new Map(
         subscriptions
           .filter((subscription) => notificationEnabled(subscription, event.intent))
-          .map((subscription) => subscription.expoPushToken),
+          .map((subscription) => [subscription.expoPushToken, subscription]),
       );
-      if (selectedTokens.size === 0) {
+      if (selectedSubscriptions.size === 0) {
         return;
       }
 
+      const shouldReadRemainingUsage =
+        event.intent === "turn_terminal" &&
+        [...selectedSubscriptions.values()].some(
+          (subscription) => subscription.includeRemainingUsage,
+        );
+      const remainingUsagePercent = shouldReadRemainingUsage
+        ? await input.readRemainingUsagePercent?.().catch(() => undefined)
+        : undefined;
+
       const delivery = await input.sender.send(
-        [...selectedTokens].map((expoPushToken) => notificationForEvent(expoPushToken, event)),
+        [...selectedSubscriptions.values()].map((subscription) =>
+          notificationForEvent(
+            subscription.expoPushToken,
+            event,
+            subscription.includeRemainingUsage ? remainingUsagePercent : undefined,
+          ),
+        ),
       );
       await Promise.all(
         delivery.invalidExpoPushTokens.map((expoPushToken) =>
@@ -116,18 +133,21 @@ function notificationEnabled(
 function notificationForEvent(
   expoPushToken: string,
   event: PushNotificationEvent,
+  remainingUsagePercent?: number,
 ): RelayPushNotification {
   return {
     body:
       event.intent === "action_required"
         ? "Codex needs your attention."
-        : "A Codex turn has finished.",
+        : remainingUsagePercent === undefined
+          ? "Finished working."
+          : `Finished working. Remaining usage: ${remainingUsagePercent}%`,
     data: {
       intent: event.intent,
       threadId: event.threadId,
       ...(event.turnId ? { turnId: event.turnId } : {}),
     },
-    title: "Codex Relay",
+    title: event.threadTitle?.trim() || event.threadId,
     to: expoPushToken,
   };
 }

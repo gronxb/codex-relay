@@ -241,14 +241,13 @@ export default function SettingsScreen() {
     setPushNotificationsUpdating(true);
 
     try {
-      const settings =
-        nextPreferences.actionRequired || nextPreferences.turnTerminal
-          ? await registerPushNotifications({
-              expoPushToken: await getExpoPushToken(),
-              platform: pushNotificationPlatform(),
-              preferences: nextPreferences,
-            })
-          : await unregisterPushNotifications();
+      const settings = Object.values(nextPreferences).some(Boolean)
+        ? await registerPushNotifications({
+            expoPushToken: await getExpoPushToken(),
+            platform: pushNotificationPlatform(),
+            preferences: nextPreferences,
+          })
+        : await unregisterPushNotifications();
       setPushNotificationPreferences(settings.preferences);
     } catch (caught) {
       setPushNotificationPreferences(previousPreferences);
@@ -561,6 +560,16 @@ export default function SettingsScreen() {
                       subtitle="When Codex completes or fails a turn"
                       title="Turn complete"
                       value={pushNotificationPreferences.turnTerminal}
+                    />
+                    <PushNotificationToggle
+                      accessibilityLabel="Include remaining Codex usage in turn-complete notifications"
+                      disabled={pushNotificationsLoading || pushNotificationsUpdating}
+                      onValueChange={(value) =>
+                        void updatePushNotificationPreference("includeRemainingUsage", value)
+                      }
+                      subtitle="Show the lowest remaining Codex limit after a turn"
+                      title="Remaining usage"
+                      value={pushNotificationPreferences.includeRemainingUsage}
                     />
                     <PushNotificationToggle
                       accessibilityLabel="Notify when Codex needs action"

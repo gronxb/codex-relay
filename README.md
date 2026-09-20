@@ -122,9 +122,10 @@ Shared mode uses Codex's experimental app-server transport. A directly connected
 After pairing, open **Settings > Notifications** in the mobile app and enable either or both alerts:
 
 - **Turn complete** for completed or failed Codex turns
+- **Remaining usage** to include the lowest remaining Codex limit in turn-complete alerts
 - **Action required** for approval and input requests
 
-The relay sends only a generic alert plus opaque thread and turn identifiers needed to open the conversation. It does not send prompts, responses, commands, or approval text through the push service. Push support requires a native mobile build that includes `expo-notifications`; an OTA update alone cannot add that native module.
+The relay uses the thread title as the notification title so you can identify the conversation. When **Remaining usage** is enabled, a turn-complete alert also includes the most constrained percentage reported by Codex. It does not send prompts, responses, commands, or approval text through the push service. Push support requires a native mobile build that includes `expo-notifications`; an OTA update alone cannot add that native module.
 
 ## Network Setup
 

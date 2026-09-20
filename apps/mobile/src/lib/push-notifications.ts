@@ -10,6 +10,7 @@ const initialPushNotificationRegistrationStorageKey =
 
 export const defaultPushNotificationPreferences: PushNotificationPreferences = {
   actionRequired: true,
+  includeRemainingUsage: false,
   turnTerminal: true,
 };
 

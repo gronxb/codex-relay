@@ -57,6 +57,7 @@ import {
   apiPaths,
   chatMessageDetailsFromPromptContext,
   createOpenApiDocument,
+  lowestRateLimitRemainingPercent,
   normalizePromptContext,
   promptMarkdownWithSkills,
   stripPromptSkillMentions,
@@ -438,6 +439,12 @@ export function createApp(options: AppOptions = {}) {
   }
   const pushNotificationDispatcher = options.pairing
     ? createPushNotificationDispatcher({
+        readRemainingUsagePercent: appServer
+          ? async () =>
+              lowestRateLimitRemainingPercent(
+                normalizeRateLimitBuckets(await appServer.readRateLimits()),
+              )
+          : undefined,
         sender: options.pushNotificationSender ?? createExpoPushNotificationSender(),
         sessions: options.pairing.sessions,
       })
@@ -827,6 +834,7 @@ export function createApp(options: AppOptions = {}) {
       preferences: subscription
         ? {
             actionRequired: subscription.actionRequired,
+            includeRemainingUsage: subscription.includeRemainingUsage,
             turnTerminal: subscription.turnTerminal,
           }
         : defaultPushNotificationPreferences(),
@@ -882,6 +890,7 @@ export function createApp(options: AppOptions = {}) {
       actionRequired: parsed.data.preferences.actionRequired,
       clientSessionId,
       expoPushToken: parsed.data.expoPushToken,
+      includeRemainingUsage: parsed.data.preferences.includeRemainingUsage,
       platform: parsed.data.platform,
       turnTerminal: parsed.data.preferences.turnTerminal,
     });
@@ -3187,7 +3196,7 @@ async function pairedClientSessionIdForAuthorization(
 }
 
 function defaultPushNotificationPreferences() {
-  return { actionRequired: false, turnTerminal: false };
+  return { actionRequired: false, includeRemainingUsage: false, turnTerminal: false };
 }
 
 function normalizeApprovalCode(value: string) {
@@ -6644,7 +6653,7 @@ function mapAppServerThread(
   return ThreadSummarySchema.parse({
     id: thread.id,
     parentThreadId: thread.parentThreadId ?? undefined,
-    title: thread.name ?? preview(thread.preview || "Untitled thread"),
+    title: appServerThreadTitle(thread),
     createdAt,
     updatedAt,
     state: mappedState,
@@ -6654,6 +6663,10 @@ function mapAppServerThread(
     lastMessagePreview: thread.preview ? preview(thread.preview) : undefined,
     lastActivityAt,
   });
+}
+
+function appServerThreadTitle(thread: Pick<AppServerThread, "name" | "preview">) {
+  return thread.name ?? preview(thread.preview || "Untitled thread");
 }
 
 function rememberAppServerThread(
@@ -8226,7 +8239,10 @@ function observeAppServerPushNotifications(
       .readThread(event.threadId, { includeTurns: false })
       .then((thread) => {
         if (!isSubagentThread(thread)) {
-          return dispatcher.dispatch(event);
+          return dispatcher.dispatch({
+            ...event,
+            threadTitle: appServerThreadTitle(thread),
+          });
         }
       })
       .catch((error) => {

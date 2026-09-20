@@ -28,6 +28,7 @@ export type PendingPairing = {
 
 export type PushNotificationPreferences = {
   actionRequired: boolean;
+  includeRemainingUsage: boolean;
   turnTerminal: boolean;
 };
 
@@ -103,11 +104,13 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
       platform TEXT NOT NULL,
       turn_terminal_enabled INTEGER NOT NULL,
       action_required_enabled INTEGER NOT NULL,
+      include_remaining_usage_enabled INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
   `);
   await ensurePairingSessionColumns();
+  await ensurePushNotificationSubscriptionColumns();
 
   async function countActive() {
     const row = await db
@@ -292,7 +295,8 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
                   expo_push_token AS expoPushToken,
                   platform,
                   turn_terminal_enabled AS turnTerminal,
-                  action_required_enabled AS actionRequired
+                  action_required_enabled AS actionRequired,
+                  include_remaining_usage_enabled AS includeRemainingUsage
            FROM push_notification_subscriptions
            WHERE client_session_id = ?`,
         )
@@ -332,7 +336,8 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
                   subscriptions.expo_push_token AS expoPushToken,
                   subscriptions.platform,
                   subscriptions.turn_terminal_enabled AS turnTerminal,
-                  subscriptions.action_required_enabled AS actionRequired
+                  subscriptions.action_required_enabled AS actionRequired,
+                  subscriptions.include_remaining_usage_enabled AS includeRemainingUsage
            FROM push_notification_subscriptions AS subscriptions
            INNER JOIN pairing_sessions AS sessions
              ON sessions.client_session_id = subscriptions.client_session_id
@@ -443,15 +448,17 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
              platform,
              turn_terminal_enabled,
              action_required_enabled,
+             include_remaining_usage_enabled,
              created_at,
              updated_at
            )
-           VALUES (?, ?, ?, ?, ?, ?, ?)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(client_session_id) DO UPDATE SET
              expo_push_token = excluded.expo_push_token,
              platform = excluded.platform,
              turn_terminal_enabled = excluded.turn_terminal_enabled,
              action_required_enabled = excluded.action_required_enabled,
+             include_remaining_usage_enabled = excluded.include_remaining_usage_enabled,
              updated_at = excluded.updated_at`,
         )
         .run(
@@ -460,6 +467,7 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
           subscription.platform,
           subscription.turnTerminal ? 1 : 0,
           subscription.actionRequired ? 1 : 0,
+          subscription.includeRemainingUsage ? 1 : 0,
           now,
           now,
         );
@@ -494,6 +502,16 @@ export async function createTursoPairingSessionStore(path: string): Promise<Pair
     const pendingColumns = new Set(resultRows(pendingRows).map((row) => String(row.name)));
     if (!pendingColumns.has("client_session_id")) {
       await db.exec("ALTER TABLE pending_pairings ADD COLUMN client_session_id TEXT");
+    }
+  }
+
+  async function ensurePushNotificationSubscriptionColumns() {
+    const rows = await db.prepare("PRAGMA table_info(push_notification_subscriptions)").all();
+    const columns = new Set(resultRows(rows).map((row) => String(row.name)));
+    if (!columns.has("include_remaining_usage_enabled")) {
+      await db.exec(
+        "ALTER TABLE push_notification_subscriptions ADD COLUMN include_remaining_usage_enabled INTEGER NOT NULL DEFAULT 0",
+      );
     }
   }
 }
@@ -548,6 +566,7 @@ function pushNotificationSubscriptionFromRow(
     actionRequired: Number(row.actionRequired) === 1,
     clientSessionId: row.clientSessionId,
     expoPushToken: row.expoPushToken,
+    includeRemainingUsage: Number(row.includeRemainingUsage) === 1,
     platform,
     turnTerminal: Number(row.turnTerminal) === 1,
   };

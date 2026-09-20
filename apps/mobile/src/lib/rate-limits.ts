@@ -1,4 +1,8 @@
-import type { RateLimitBucket, RateLimitWindow } from "codex-relay/api-schema";
+import {
+  rateLimitRemainingPercent,
+  type RateLimitBucket,
+  type RateLimitWindow,
+} from "codex-relay/api-schema";
 
 export type RateLimitDisplayRow = {
   id: string;
@@ -28,8 +32,15 @@ export function visibleRateLimitRows(buckets: RateLimitBucket[]) {
       if (!row) {
         return [];
       }
-      const usedPercent = Math.max(0, Math.min(100, row.window.usedPercent));
-      return [{ ...row, window: { ...row.window, remainingPercent: 100 - usedPercent } }];
+      return [
+        {
+          ...row,
+          window: {
+            ...row.window,
+            remainingPercent: rateLimitRemainingPercent(row.window.usedPercent),
+          },
+        },
+      ];
     });
   });
 

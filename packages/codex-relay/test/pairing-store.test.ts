@@ -61,6 +61,7 @@ describe("pairing session store", () => {
       actionRequired: true,
       clientSessionId: "phone-session",
       expoPushToken: "ExponentPushToken[phone-token]",
+      includeRemainingUsage: true,
       platform: "ios",
       turnTerminal: true,
     });
@@ -74,6 +75,7 @@ describe("pairing session store", () => {
       actionRequired: true,
       clientSessionId: "phone-session",
       expoPushToken: "ExponentPushToken[phone-token]",
+      includeRemainingUsage: true,
       platform: "ios",
       turnTerminal: true,
     });
@@ -92,6 +94,7 @@ describe("pairing session store", () => {
       actionRequired: true,
       clientSessionId: "expired-phone",
       expoPushToken: "ExponentPushToken[expired-phone]",
+      includeRemainingUsage: false,
       platform: "android",
       turnTerminal: true,
     });
@@ -115,6 +118,7 @@ describe("pairing session store", () => {
       actionRequired: false,
       clientSessionId: "active-phone",
       expoPushToken: "ExponentPushToken[active-phone]",
+      includeRemainingUsage: false,
       platform: "android",
       turnTerminal: true,
     });
@@ -222,6 +226,10 @@ describe("pairing session store", () => {
         .prepare("PRAGMA table_info(pending_pairings)")
         .all()
         .map((column) => column.name);
+      const pushNotificationColumns = database
+        .prepare("PRAGMA table_info(push_notification_subscriptions)")
+        .all()
+        .map((column) => column.name);
       database.close();
 
       expect(sessionColumns).toEqual(
@@ -235,6 +243,7 @@ describe("pairing session store", () => {
         ]),
       );
       expect(pendingColumns).toContain("client_session_id");
+      expect(pushNotificationColumns).toContain("include_remaining_usage_enabled");
     } finally {
       await rm(directory, { force: true, recursive: true });
     }
@@ -447,6 +456,15 @@ function createOldSchemaAuthDatabase(path: string) {
       server_url TEXT NOT NULL,
       approved INTEGER NOT NULL DEFAULT 0,
       expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE TABLE push_notification_subscriptions (
+      client_session_id TEXT PRIMARY KEY,
+      expo_push_token TEXT NOT NULL,
+      platform TEXT NOT NULL,
+      turn_terminal_enabled INTEGER NOT NULL,
+      action_required_enabled INTEGER NOT NULL,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );

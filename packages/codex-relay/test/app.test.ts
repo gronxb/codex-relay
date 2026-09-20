@@ -1243,13 +1243,14 @@ describe("Codex Relay server routes", () => {
 
     expect(registration.status).toBe(200);
     await expect(registration.json()).resolves.toEqual({
-      preferences: { actionRequired: true, turnTerminal: false },
+      preferences: { actionRequired: true, includeRemainingUsage: false, turnTerminal: false },
       registered: true,
     });
     expect(await sessions.getPushNotificationSubscription("phone-session")).toEqual({
       actionRequired: true,
       clientSessionId: "phone-session",
       expoPushToken: "ExponentPushToken[phone-token]",
+      includeRemainingUsage: false,
       platform: "ios",
       turnTerminal: false,
     });
@@ -1258,7 +1259,7 @@ describe("Codex Relay server routes", () => {
       headers: { authorization: "Bearer client-token" },
     });
     await expect(settings.json()).resolves.toEqual({
-      preferences: { actionRequired: true, turnTerminal: false },
+      preferences: { actionRequired: true, includeRemainingUsage: false, turnTerminal: false },
       registered: true,
     });
 
@@ -1268,7 +1269,7 @@ describe("Codex Relay server routes", () => {
     });
     expect(removal.status).toBe(200);
     await expect(removal.json()).resolves.toEqual({
-      preferences: { actionRequired: false, turnTerminal: false },
+      preferences: { actionRequired: false, includeRemainingUsage: false, turnTerminal: false },
       registered: false,
     });
     expect(await sessions.getPushNotificationSubscription("phone-session")).toBeUndefined();
@@ -1284,6 +1285,7 @@ describe("Codex Relay server routes", () => {
       actionRequired: true,
       clientSessionId: "phone-session",
       expoPushToken: "ExponentPushToken[phone-token]",
+      includeRemainingUsage: true,
       platform: "ios",
       turnTerminal: true,
     });
@@ -1292,7 +1294,20 @@ describe("Codex Relay server routes", () => {
     const appServer = {
       async readThread(threadId: string) {
         return {
+          name: threadId === "thread-1" ? "Push notification improvements" : null,
           parentThreadId: threadId === "agent-thread-1" ? "thread-1" : null,
+          preview: threadId,
+        };
+      },
+      async readRateLimits() {
+        return {
+          rateLimitsByLimitId: {
+            codex: {
+              limitId: "codex",
+              primary: { usedPercent: 31 },
+              secondary: { usedPercent: 72 },
+            },
+          },
         };
       },
       onNotification(handler: (notification: unknown) => void) {
@@ -1376,18 +1391,20 @@ describe("Codex Relay server routes", () => {
     }
 
     await waitUntil(() => expect(sent).toHaveLength(2));
-    expect(sent).toEqual([
-      [
+    expect(sent.flat()).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
+          body: "Finished working. Remaining usage: 28%",
           data: { intent: "turn_terminal", threadId: "thread-1", turnId: "turn-1" },
+          title: "Push notification improvements",
         }),
-      ],
-      [
         expect.objectContaining({
+          body: "Codex needs your attention.",
           data: { intent: "action_required", threadId: "thread-1", turnId: "turn-1" },
+          title: "Push notification improvements",
         }),
-      ],
-    ]);
+      ]),
+    );
   });
 
   it("rejects secure tokens when the in-process e2ee session is gone", async () => {

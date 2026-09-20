@@ -31,9 +31,9 @@ describe("Expo push notification sender", () => {
 
     const delivery = await sender.send([
       {
-        body: "A Codex turn has finished.",
+        body: "Finished working.",
         data: { intent: "turn_terminal", threadId: "thread-1", turnId: "turn-1" },
-        title: "Codex Relay",
+        title: "Push notification improvements",
         to: "ExponentPushToken[active]",
       },
       {
@@ -51,9 +51,9 @@ describe("Expo push notification sender", () => {
     const payload = JSON.parse(String(requests[0]?.init?.body));
     expect(payload).toEqual([
       expect.objectContaining({
-        body: "A Codex turn has finished.",
+        body: "Finished working.",
         data: { intent: "turn_terminal", threadId: "thread-1", turnId: "turn-1" },
-        title: "Codex Relay",
+        title: "Push notification improvements",
       }),
       expect.objectContaining({
         body: "Codex needs your attention.",
@@ -80,6 +80,7 @@ describe("push notification dispatcher", () => {
       actionRequired: false,
       clientSessionId: "turn-device",
       expoPushToken: "ExponentPushToken[turn-device]",
+      includeRemainingUsage: true,
       platform: "ios",
       turnTerminal: true,
     });
@@ -87,6 +88,7 @@ describe("push notification dispatcher", () => {
       actionRequired: true,
       clientSessionId: "action-device",
       expoPushToken: "ExponentPushToken[action-device]",
+      includeRemainingUsage: false,
       platform: "android",
       turnTerminal: false,
     });
@@ -102,29 +104,39 @@ describe("push notification dispatcher", () => {
         };
       },
     };
-    const dispatcher = createPushNotificationDispatcher({ sender, sessions });
+    const dispatcher = createPushNotificationDispatcher({
+      readRemainingUsagePercent: async () => 37,
+      sender,
+      sessions,
+    });
 
     await dispatcher.dispatch({
       intent: "turn_terminal",
       threadId: "thread-1",
+      threadTitle: "Push notification improvements",
       turnId: "turn-1",
     });
     await dispatcher.dispatch({
       intent: "action_required",
       threadId: "thread-2",
+      threadTitle: "Approval handling",
       turnId: "turn-2",
     });
 
     expect(sent).toEqual([
       [
         expect.objectContaining({
+          body: "Finished working. Remaining usage: 37%",
           data: { intent: "turn_terminal", threadId: "thread-1", turnId: "turn-1" },
+          title: "Push notification improvements",
           to: "ExponentPushToken[turn-device]",
         }),
       ],
       [
         expect.objectContaining({
+          body: "Codex needs your attention.",
           data: { intent: "action_required", threadId: "thread-2", turnId: "turn-2" },
+          title: "Approval handling",
           to: "ExponentPushToken[action-device]",
         }),
       ],

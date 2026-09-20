@@ -99,6 +99,7 @@ export const PushNotificationIntentSchema = z.enum(["turn_terminal", "action_req
 
 export const PushNotificationPreferencesSchema = z.object({
   actionRequired: z.boolean(),
+  includeRemainingUsage: z.boolean().default(false),
   turnTerminal: z.boolean(),
 });
 
@@ -178,6 +179,19 @@ export const RateLimitBucketSchema = z.object({
 export const RateLimitsResponseSchema = z.object({
   buckets: z.array(RateLimitBucketSchema),
 });
+
+export function rateLimitRemainingPercent(usedPercent: number) {
+  return 100 - Math.max(0, Math.min(100, usedPercent));
+}
+
+export function lowestRateLimitRemainingPercent(buckets: readonly RateLimitBucket[]) {
+  const remaining = buckets.flatMap((bucket) =>
+    [bucket.primary, bucket.secondary].flatMap((window) =>
+      window ? [rateLimitRemainingPercent(window.usedPercent)] : [],
+    ),
+  );
+  return remaining.length > 0 ? Math.min(...remaining) : undefined;
+}
 
 export const ThreadContextWindowResponseSchema = z.object({
   threadId: z.string().min(1),
@@ -1636,6 +1650,7 @@ export function createOpenApiDocument() {
           required: ["actionRequired", "turnTerminal"],
           properties: {
             actionRequired: { type: "boolean" },
+            includeRemainingUsage: { type: "boolean", default: false },
             turnTerminal: { type: "boolean" },
           },
         },

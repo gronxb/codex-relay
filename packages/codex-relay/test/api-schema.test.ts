@@ -199,7 +199,7 @@ describe("push notification schemas", () => {
     ).toEqual({
       expoPushToken: "ExponentPushToken[phone-token]",
       platform: "ios",
-      preferences: { actionRequired: true, turnTerminal: false },
+      preferences: { actionRequired: true, includeRemainingUsage: false, turnTerminal: false },
     });
   });
 });

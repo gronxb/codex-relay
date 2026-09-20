@@ -168,6 +168,7 @@ describe("subagent thread boundaries", () => {
       actionRequired: true,
       clientSessionId: "phone-session",
       expoPushToken: "ExponentPushToken[phone-token]",
+      includeRemainingUsage: false,
       platform: "ios",
       turnTerminal: true,
     });
