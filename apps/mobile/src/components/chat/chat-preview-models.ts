@@ -11,8 +11,16 @@ export const previewModels: CodexModel[] = [
     isDefault: true,
   }),
   previewModel({
+    defaultReasoningEffort: "low",
+    description: "Latest workhorse model for coding and everyday work.",
+    displayName: "GPT-6.1-Sol",
+    efforts: ["low", "medium", "high", "xhigh", "max", "ultra"],
+    fastDescription: "2x speed, increased usage",
+    id: "gpt-6.1-sol",
+  }),
+  previewModel({
     defaultReasoningEffort: "medium",
-    description: "Workhorse model for coding and everyday work.",
+    description: "Previous generation workhorse model.",
     displayName: "GPT-6-Sol",
     efforts: ["low", "medium", "high", "xhigh", "max", "ultra"],
     fastDescription: "1.5x speed",

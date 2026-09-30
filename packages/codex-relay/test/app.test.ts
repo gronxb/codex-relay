@@ -5332,103 +5332,123 @@ describe("Codex Relay server routes", () => {
     expect(body).toContain('"state":"failed"');
   });
 
-  it("streams app-server usage-limit failures as persistent error messages", async () => {
-    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
-    const notificationHandlers = new Set<(notification: unknown) => void>();
-    const now = Date.now() / 1000;
-    const usageLimitMessage = "You've hit your usage limit. Try again later.";
-    const appServer = {
-      onNotification(handler: (notification: unknown) => void) {
-        notificationHandlers.add(handler);
-        return () => notificationHandlers.delete(handler);
-      },
-      onRequest() {
-        return () => undefined;
-      },
-      startThread: vi.fn<() => Promise<unknown>>(async () => ({
-        id: "app-thread-usage-limited",
-        createdAt: now,
-        cwd: workspacePath,
-        modelProvider: "gpt-5.6-sol",
-        name: "Usage limited",
-        preview: "Usage limited",
-        source: "app",
-        status: "idle",
-        turns: [],
-        updatedAt: now,
-      })),
-      startTurn: vi.fn<() => Promise<unknown>>(async () => {
-        queueMicrotask(() => {
-          for (const handler of notificationHandlers) {
-            handler({
-              method: "error",
-              params: {
-                error: { message: usageLimitMessage },
-                threadId: "app-thread-usage-limited",
-                turnId: "turn-usage-limited",
-              },
-            });
-            handler({
-              method: "turn/completed",
-              params: {
-                threadId: "app-thread-usage-limited",
-                turn: {
-                  id: "turn-usage-limited",
-                  items: [],
-                  status: "failed",
-                  error: {
-                    message: usageLimitMessage,
-                    codexErrorInfo: "usageLimitExceeded",
+  it.each([
+    {
+      codexErrorInfo: "usageLimitExceeded",
+      failureMessage: "You've hit your usage limit. Try again later.",
+      status: "failed",
+    },
+    {
+      codexErrorInfo: "flexUnavailable",
+      failureMessage: "Flex capacity is temporarily unavailable.",
+      status: "failed",
+    },
+    {
+      codexErrorInfo: "tooManyDenials",
+      failureMessage: "Turn interrupted after repeated approval denials.",
+      status: "interrupted",
+    },
+  ])(
+    "persists app-server $codexErrorInfo terminal errors",
+    async ({ codexErrorInfo, failureMessage, status }) => {
+      const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));
+      const notificationHandlers = new Set<(notification: unknown) => void>();
+      const now = Date.now() / 1000;
+      const appServer = {
+        onNotification(handler: (notification: unknown) => void) {
+          notificationHandlers.add(handler);
+          return () => notificationHandlers.delete(handler);
+        },
+        onRequest() {
+          return () => undefined;
+        },
+        startThread: vi.fn<() => Promise<unknown>>(async () => ({
+          id: "app-thread-usage-limited",
+          createdAt: now,
+          cwd: workspacePath,
+          modelProvider: "gpt-5.6-sol",
+          name: "Usage limited",
+          preview: "Usage limited",
+          source: "app",
+          status: "idle",
+          turns: [],
+          updatedAt: now,
+        })),
+        startTurn: vi.fn<() => Promise<unknown>>(async () => {
+          queueMicrotask(() => {
+            for (const handler of notificationHandlers) {
+              if (codexErrorInfo === "usageLimitExceeded") {
+                handler({
+                  method: "error",
+                  params: {
+                    error: { message: failureMessage },
+                    threadId: "app-thread-usage-limited",
+                    turnId: "turn-usage-limited",
                   },
-                  startedAt: now,
-                  completedAt: now,
+                });
+              }
+              handler({
+                method: "turn/completed",
+                params: {
+                  threadId: "app-thread-usage-limited",
+                  turn: {
+                    id: "turn-usage-limited",
+                    items: [],
+                    status,
+                    error: {
+                      message: failureMessage,
+                      codexErrorInfo,
+                    },
+                    startedAt: now,
+                    completedAt: now,
+                  },
                 },
-              },
-            });
-          }
-        });
-        return {
-          id: "turn-usage-limited",
-          items: [],
-          status: "inProgress",
-          startedAt: now,
-          completedAt: null,
-        };
-      }),
-    };
-    const app = createApp({
-      appServer: appServer as never,
-      codex: createMockCodex(),
-      workspacePath,
-    });
+              });
+            }
+          });
+          return {
+            id: "turn-usage-limited",
+            items: [],
+            status: "inProgress",
+            startedAt: now,
+            completedAt: null,
+          };
+        }),
+      };
+      const app = createApp({
+        appServer: appServer as never,
+        codex: createMockCodex(),
+        workspacePath,
+      });
 
-    await app.request("/v1/threads", {
-      method: "POST",
-      body: JSON.stringify({ title: "Usage limited" }),
-      headers: { "content-type": "application/json" },
-    });
-    const response = await app.request("/v1/threads/app-thread-usage-limited/runs/stream", {
-      method: "POST",
-      body: JSON.stringify({ model: "gpt-5.6-sol", prompt: "Return a response" }),
-      headers: { "content-type": "application/json" },
-    });
-    const body = await response.text();
-    const events = body
-      .split("\n")
-      .filter((line) => line.startsWith("data: "))
-      .map((line) => JSON.parse(line.slice("data: ".length)) as Record<string, unknown>);
+      await app.request("/v1/threads", {
+        method: "POST",
+        body: JSON.stringify({ title: "Usage limited" }),
+        headers: { "content-type": "application/json" },
+      });
+      const response = await app.request("/v1/threads/app-thread-usage-limited/runs/stream", {
+        method: "POST",
+        body: JSON.stringify({ model: "gpt-5.6-sol", prompt: "Return a response" }),
+        headers: { "content-type": "application/json" },
+      });
+      const body = await response.text();
+      const events = body
+        .split("\n")
+        .filter((line) => line.startsWith("data: "))
+        .map((line) => JSON.parse(line.slice("data: ".length)) as Record<string, unknown>);
 
-    expect(response.status).toBe(200);
-    expect(events).toContainEqual(
-      expect.objectContaining({
-        type: "thread.message.created",
-        message: expect.objectContaining({ role: "error", content: usageLimitMessage }),
-      }),
-    );
-    expect(body).toContain("thread.error");
-    expect(body).toContain(usageLimitMessage);
-    expect(body).toContain('"state":"failed"');
-  });
+      expect(response.status).toBe(200);
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          type: "thread.message.created",
+          message: expect.objectContaining({ role: "error", content: failureMessage }),
+        }),
+      );
+      expect(body).toContain("thread.error");
+      expect(body).toContain(failureMessage);
+      expect(body).toContain('"state":"failed"');
+    },
+  );
 
   it("streams directly returned app-server failures as persistent error messages", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-workspace-"));

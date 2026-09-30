@@ -65,50 +65,65 @@ liveDescribe("live mobile stream contract", () => {
     }
   }, 30_000);
 
-  it("round-trips a real app-server turn through the server SSE and mobile stream reducer", async () => {
-    const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-live-workspace-"));
-    appServer = new CodexAppServerClient();
-    const app = createApp({
-      appServer,
-      workspacePath,
-    });
+  it.each(["gpt-5.5", "gpt-6.1-sol"])(
+    "round-trips a real %s turn through the server SSE and mobile stream reducer",
+    async (model) => {
+      const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-live-workspace-"));
+      appServer = new CodexAppServerClient();
+      const app = createApp({
+        appServer,
+        workspacePath,
+      });
 
-    const createResponse = await app.request("/v1/threads", {
-      method: "POST",
-      body: JSON.stringify({
-        model: "gpt-5.5",
-        runtimeMode: "full-access",
-        title: "Live stream contract",
-      }),
-      headers: { "content-type": "application/json" },
-    });
-    const createPayload = await createResponse.json();
-    const threadId = createPayload.thread.id as string;
+      const createResponse = await app.request("/v1/threads", {
+        method: "POST",
+        body: JSON.stringify({
+          model,
+          runtimeMode: "full-access",
+          title: "Live stream contract",
+        }),
+        headers: { "content-type": "application/json" },
+      });
+      const createPayload = await createResponse.json();
+      const threadId = createPayload.thread.id as string;
 
-    const response = await app.request(`/v1/threads/${threadId}/runs/stream`, {
-      method: "POST",
-      body: JSON.stringify({
-        model: "gpt-5.5",
-        prompt: "Reply with exactly: relay-live-ok",
-        reasoningEffort: "medium",
-        runtimeMode: "full-access",
-      }),
-      headers: { "content-type": "application/json" },
-    });
-    const body = await response.text();
-    const consumed = consumeAsMobileChatStream(body, threadId);
-    const messages = chatStore$.messagesByThreadId[threadId].peek() ?? [];
-    const assistantMessage = messages.find((message) => message.role === "assistant");
+      const response = await app.request(`/v1/threads/${threadId}/runs/stream`, {
+        method: "POST",
+        body: JSON.stringify({
+          model,
+          prompt: "Reply with exactly: relay-live-ok",
+          reasoningEffort: "medium",
+          runtimeMode: "full-access",
+        }),
+        headers: { "content-type": "application/json" },
+      });
+      const body = await response.text();
+      const consumed = consumeAsMobileChatStream(body, threadId);
+      const messages = chatStore$.messagesByThreadId[threadId].peek() ?? [];
+      const assistantMessage = messages.find((message) => message.role === "assistant");
 
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/event-stream");
-    expect(consumed.errors).toEqual([]);
-    expect(consumed.eventTypes).toContain("thread.message.delta");
-    expect(consumed.terminalThreadIds).toContain(threadId);
-    expect(chatStore$.threadsById[threadId].state.peek()).toBe("completed");
-    expect(assistantMessage?.state).toBe("completed");
-    expect(assistantMessage?.content.toLowerCase()).toContain("relay-live-ok");
-  }, 120_000);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain("text/event-stream");
+      expect(consumed.errors).toEqual([]);
+      expect(consumed.eventTypes).toContain("thread.message.delta");
+      expect(consumed.terminalThreadIds).toContain(threadId);
+      expect(chatStore$.threadsById[threadId].state.peek()).toBe("completed");
+      expect(assistantMessage?.state).toBe("completed");
+      expect(assistantMessage?.content.toLowerCase()).toContain("relay-live-ok");
+
+      // Codex 0.158+ defaults new threads to paginated history.
+      await appServer.resumeThread({ threadId, excludeTurns: true });
+      const restoredThread = await appServer.readThread(threadId);
+      expect(restoredThread.turns?.flatMap((turn) => turn.items)).toContainEqual(
+        expect.objectContaining({
+          type: "agentMessage",
+          text: expect.stringContaining("relay-live-ok"),
+        }),
+      );
+      await appServer.archiveThread({ threadId });
+    },
+    120_000,
+  );
 
   it("continues a real not-loaded app-server thread through the mobile stream reducer", async () => {
     const workspacePath = await mkdtemp(join(tmpdir(), "codex-relay-live-workspace-"));
