@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.5.0-ship.2
+
+### Patch Changes
+
+- 18a5ac9: Add GPT-6.1 Sol to the fallback and mobile preview model catalogs with Low through Ultra reasoning and Fast mode, preserving Astra as the app default and existing GPT-6 Sol selections. Update the bundled Codex SDK and CLI to 0.159.2.
+
 ## 1.5.0-ship.1
 
 ### Patch Changes
