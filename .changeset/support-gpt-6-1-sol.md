@@ -1,5 +1,4 @@
 ---
-"codex-relay": patch
 "@codex-relay/mobile": patch
 ---
 
