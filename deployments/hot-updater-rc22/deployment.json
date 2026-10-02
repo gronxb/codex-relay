@@ -416,6 +416,35 @@
         "clientCredentialEmbedded": true
       },
       "checkedAt": "2026-10-02T14:36:25.875566+00:00"
+    },
+    {
+      "id": "native.rc23-store-upload-58",
+      "target": {
+        "sourceCommit": "820c88adabb189685c332f866cd3dca33f9ecb32",
+        "buildId": "750bc767-0a33-4e23-ace1-1cf054ebcb8f",
+        "ascAppId": "6764463488",
+        "appVersion": "1.6.0",
+        "buildNumber": "58"
+      },
+      "observation": {
+        "transport": "Xcode altool 27.0.5",
+        "deliveryId": "69d41013-3446-4218-92dc-5e9d12008920",
+        "uploadExitCode": 0,
+        "appleBuildStatus": "VALID",
+        "appleImportStatus": "VALID",
+        "processingState": "VALID",
+        "internalState": "IN_BETA_TESTING",
+        "externalState": "READY_FOR_BETA_SUBMISSION",
+        "uploadedDate": "2026-10-02T08:14:45-07:00",
+        "easSubmission": {
+          "id": "fad72657-77d1-4bf1-8231-27b559444d1e",
+          "status": "CANCELED",
+          "reason": "Canceled before upload started after prolonged queue wait; same IPA uploaded locally"
+        },
+        "temporaryCredentialRemoved": true,
+        "appReviewSubmitted": false
+      },
+      "checkedAt": "2026-10-02T15:18:01.623Z"
     }
   ]
 }
