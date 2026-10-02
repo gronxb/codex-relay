@@ -64,6 +64,10 @@ The build profile overrides the old URL in the EAS preview environment. Public A
 
 ## Store build upload
 
+Final rc23 candidate **1.6.0 (58)**: build [750bc767-0a33-4e23-ace1-1cf054ebcb8f](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/750bc767-0a33-4e23-ace1-1cf054ebcb8f), built from clean main commit `820c88adabb189685c332f866cd3dca33f9ecb32`. The build is `FINISHED`; Apple upload [fad72657-77d1-4bf1-8231-27b559444d1e](https://expo.dev/accounts/gronxb/projects/codex-relay/submissions/fad72657-77d1-4bf1-8231-27b559444d1e) is pending. This candidate uses official rc23 packages with no preview-package dependency or pnpm adapter patch.
+
+IPA inspection confirms version 1.6.0, build 58, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, the repository's OTA public key, and the rc23 service's existing endpoint and client credential. The legacy endpoint is absent. SHA-256: `4de57bd1750f14c981af50a290aa5c1447f5990ba79389cd4d6be205d49f1f4d`. Physical-device TestFlight execution remains pending. App Review is the user's responsibility.
+
 Intermediate candidate **1.6.0 (57)**: build [69cd553e-0a95-436d-bbce-e30548b9ee11](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/69cd553e-0a95-436d-bbce-e30548b9ee11), built from merged main commit `19e349f9e4db660efcf1e21754ad12149f91b341`. The build and Apple upload are `FINISHED`, and App Store Connect reports `VALID`. This rc22 candidate is being superseded by the official rc23 build. The currently live version remains 1.5.0. App Review has not been submitted by this task; the user owns that step.
 
 The IPA confirms version 1.6.0, build 57, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, an OTA public key matching the repository key, and the rc22 endpoint and client credential without the legacy endpoint. Its SHA-256 is `bdbe66def223091f517217c7692ae2810e3fdd4f4295faf0e574cdd4df1deb41`. It includes the React Query fix, Duo pane and header changes, pairing-route handoff, first-tap keyboard navigation, native WebView continuity fix, and pinned Expo OTA adapter patch. Simulator verification uses an SDK 27.1 native container; this does not replace a physical-device check of the SDK 27.0 store IPA.
@@ -159,6 +163,16 @@ PR #1440 merged to `next` as `8bef128cf1c5dc2be020ea67a247c07d10589518`. Release
 Official [rc23](https://github.com/gronxb/hot-updater/releases/tag/v1.0.0-rc.23) was published from `b1ee05429d1e8bfdd8553583031dc567eab97dd9`. All 26 registry versions and `rc` tags were verified. Modex's CLI, Expo adapter, Cloudflare adapter and React Native SDK are pinned to rc23. Server tests (335 passed, 5 skipped), mobile tests (27 passed), release checks (13 Node and 6 mobile tests) and typechecking passed with the installed registry packages.
 
 The existing Cloudflare Worker was redeployed as version `5327dd63-e1d8-481c-b404-74e7fd1a5dc8`; its public `/version` reports rc23 / generation 1 / admin protocol 2. The new Worker bytes differ from rc22 only in the version string, and the migration file is identical. Live D1 schema markers and migration history were checked; no migration was reapplied. Existing D1/R2 bindings and Worker secret names are unchanged. The rc23 infrastructure doctor passed all seven required checks, and the packaged authenticated-server verifier passed. The directory, resource names and secret names retain `rc22` as their creation identity.
+
+## Official rc23 verification from main
+
+Modex main commit `820c88adabb189685c332f866cd3dca33f9ecb32` uses the official rc23 registry packages and no local adapter patch. Both CI and Release passed; the native 1.6.0 baseline correctly skipped automatic OTA and npm publication.
+
+A second local deployment against the upgraded rc23 Worker created Release `01a0fcfa-0933-748b-90c8-dfbca927e0a2` and artifact Bundle `01a0fcf7-e968-7a18-b817-4dc25abacaf0`. The app version came from `hot-updater app-version --json`. Rollout stayed zero and one temporary cohort targeted the Duo simulator.
+
+Signed artifact download, native apply, complete process restart, Insights download/apply events, cohort exclusion, app-version 1.5.0 exclusion, and anonymous catalog rejection all passed. After disabling the Release, the simulator staged and loaded its embedded bundle; another cold launch passed with the original cohort restored. The `UPDATE_APPLIED` Insights event reports SDK `1.0.0-rc.23`. Final Release revision is 3, disabled, rollout zero. The artifact remains stored for audit.
+
+This test used the existing SDK 27.1 simulator container, whose Hot Updater native runtime source is unchanged between rc22 and rc23. Build 58 separately compiles the official rc23 native package. Patch generation was skipped because there were no compatible enabled base bundles; this run establishes signed full-artifact delivery and rollback, not binary-patch or fault-injection behavior.
 
 ## Subsequent Duo and OTA battle-test gates
 

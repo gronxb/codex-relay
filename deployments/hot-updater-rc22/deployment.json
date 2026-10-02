@@ -356,6 +356,66 @@
         "resourcesReused": true
       },
       "checkedAt": "2026-10-02T14:11:10.892Z"
+    },
+    {
+      "id": "native.local-ota-rc23-main",
+      "target": {
+        "sourceCommit": "820c88adabb189685c332f866cd3dca33f9ecb32",
+        "version": "1.0.0-rc.23",
+        "platform": "ios",
+        "appVersion": "1.6.0",
+        "channel": "production",
+        "device": "iPhone Duo / iOS 27.1",
+        "releaseId": "01a0fcfa-0933-748b-90c8-dfbca927e0a2",
+        "bundleId": "01a0fcf7-e968-7a18-b817-4dc25abacaf0"
+      },
+      "observation": {
+        "checks": {
+          "signedLocalDeployment": true,
+          "rolloutZeroOneQaCohort": true,
+          "nativeApplied": true,
+          "coldLaunch": true,
+          "insightsDownloadAndApply": true,
+          "cohortAndAppVersionExclusion": true,
+          "anonymousCatalogRejected": true,
+          "rollbackBuiltin": true,
+          "deliveryDisabled": true,
+          "cohortRestored": true,
+          "insightsAppliedSdkRc23": true
+        },
+        "finalReleaseRevision": 3,
+        "limitations": [
+          "Simulator native container originally built with rc22; rc23 native runtime source unchanged",
+          "Binary patch and fault injection not tested",
+          "Physical TestFlight execution not tested"
+        ]
+      },
+      "checkedAt": "2026-10-02T14:32:26.358Z"
+    },
+    {
+      "id": "native.rc23-store-binary-58",
+      "target": {
+        "sourceCommit": "820c88adabb189685c332f866cd3dca33f9ecb32",
+        "buildId": "750bc767-0a33-4e23-ace1-1cf054ebcb8f",
+        "appVersion": "1.6.0",
+        "buildNumber": "58"
+      },
+      "observation": {
+        "CFBundleIdentifier": "com.gronstudio.codexrelay",
+        "CFBundleShortVersionString": "1.6.0",
+        "CFBundleVersion": "58",
+        "DTSDKName": "iphoneos27.0",
+        "DTXcode": "2700",
+        "MinimumOSVersion": "16.4",
+        "sceneDelegate": true,
+        "channel": "production",
+        "publicKeyMatchesRepository": true,
+        "rc23EndpointEmbedded": true,
+        "legacyEndpointEmbedded": false,
+        "sha256": "4de57bd1750f14c981af50a290aa5c1447f5990ba79389cd4d6be205d49f1f4d",
+        "clientCredentialEmbedded": true
+      },
+      "checkedAt": "2026-10-02T14:36:25.875566+00:00"
     }
   ]
 }
