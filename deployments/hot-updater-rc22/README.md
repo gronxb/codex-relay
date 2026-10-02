@@ -1,13 +1,13 @@
-# Mobile 1.6.0: rc22 / Expo 58 preparation
+# Mobile 1.6.0: rc23 / Expo 58 preparation
 
-Scope: prepare mobile 1.6.0 with an isolated rc22 OTA service, upload the store build, and continue iPhone Duo simulator validation after the host update. The user will submit App Review. Native OTA battle tests remain unperformed.
+Scope: prepare mobile 1.6.0 with Hot Updater rc23 and Expo 58, upload the store build, and verify iPhone Duo behavior. The OTA service retains the resource names and URL created for rc22. The user will submit App Review. Scoped local OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                                          | Selected version / target           |
 | ------------------------------------------------------------------ | ----------------------------------- |
 | Mobile native version                                              | `1.6.0`                             |
-| Hot Updater CLI, Expo, React Native, Cloudflare plugins and Worker | `1.0.0-rc.22`                       |
+| Hot Updater CLI, Expo, React Native, Cloudflare plugins and Worker | `1.0.0-rc.23`                       |
 | Expo / React Native / React                                        | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                               | `24.8.0` / `24.14.1`                |
 | Preview and store build image                                      | `macos-tahoe-26.6-xcode-27.0`       |
@@ -34,9 +34,9 @@ New D1 markers: engine `1`, core `1.0.0`, Insights `1.2.0`, API keys `1.0.0`. Th
 - Updated Expo packages and strict React Native types, regenerated iOS with SceneDelegate, and installed CocoaPods successfully.
 - Enabled rotation and container-width layouts. Chat and workspace panes retain their React/native parent hierarchy through compact/wide transitions and preview hide/show. Sidebar and bottom sheets include horizontal safe-area insets.
 - Host-boundary tests cover draft/session component preservation, compact page offset after resize, and returning to chat when the secondary pane is unavailable. These tests do not simulate UIKit, WebView, keyboard, or gesture behavior.
-- Infrastructure doctor passes all seven required checks, including anonymous rejection and authenticated empty catalog. App doctor passes package/native wiring checks. R2 listing succeeds with zero objects.
-- rc22 console opens Bundles, Insights, and API keys against the new database without errors. Empty reports are expected before native launches and OTA delivery.
-- `pnpm test`: 335 passed, 5 skipped. `pnpm test:release`: 11 Node tests and 6 mobile tests passed. Mobile Vitest: 27 passed. `pnpm typecheck` and `pnpm lint` passed.
+- Initial infrastructure doctor passed all seven required checks, including anonymous rejection and an authenticated empty catalog. App doctor passed package/native wiring checks. Initial R2 listing was empty; the scoped OTA test below subsequently verified artifact writes and native downloads.
+- rc22 console opens Bundles, Insights, and API keys against the new database without errors. The local OTA test later produced download and apply events in Insights.
+- `pnpm test`: 335 passed, 5 skipped. `pnpm test:release`: 13 Node tests and 6 mobile tests passed. Mobile Vitest: 27 passed. `pnpm typecheck` and `pnpm lint` passed.
 - Native startup exposed two installed React Query contexts. Aligned the query, persistence provider, and async-storage persister packages to 5.104.0. A regression test using the installed dependency graph failed with the same `No QueryClient set` error before the change and passes afterward.
 - iOS Hermes export succeeds. The output contains the rc22 URL and does not contain the legacy Worker URL.
 - EAS archive inspection confirms the OTA public key is included and private environment/key/backup files are excluded. The root Git ignore exception is necessary for the tracked public key to enter the EAS archive.
@@ -64,9 +64,11 @@ The build profile overrides the old URL in the EAS preview environment. Public A
 
 ## Store build upload
 
-The current candidate is **1.6.0 (55)**: build [d6e7486d-bebb-4b18-9bf8-78a64d4a81df](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/d6e7486d-bebb-4b18-9bf8-78a64d4a81df), EAS upload `8c97ee6f-1d3d-4812-821d-3a5d5b089703`. Build and upload both report `FINISHED`; EAS confirms Apple accepted the upload for processing. App Store Connect now reports build 55 as `VALID`. This build was produced from the pre-merge working tree; a fresh build from the merged main commit will supersede it. The currently live version remains 1.5.0. App Review has not been submitted by this task; the user owns that step.
+Intermediate candidate **1.6.0 (57)**: build [69cd553e-0a95-436d-bbce-e30548b9ee11](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/69cd553e-0a95-436d-bbce-e30548b9ee11), built from merged main commit `19e349f9e4db660efcf1e21754ad12149f91b341`. The build and Apple upload are `FINISHED`, and App Store Connect reports `VALID`. This rc22 candidate is being superseded by the official rc23 build. The currently live version remains 1.5.0. App Review has not been submitted by this task; the user owns that step.
 
-The IPA confirms version 1.6.0, build 55, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, an OTA public key matching the repository key, and the rc22 endpoint without the legacy endpoint. Its SHA-256 is `d5d46b8b36e9f5bb3761f1c1e78b4e0715147fd005220e6bc54c1d816542a8a9`. It includes the React Query fix, Duo pane and header changes, pairing-route handoff, first-tap keyboard navigation, and native WebView continuity fix. Simulator verification uses an SDK 27.1 native container; this does not replace a physical-device check of the SDK 27.0 store IPA.
+The IPA confirms version 1.6.0, build 57, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, an OTA public key matching the repository key, and the rc22 endpoint and client credential without the legacy endpoint. Its SHA-256 is `bdbe66def223091f517217c7692ae2810e3fdd4f4295faf0e574cdd4df1deb41`. It includes the React Query fix, Duo pane and header changes, pairing-route handoff, first-tap keyboard navigation, native WebView continuity fix, and pinned Expo OTA adapter patch. Simulator verification uses an SDK 27.1 native container; this does not replace a physical-device check of the SDK 27.0 store IPA.
+
+Build 55 / upload `8c97ee6f-1d3d-4812-821d-3a5d5b089703` is `VALID` but was built from the pre-merge working tree. Build 56 (`f3af86b9-c9c5-48fe-a766-b780feec135c`) finished from the initial main merge and was not uploaded; build 57 supersedes it with the OTA deployment compatibility fix.
 
 Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App Store Connect but predates the final Duo changes. Intermediate builds 53 and 54 were canceled after native QA found additional issues; neither was uploaded.
 
@@ -74,9 +76,9 @@ Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App 
 
 ## CI and local operations
 
-GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
+GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc23 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
 
-Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The pinned pnpm patch makes both adapter entry points use the public `expo/config` export for the fallback. `pnpm test:release` exercises the installed ESM and CommonJS adapters against the app's real signing-key configuration; both failed before the patch and pass afterward. Keep the patch until an upstream release supports this Expo version.
+Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. The official rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440) uses the public `expo/config` export first, retains legacy layouts, and preserves errors from inside config. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc23 packages, with no preview-package URLs.
 
 The existing sequential `ship.N` release convention is retained. The plain `1.6.0` native baseline does not trigger OTA. For a later `1.6.0-ship.N` release, the workflow reads `hot-updater app-version --json`, checks it against Expo config, and passes that exact iOS version to `deploy -t`. There is no additional approval variable or version convention.
 
@@ -132,9 +134,35 @@ ruby -e 'gem "json", "2.21.1"; load Gem.bin_path("cocoapods", "pod")' -- install
 
 Run this in `apps/mobile/ios` with the matching Ruby environment if the same error occurs. Do not change cloud dependencies unless its build reports the same issue.
 
+## Local OTA verification from main
+
+The migration and Duo work were merged into main, preserving the existing server 1.6.1 release and consuming its already-released changeset. CI and Release passed for `19e349f9e4db660efcf1e21754ad12149f91b341`, including the Expo adapter regression tests. The native `1.6.0` baseline produced no automatic OTA or npm publication. GitHub Secrets registration and workflow references are verified; the secret-backed GitHub OTA deployment steps have not run for this baseline. The OTA below was deployed locally, as requested.
+
+On iPhone Duo / iOS 27.1, the embedded minimum bundle was `01a0f499-1808-7000-8000-000000000000`. A temporary unique cohort selected only that simulator, with public rollout kept at zero. The CLI's displayed ID `01a0fcaa-b259-7108-8844-802724f8975a` identifies the Release policy; its distinct artifact Bundle ID is `01a0fca8-ad0b-7e02-90bd-3d5f881f1256`.
+
+- Local Expo build, artifact signing, R2 upload and D1 registration completed. The native signing public key matches the repository key.
+- The live catalog selects the update for the exact QA cohort. The installed client selector chooses the built-in bundle for another cohort and app version 1.5.0; anonymous catalog access returns 401.
+- Duo downloaded the signed manifest delivery, displayed Restart app, loaded the OTA after restart, and retained it after a complete process restart. Insights records `UPDATE_DOWNLOADED` and `UPDATE_APPLIED` for the intended artifact.
+- Disabling that Release at revision 3 caused the app to stage and load its built-in bundle. A subsequent cold launch shows the original minimum bundle, no pending update, and the restored original cohort. Pairing remains online.
+- Final remote state: Release disabled, rollout zero. The artifact is retained for audit. No QA update is publicly deliverable.
+
+This uses the SDK 27.1 simulator native container with the main JavaScript delivered over OTA. It does not establish physical-device TestFlight execution, binary patch delivery from multiple bases, corrupted-signature rejection, launch-failure recovery, interrupted transfers or offline relaunch. Private receipts, screenshots and native metadata are under `.codex/mobile-1.6/`.
+
+## Upstream Expo 58 fix verification
+
+Hot Updater PR #1440 was tested with the immutable preview package `https://pkg.pr.new/@hot-updater/expo@6048d80`, with the local pnpm patch removed. Six real Node resolver scenarios passed, including the four that failed before the fix. The full upstream unit suite passed 3,925 tests (15 skipped), and every PR CI check passed.
+
+The preview adapter built, signed and uploaded another iOS 1.6.0 OTA locally. Release `01a0fcd7-dc51-70b6-9220-ff9f42d347c9` references artifact `01a0fcd5-c53b-7d99-b105-8efea40c5af3`. Rollout remained zero with one temporary Duo QA cohort. Native apply, cold launch, Insights download/apply events, and rollback to BUILTIN all passed. The Release is disabled at revision 3 and the original device cohort is restored. This checks the adapter against the unchanged rc22 native runtime.
+
+PR #1440 merged to `next` as `8bef128cf1c5dc2be020ea67a247c07d10589518`. Release PR [#1441](https://github.com/gronxb/hot-updater/pull/1441) advances all 26 public packages to rc23, with no additional runtime changes. Hot Updater `main` at `2568dd19f` does not contain the config loader or an equivalent runtime import; the affected loader originated on `next` in #1231, so there is no corresponding stable-branch fix to backport.
+
+Official [rc23](https://github.com/gronxb/hot-updater/releases/tag/v1.0.0-rc.23) was published from `b1ee05429d1e8bfdd8553583031dc567eab97dd9`. All 26 registry versions and `rc` tags were verified. Modex's CLI, Expo adapter, Cloudflare adapter and React Native SDK are pinned to rc23. Server tests (335 passed, 5 skipped), mobile tests (27 passed), release checks (13 Node and 6 mobile tests) and typechecking passed with the installed registry packages.
+
+The existing Cloudflare Worker was redeployed as version `5327dd63-e1d8-481c-b404-74e7fd1a5dc8`; its public `/version` reports rc23 / generation 1 / admin protocol 2. The new Worker bytes differ from rc22 only in the version string, and the migration file is identical. Live D1 schema markers and migration history were checked; no migration was reapplied. Existing D1/R2 bindings and Worker secret names are unchanged. The rc23 infrastructure doctor passed all seven required checks, and the packaged authenticated-server verifier passed. The directory, resource names and secret names retain `rc22` as their creation identity.
+
 ## Subsequent Duo and OTA battle-test gates
 
-The host and native checks above cover part of the Duo cases below. OTA cases, SSH continuity, controlled transcript scroll anchoring, Duo rotation and active reserved-region occlusion remain pending. Keep the QA release disabled / rollout zero until a specific installation cohort is known. Discover the pinned CLI's live help before creating or changing any Bundle/Release; record their distinct IDs and the native minimum bundle ID.
+The host, native and scoped OTA checks above cover part of the cases below. Binary patches, fault injection, offline behavior, SSH continuity, controlled transcript scroll anchoring, Duo rotation and active reserved-region occlusion remain pending. Keep the QA release disabled / rollout zero until a specific installation cohort is known. Discover the pinned CLI's live help before creating or changing any Bundle/Release; record their distinct IDs and the native minimum bundle ID.
 
 | Scenario                                     | Required evidence                                                                                             |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -150,7 +178,7 @@ The host and native checks above cover part of the Duo cases below. OTA cases, S
 | Cohort/channel exclusion and rollback        | Only selected QA installations receive the release; rollback reaches the intended bundle                      |
 | Existing 1.5.0 installation                  | Still checks rc14; receives no rc22 artifacts and remains functional                                          |
 
-Do not publish a QA OTA artifact before the native candidate's embedded minimum bundle ID is known. No OTA artifacts have been uploaded to the new bucket yet, so artifact write/download/signature and native rollback checks are unverified. Review these gates and release metadata before the user submits App Review.
+Do not publish another QA OTA artifact before the candidate's embedded minimum bundle ID and exact cohort are known. Test artifacts remain stored for audit with delivery disabled and rollout zero. Signed manifest delivery and native rollback passed; the remaining fault and patch gates above are not implied by that result. Review these gates and release metadata before the user submits App Review.
 
 ## References
 

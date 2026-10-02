@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.22",
+  "deployedServerVersion": "1.0.0-rc.23",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -205,6 +205,157 @@
       },
       "observation": "Build and upload finished. ASC reports 1.6.0 (52) VALID / IN_BETA_TESTING / READY_FOR_BETA_SUBMISSION. IPA metadata, SceneDelegate, OTA public key, rc22 URL and absence of legacy URL verified. Supersedes 51. User owns App Review submission.",
       "checkedAt": "2026-10-02T09:37:57.687753+00:00"
+    },
+    {
+      "id": "native.local-ota-main",
+      "target": {
+        "sourceCommit": "19e349f9e4db660efcf1e21754ad12149f91b341",
+        "platform": "ios",
+        "appVersion": "1.6.0",
+        "channel": "production",
+        "device": "iPhone Duo / iOS 27.1 simulator",
+        "releaseId": "01a0fcaa-b259-7108-8844-802724f8975a",
+        "bundleId": "01a0fca8-ad0b-7e02-90bd-3d5f881f1256"
+      },
+      "observation": "Signed manifest upload/download, native apply, cold restart, exact-cohort and app-version exclusion, and server-disable rollback to embedded bundle passed. Insights contains download and apply events. Final Release is disabled at revision 3 with rollout zero; original simulator cohort and online pairing restored. Binary patch, corrupt signature/patch, launch failure, offline and physical-device checks are not covered. Final infrastructure doctor passes all seven checks.",
+      "checkedAt": "2026-10-02T13:13:03.768004+00:00"
+    },
+    {
+      "id": "native.pkg-pr-new-1440",
+      "target": {
+        "appVersion": "1.6.0",
+        "platform": "ios",
+        "channel": "production",
+        "preview": "https://pkg.pr.new/@hot-updater/expo@6048d80"
+      },
+      "observation": {
+        "releaseId": "01a0fcd7-dc51-70b6-9220-ff9f42d347c9",
+        "artifactBundleId": "01a0fcd5-c53b-7d99-b105-8efea40c5af3",
+        "checks": {
+          "localPatchRemoved": true,
+          "esmAndCommonjsSigningConfig": true,
+          "signedLocalDeployment": true,
+          "rolloutZeroOneQaCohort": true,
+          "nativeApplied": true,
+          "coldLaunch": true,
+          "insightsDownloadAndApply": true,
+          "rollbackBuiltin": true,
+          "deliveryDisabled": true,
+          "cohortRestored": true
+        },
+        "finalReleaseRevision": 3,
+        "finalReleaseEnabled": false
+      },
+      "checkedAt": "2026-10-02T13:48:20.064Z"
+    },
+    {
+      "id": "upgrades/1.0.0.md/rc23/cf.schema",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": {
+        "migrations": [
+          {
+            "name": "0001_hot-updater_1.0.0.sql"
+          }
+        ],
+        "migrationIdenticalToRc22": true,
+        "workerRuntimeChange": "server version string only",
+        "schema": [
+          {
+            "key": "schema.apiKeys",
+            "value": "1.0.0"
+          },
+          {
+            "key": "schema.core",
+            "value": "1.0.0"
+          },
+          {
+            "key": "schema.engine",
+            "value": "1"
+          },
+          {
+            "key": "schema.insights",
+            "value": "1.2.0"
+          }
+        ]
+      },
+      "checkedAt": "2026-10-02T14:09:13.209Z"
+    },
+    {
+      "id": "upgrades/1.0.0.md/rc23/cf.worker",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": {
+        "deploymentId": "4b8c2ddf-580e-43a2-8115-4187eac84325",
+        "workerVersion": "5327dd63-e1d8-481c-b404-74e7fd1a5dc8",
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.23"
+        },
+        "bindingsAndSecretNamesUnchanged": true
+      },
+      "checkedAt": "2026-10-02T14:10:39.646Z"
+    },
+    {
+      "id": "upgrades/1.0.0.md/rc23/common.verify",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "serverVersion": "1.0.0-rc.23"
+      },
+      "observation": {
+        "checks": [
+          {
+            "code": "INFRA_MANIFEST",
+            "status": "pass",
+            "message": "Provider, build and target versions match the packaged scaffold."
+          },
+          {
+            "code": "INFRA_SCAFFOLD",
+            "status": "pass",
+            "message": "Required files, deployment placeholders and provider configuration checks passed."
+          },
+          {
+            "code": "INFRA_DEPLOYMENT_TARGET",
+            "status": "pass",
+            "message": "Deployment record has no unresolved operation or conflicting endpoint. Live checks are still required."
+          },
+          {
+            "code": "INFRA_SERVER_INPUTS",
+            "status": "pass",
+            "message": "inputs verified."
+          },
+          {
+            "code": "INFRA_SERVER_VERSION",
+            "status": "pass",
+            "message": "version verified."
+          },
+          {
+            "code": "INFRA_ANONYMOUS_CATALOG",
+            "status": "pass",
+            "message": "anonymous-catalog verified."
+          },
+          {
+            "code": "INFRA_AUTHENTICATED_CATALOG",
+            "status": "pass",
+            "message": "authenticated-catalog verified."
+          }
+        ],
+        "helperStatus": "verified",
+        "migrationsApplied": [],
+        "resourcesReused": true
+      },
+      "checkedAt": "2026-10-02T14:11:10.892Z"
     }
   ]
 }
