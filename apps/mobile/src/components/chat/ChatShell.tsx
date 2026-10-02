@@ -39,6 +39,7 @@ export function ChatShell({
   contextWindowUsage,
   collaborationMode,
   goal,
+  horizontalSafeArea = true,
   inputNativeID,
   isAttachingImage,
   isLoadingMessages,
@@ -84,6 +85,7 @@ export function ChatShell({
   contextWindowUsage?: ContextWindowUsage;
   collaborationMode: ThreadCollaborationMode;
   goal?: ThreadGoal | null;
+  horizontalSafeArea?: boolean;
   inputNativeID: string;
   isAttachingImage: boolean;
   isLoadingMessages?: boolean;
@@ -143,7 +145,7 @@ export function ChatShell({
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView
-        edges={["top", "left", "right"]}
+        edges={horizontalSafeArea ? ["top", "left", "right"] : ["top"]}
         style={[
           styles.safeArea,
           { paddingBottom: Math.max(Spacing.one, insets.bottom - Spacing.four) },

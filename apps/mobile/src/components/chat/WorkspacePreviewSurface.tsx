@@ -1,7 +1,7 @@
 import type { WebPreviewTarget, WorkspaceChangesResponse } from "codex-relay/api-schema";
 import { useSelector } from "@legendapp/state/react";
 import { useEffect, useRef, useState } from "react";
-import { InteractionManager, Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
 import { StyleSheet } from "react-native-unistyles";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -82,6 +82,7 @@ export function WorkspacePreviewSurface({
   markdownPreviewTarget,
   webPreviewTarget,
   onClose,
+  sideBySide,
   showCloseButton = true,
   onCheckoutBranch,
   onCommitPush,
@@ -98,6 +99,7 @@ export function WorkspacePreviewSurface({
   markdownPreviewTarget?: WorkspaceMarkdownPreviewTarget;
   webPreviewTarget?: WebPreviewTarget;
   onClose: () => void;
+  sideBySide: boolean;
   showCloseButton?: boolean;
   onCheckoutBranch: (branch: string) => Promise<void> | void;
   onCommitPush: () => Promise<void> | void;
@@ -195,51 +197,61 @@ export function WorkspacePreviewSurface({
 
   function scheduleClosedTabCleanup(tab: WorkspacePreviewTab) {
     const timeout = setTimeout(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (previewTabsRef.current.includes(tab)) {
-          return;
-        }
-        setRetainedClosedTabs((current) => current.filter((candidate) => candidate !== tab));
-        setMountedTabs((current) => current.filter((candidate) => candidate !== tab));
-      });
-      closedTabCleanupTasksRef.current.push(task);
+      const task = requestIdleCallback(
+        () => {
+          if (previewTabsRef.current.includes(tab)) {
+            return;
+          }
+          setRetainedClosedTabs((current) => current.filter((candidate) => candidate !== tab));
+          setMountedTabs((current) => current.filter((candidate) => candidate !== tab));
+        },
+        { timeout: 300 },
+      );
+      closedTabCleanupTasksRef.current.push({ cancel: () => cancelIdleCallback(task) });
     }, CLOSED_TAB_UNMOUNT_DELAY_MS);
 
     closedTabCleanupTasksRef.current.push({ cancel: () => clearTimeout(timeout) });
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right", "bottom"]} style={styles.screen}>
-      <View style={styles.header}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.screen}>
+      <View style={[styles.header, sideBySide && styles.splitHeader]}>
         {showCloseButton ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Back from workspace preview"
+            accessibilityLabel={
+              sideBySide ? "Hide workspace preview" : "Back from workspace preview"
+            }
+            hitSlop={6}
             onPress={onClose}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
           >
-            <Icon name="back" size={18} tintColor={Colors.dark.text} />
+            <Icon name={sideBySide ? "x" : "back"} size={18} tintColor={Colors.dark.text} />
           </Pressable>
         ) : null}
-        <View style={styles.titleGroup}>
+        <View style={[styles.titleGroup, sideBySide && styles.splitTitleGroup]}>
           <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>
             Preview
           </ThemedText>
-          <ThemedText
-            type="code"
-            themeColor="textSecondary"
-            style={styles.subtitle}
-            numberOfLines={1}
-          >
-            {workspaceChanges?.workspacePath ?? workspacePath ?? "Workspace"}
-          </ThemedText>
+          {!sideBySide ? (
+            <ThemedText
+              type="code"
+              themeColor="textSecondary"
+              style={styles.subtitle}
+              numberOfLines={1}
+              ellipsizeMode="middle"
+            >
+              {workspaceChanges?.workspacePath ?? workspacePath ?? "Workspace"}
+            </ThemedText>
+          ) : null}
         </View>
-        <View style={styles.headerSpacer} />
+        {!sideBySide ? <View style={styles.headerSpacer} /> : null}
       </View>
 
       <View style={styles.tabStrip}>
         <ScrollView
           horizontal
+          keyboardShouldPersistTaps="handled"
           showsHorizontalScrollIndicator={false}
           style={styles.tabStripScroller}
           contentContainerStyle={styles.tabStripContent}
@@ -281,10 +293,13 @@ export function WorkspacePreviewSurface({
           mountedTabs.map((tab) => (
             <Animated.View
               key={tab}
+              collapsable={false}
               entering={workspacePreviewTabEnterTransition}
               exiting={workspacePreviewTabExitTransition}
               layout={workspacePreviewTabLayoutTransition}
               pointerEvents={tab === activeTab ? "auto" : "none"}
+              accessibilityElementsHidden={tab !== activeTab}
+              importantForAccessibility={tab === activeTab ? "auto" : "no-hide-descendants"}
               style={[styles.tabContentPage, tab !== activeTab && styles.tabContentPageInactive]}
             >
               {tab === "git" ? (
@@ -435,6 +450,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.one,
   },
+  splitHeader: {
+    flexDirection: "row-reverse",
+    minHeight: 56,
+  },
+  splitTitleGroup: {
+    alignItems: "flex-start",
+  },
   iconButton: {
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.08)",
@@ -543,7 +565,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabContentPageInactive: {
-    display: "none",
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0,
   },
   addTabSheetContent: {
     gap: Spacing.one,

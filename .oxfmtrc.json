@@ -7,6 +7,10 @@
     "apps/mobile/src/uniwind-types.d.ts",
     "apps/mobile/ios/**",
     "apps/mobile/android/**",
+    "deployments/hot-updater-rc22/COMMON.md",
+    "deployments/hot-updater-rc22/ENVIRONMENT.md",
+    "deployments/hot-updater-rc22/app/provision-client-credential.mjs",
+    "deployments/hot-updater-rc22/app/verify-server.mjs",
     ".omx"
   ]
 }

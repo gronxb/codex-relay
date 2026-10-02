@@ -6,17 +6,7 @@ import { router } from "expo-router";
 import type { Drawer } from "expo-router/drawer";
 import type { ComponentProps } from "react";
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import {
-  Alert,
-  InteractionManager,
-  Keyboard,
-  Linking,
-  Modal,
-  Pressable,
-  TextInput,
-  View,
-  type ViewStyle,
-} from "react-native";
+import { Alert, Keyboard, Linking, Modal, Pressable, TextInput, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -329,7 +319,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       );
     }
   }, [canMutateAppServerThreads, renameDraft, renameThreadMutation, threadToRename]);
-  const searchClearAnimatedStyle = useAnimatedStyle<ViewStyle>(() => ({
+  const searchClearAnimatedStyle = useAnimatedStyle(() => ({
     opacity: searchProgress.value,
     transform: [
       { translateX: (1 - searchProgress.value) * 6 },
@@ -466,7 +456,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
   );
 
   return (
-    <View style={styles.drawerRoot}>
+    <View style={[styles.drawerRoot, { paddingLeft: insets.left }]}>
       {canRenderThreadList ? (
         <LegendList
           contentContainerStyle={[styles.listContent, { paddingBottom: 8, paddingTop: insets.top }]}
@@ -613,12 +603,12 @@ function useThreadDrawerActions({
   threadsById: Record<string, ThreadSummary>;
   workspacePath: string | undefined;
 }) {
-  const pendingDrawerActionTaskRef = useRef<{ cancel: () => void } | undefined>(undefined);
+  const pendingDrawerActionTaskRef = useRef<IdleTask | undefined>(undefined);
   const threadSelectionGenerationRef = useRef(0);
 
   useEffect(
     () => () => {
-      pendingDrawerActionTaskRef.current?.cancel();
+      cancelIdleTask(pendingDrawerActionTaskRef.current);
       threadSelectionGenerationRef.current += 1;
     },
     [],
@@ -664,15 +654,15 @@ function useThreadDrawerActions({
     (threadId: string) => {
       hapticSelection();
       navigation.closeDrawer();
-      pendingDrawerActionTaskRef.current?.cancel();
+      cancelIdleTask(pendingDrawerActionTaskRef.current);
       const selectionGeneration = threadSelectionGenerationRef.current + 1;
       threadSelectionGenerationRef.current = selectionGeneration;
       if (chatStore$.activeThreadId.peek() === threadId) {
         return;
       }
-      pendingDrawerActionTaskRef.current = InteractionManager.runAfterInteractions(() => {
+      pendingDrawerActionTaskRef.current = requestIdleTask(() => {
         void activateSelectedThread(threadId, selectionGeneration);
-      });
+      }, 300);
     },
     [activateSelectedThread, navigation],
   );
@@ -825,10 +815,10 @@ function useThreadDrawerActions({
   const openSettings = useCallback(() => {
     hapticSelection();
     navigation.closeDrawer();
-    pendingDrawerActionTaskRef.current?.cancel();
-    pendingDrawerActionTaskRef.current = InteractionManager.runAfterInteractions(() => {
+    cancelIdleTask(pendingDrawerActionTaskRef.current);
+    pendingDrawerActionTaskRef.current = requestIdleTask(() => {
       requestAnimationFrame(() => router.push("/settings"));
-    });
+    }, 300);
   }, [navigation]);
 
   return {
@@ -1104,7 +1094,12 @@ function DrawerListHeader({
   onRefreshProjects: () => void;
   onSearchChange: (value: string) => void;
   onSearchClear: () => void;
-  searchClearAnimatedStyle: ReturnType<typeof useAnimatedStyle<ViewStyle>>;
+  searchClearAnimatedStyle: ReturnType<
+    typeof useAnimatedStyle<{
+      opacity: number;
+      transform: ({ translateX: number } | { scale: number })[];
+    }>
+  >;
   searchQuery: string;
   showCloseButton: boolean;
   versionCompatibility: RelayVersionCompatibility | undefined;
@@ -1482,7 +1477,7 @@ function indexThreadsById(threads: ThreadSummary[]) {
 }
 
 function getDrawerStatus(state: ThreadDrawerContentProps["state"]) {
-  const drawerHistoryEntry = state.history.find(
+  const drawerHistoryEntry = state.history?.find(
     (entry): entry is { status: "closed" | "open"; type: "drawer" } => entry.type === "drawer",
   );
   return drawerHistoryEntry?.status ?? "closed";
@@ -1506,7 +1501,10 @@ function requestIdleTask(callback: () => void, timeout: number): IdleTask {
   return { id: setTimeout(callback, timeout), kind: "timeout" };
 }
 
-function cancelIdleTask(task: IdleTask) {
+function cancelIdleTask(task: IdleTask | undefined) {
+  if (!task) {
+    return;
+  }
   if (task.kind === "idle") {
     (
       globalThis as typeof globalThis & {

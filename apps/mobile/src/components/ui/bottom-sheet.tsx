@@ -200,7 +200,7 @@ export function AppBottomSheet({
       maxDynamicContentSize={maxSheetHeight}
       onDismiss={handleDismiss}
       snapPoints={snapPoints}
-      style={styles.sheetContainer}
+      style={[styles.sheetContainer, { marginLeft: insets.left, marginRight: insets.right }]}
       topInset={insets.top + 6}
     >
       {scrollable ? (

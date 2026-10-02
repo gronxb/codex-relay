@@ -1,6 +1,6 @@
 import { Drawer } from "expo-router/drawer";
 import { Pressable, useWindowDimensions, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
 import { ThreadDrawerContent } from "@/components/chat/ThreadDrawerContent";
@@ -26,6 +26,7 @@ export default function DrawerLayout() {
 
 function DrawerLayoutContent() {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { beginSidebarResize, isSidebarVisible, resizeSidebar, setSidebarVisible, sidebarWidth } =
     useIpadSplitLayout();
   const usesExpandedDrawer = width >= EXPANDED_DRAWER_BREAKPOINT;
@@ -67,8 +68,8 @@ function DrawerLayoutContent() {
           width: usesExpandedDrawer
             ? showsExpandedDrawer
               ? sidebarWidth
-              : COLLAPSED_DRAWER_WIDTH
-            : COMPACT_DRAWER_WIDTH,
+              : COLLAPSED_DRAWER_WIDTH + insets.left
+            : Math.min(COMPACT_DRAWER_WIDTH + insets.left, width),
         },
         overlayColor: usesExpandedDrawer ? "transparent" : "rgba(0, 0, 0, 0.28)",
       }}
@@ -95,7 +96,7 @@ function DrawerLayoutContent() {
 
 function CollapsedThreadSidebarRail({ onExpand }: { onExpand: () => void }) {
   return (
-    <SafeAreaView edges={["top", "bottom"]} style={styles.collapsedRail}>
+    <SafeAreaView edges={["top", "left", "bottom"]} style={styles.collapsedRail}>
       <View style={styles.collapsedRailTop}>
         <CollapsedRailButton icon="sidebarShow" label="Show threads" onPress={onExpand} />
         <CollapsedRailButton icon="search" label="Open thread search" onPress={onExpand} />
@@ -136,7 +137,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingBottom: 10,
     paddingTop: 10,
-    width: COLLAPSED_DRAWER_WIDTH,
   },
   collapsedRailButton: {
     alignItems: "center",

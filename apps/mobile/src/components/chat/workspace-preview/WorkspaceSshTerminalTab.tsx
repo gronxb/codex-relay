@@ -6,6 +6,7 @@ import {
   TextInput,
   View,
   type GestureResponderEvent,
+  type TextInputInstance,
 } from "react-native";
 import { KeyboardAvoidingView, useKeyboardState } from "react-native-keyboard-controller";
 import { StyleSheet } from "react-native-unistyles";
@@ -46,7 +47,7 @@ const terminalArrowSequences = {
 export function WorkspaceSshTerminalTab({ workspacePath }: { workspacePath?: string }) {
   const terminalIdRef = useRef<string | null>(null);
   const activeSessionIdRef = useRef<string | null>(null);
-  const terminalInputRef = useRef<TextInput>(null);
+  const terminalInputRef = useRef<TextInputInstance>(null);
   const terminalTapStartRef = useRef<{ x: number; y: number } | null>(null);
   const terminalTapMovedRef = useRef(false);
   const terminalNativeInputValueRef = useRef("");

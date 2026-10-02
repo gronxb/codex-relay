@@ -36,6 +36,7 @@ export function ChatShellHeader({
           themeColor="textSecondary"
           style={styles.subtitle}
           numberOfLines={1}
+          ellipsizeMode="middle"
         >
           {subtitle}
         </ThemedText>

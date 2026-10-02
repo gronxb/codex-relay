@@ -1,35 +1,53 @@
 {
   "cli": {
-    "version": ">= 18.8.1",
+    "version": ">= 24.8.0",
     "appVersionSource": "remote"
   },
   "build": {
     "development": {
-      "node": "22.22.2",
+      "node": "24.14.1",
       "environment": "development",
       "env": {
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "EXPO_PUBLIC_HOT_UPDATER_BASE_URL": "https://codex-relay-ota-rc22.gron1gh1.workers.dev"
       },
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "ios": {
+        "image": "macos-tahoe-26.6-xcode-27.0"
+      }
     },
     "preview": {
-      "node": "22.22.2",
+      "node": "24.14.1",
       "environment": "preview",
       "env": {
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "EXPO_PUBLIC_HOT_UPDATER_BASE_URL": "https://codex-relay-ota-rc22.gron1gh1.workers.dev"
       },
-      "distribution": "internal"
+      "distribution": "internal",
+      "ios": {
+        "image": "macos-tahoe-26.6-xcode-27.0"
+      }
     },
     "production": {
-      "node": "22.22.2",
+      "node": "24.14.1",
       "environment": "production",
       "env": {
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "EXPO_PUBLIC_HOT_UPDATER_BASE_URL": "https://codex-relay-ota-rc22.gron1gh1.workers.dev"
       },
       "autoIncrement": true,
       "distribution": "store",
       "ios": {
+        "image": "macos-tahoe-26.6-xcode-27.0",
+        "buildConfiguration": "Release"
+      }
+    },
+    "duo-simulator": {
+      "extends": "preview",
+      "ios": {
+        "image": "macos-tahoe-26.6-xcode-27.1",
+        "simulator": true,
         "buildConfiguration": "Release"
       }
     }

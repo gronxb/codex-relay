@@ -1,16 +1,18 @@
-import { useMemo } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useCallback, useMemo } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { ChatScreen } from "@/components/chat/ChatScreen";
 import { IpadSplitLayoutProvider } from "@/components/chat/ipad-split-layout";
 
 export default function PairScreen() {
   const params = useLocalSearchParams();
+  const router = useRouter();
   const initialPairingUrl = useMemo(() => pairingUrlFromParams(params), [params]);
+  const completePairing = useCallback(() => router.replace("/"), [router]);
 
   return (
     <IpadSplitLayoutProvider>
-      <ChatScreen initialPairingUrl={initialPairingUrl} />
+      <ChatScreen initialPairingUrl={initialPairingUrl} onPairingComplete={completePairing} />
     </IpadSplitLayoutProvider>
   );
 }

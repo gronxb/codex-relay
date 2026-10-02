@@ -40,7 +40,7 @@ export const WebWorkspacePreviewTab = memo(function WebWorkspacePreviewTab({
     savedWebState?.isUserControlled && savedWebState.url ? savedWebState.url : defaultWebPreviewUrl;
   const initialWebUrlDraft =
     savedWebState?.isUserControlled && savedWebState.draft ? savedWebState.draft : initialWebUrl;
-  const webViewRef = useRef<WebView>(null);
+  const webViewRef = useRef<WebView<object>>(null);
   const sourceUrlRef = useRef(initialWebUrl);
   const [webUrlDraft, setWebUrlDraft] = useState(initialWebUrlDraft);
   const [webUrl, setWebUrl] = useState(initialWebUrl);
@@ -194,7 +194,7 @@ export const WebWorkspacePreviewTab = memo(function WebWorkspacePreviewTab({
         </Button>
       </View>
       <View style={styles.webViewFrame}>
-        <WebView
+        <WebView<object>
           ref={webViewRef}
           key={`${webUrl}-${webReloadKey}`}
           allowsBackForwardNavigationGestures

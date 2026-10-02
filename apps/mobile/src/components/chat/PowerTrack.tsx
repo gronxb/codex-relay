@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import {
-  type AccessibilityActionEvent,
-  type LayoutChangeEvent,
-  View,
-  type ViewStyle,
-} from "react-native";
+import { type AccessibilityActionEvent, type LayoutChangeEvent, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   cancelAnimation,
@@ -230,14 +225,14 @@ export function PowerTrack({
     trackWidth,
   ]);
 
-  const inactiveMaskStyle = useAnimatedStyle<ViewStyle>(() => {
+  const inactiveMaskStyle = useAnimatedStyle(() => {
     const visualProgress = powerDetentedProgress(progress.value, selectionCount);
     return {
       width: trackWidth.value,
       transform: [{ translateX: visualProgress * trackWidth.value }],
     };
   });
-  const thumbStyle = useAnimatedStyle<ViewStyle>(() => {
+  const thumbStyle = useAnimatedStyle(() => {
     const visualProgress = powerDetentedProgress(progress.value, selectionCount);
     return {
       transform: [
@@ -248,7 +243,7 @@ export function PowerTrack({
       ],
     };
   });
-  const ultraHaloStyle = useAnimatedStyle<ViewStyle>(() => {
+  const ultraHaloStyle = useAnimatedStyle(() => {
     const visualProgress = powerDetentedProgress(progress.value, selectionCount);
     return {
       opacity: interpolate(visualProgress, [0.86, 1], [0, 0.52], Extrapolation.CLAMP),
@@ -259,7 +254,7 @@ export function PowerTrack({
       ],
     };
   });
-  const spectrumStyle = useAnimatedStyle<ViewStyle>(() => {
+  const spectrumStyle = useAnimatedStyle(() => {
     const visualProgress = powerDetentedProgress(progress.value, selectionCount);
     return {
       opacity: interpolate(visualProgress, [0.82, 1], [0, 1], Extrapolation.CLAMP),
@@ -392,7 +387,7 @@ function PowerSparkle({
     return () => cancelAnimation(twinkle);
   }, [left, reduceMotion, twinkle, ultraActive]);
 
-  const animatedStyle = useAnimatedStyle<ViewStyle>(() => {
+  const animatedStyle = useAnimatedStyle(() => {
     const visualProgress = powerDetentedProgress(progress.value, selectionCount);
     const visibility = interpolate(
       visualProgress,

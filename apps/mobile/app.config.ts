@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 import { config } from "dotenv";
 
-config({ path: ".env.hotupdater", quiet: true });
+config({ path: ".env.hotupdater.rc22", quiet: true });
 
 const hotUpdaterApiKey =
   process.env.EXPO_PUBLIC_HOT_UPDATER_API_KEY?.trim() || process.env.HOT_UPDATER_API_KEY?.trim();
@@ -10,8 +10,8 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.5.0",
-    orientation: "portrait",
+    version: "1.6.0",
+    orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
     userInterfaceStyle: "automatic",

@@ -1,16 +1,13 @@
 import { d1Database, plugins, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
-import { config } from "dotenv";
 import { defineConfig } from "hot-updater";
+import { existsSync } from "node:fs";
 
-config({ path: ".env.hotupdater.rc22", quiet: true });
-
-if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-8492-f4760c40a834") {
-  throw new Error("The rc14 database is reserved for app 1.5.0. Configure the rc22 database.");
+if (existsSync(".env.hotupdater")) {
+  process.loadEnvFile(".env.hotupdater");
 }
 
 export default defineConfig({
-  plugins,
   build: expo(),
   storage: r2Storage({
     bucketName: process.env.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME!,
@@ -25,10 +22,6 @@ export default defineConfig({
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
     cloudflareApiToken: process.env.HOT_UPDATER_CLOUDFLARE_API_TOKEN!,
   }),
+  plugins,
   updateStrategy: "appVersion", // or "fingerprint"
-  signing: { enabled: true, privateKeyPath: "./keys/private-key.pem" },
-  patch: {
-    enabled: true,
-    maxBaseBundles: 2,
-  },
 });

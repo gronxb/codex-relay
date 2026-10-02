@@ -11,7 +11,6 @@ import {
 import { useWindowDimensions } from "react-native";
 
 export const EXPANDED_DRAWER_BREAKPOINT = 1100;
-export const THREE_PANE_LAYOUT_BREAKPOINT = 1280;
 
 const DEFAULT_SIDEBAR_WIDTH = 336;
 const MIN_SIDEBAR_WIDTH = 260;
@@ -41,8 +40,11 @@ export function IpadSplitLayoutProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    if (width < EXPANDED_DRAWER_BREAKPOINT) {
+      return;
+    }
     setSidebarWidth((current) => clampSidebarWidthForScreen(current));
-  }, [clampSidebarWidthForScreen]);
+  }, [clampSidebarWidthForScreen, width]);
 
   const beginSidebarResize = useCallback(() => {
     sidebarResizeStartWidthRef.current = sidebarWidth;

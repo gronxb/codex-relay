@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codex-relay-ota-rc22",
+  "main": "./dist/index.js",
+  "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "cache": {
+    "enabled": true
+  },
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "c506b378-f360-4787-8888-1c6183d58a2b",
+      "database_name": "codex-relay-rc22"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "codex-relay-rc22-storage"
+    }
+  ],
+  "vars": {
+    "BUCKET_NAME": "codex-relay-rc22-storage"
+  },
+  "account_id": "e8488f1eee751a6aa2d4831c5de1c3dc"
+}

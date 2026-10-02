@@ -49,17 +49,11 @@ export function clearHotUpdaterLogs() {
 
 export function formatHotUpdaterProgress(event: HotUpdaterProgressEvent) {
   const percent = Math.round(event.progress * 100);
-  if (event.artifactType === "diff") {
-    return [
-      `${percent}% · diff ${event.details.completedFilesCount}/${event.details.totalFilesCount}`,
-      formatDiffTotalBytes(event.details.files),
-      formatDiffFiles(event.details.files),
-    ]
-      .filter((detail): detail is string => Boolean(detail))
-      .join("\n");
-  }
-
-  return [`${percent}% · archive`, formatByteSummary(event.downloadedBytes, event.totalBytes)]
+  return [
+    `${percent}% · diff ${event.details.completedFilesCount}/${event.details.totalFilesCount}`,
+    formatDiffTotalBytes(event.details.files),
+    formatDiffFiles(event.details.files),
+  ]
     .filter((detail): detail is string => Boolean(detail))
     .join("\n");
 }
@@ -86,13 +80,7 @@ export function useHotUpdaterLogs() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
-function formatDiffFiles(
-  files: HotUpdaterProgressEvent & { artifactType: "diff" } extends infer E
-    ? E extends { details: { files: infer F } }
-      ? F
-      : never
-    : never,
-) {
+function formatDiffFiles(files: HotUpdaterProgressEvent["details"]["files"]) {
   const visibleFiles = [...files]
     .filter((file) => file.status === "downloading" || file.status === "failed")
     .sort((left, right) => statusPriority(left.status) - statusPriority(right.status))
@@ -124,13 +112,7 @@ function statusPriority(status: string) {
   }
 }
 
-function formatDiffTotalBytes(
-  files: HotUpdaterProgressEvent & { artifactType: "diff" } extends infer E
-    ? E extends { details: { files: infer F } }
-      ? F
-      : never
-    : never,
-) {
+function formatDiffTotalBytes(files: HotUpdaterProgressEvent["details"]["files"]) {
   const byteAwareFiles = files.filter(
     (file) => typeof file.downloadedBytes === "number" || typeof file.totalBytes === "number",
   );

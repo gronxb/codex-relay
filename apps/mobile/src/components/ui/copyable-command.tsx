@@ -6,7 +6,7 @@ import {
   View,
   type StyleProp,
   type TextStyle,
-  type ViewStyle,
+  type ViewProps,
 } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -25,7 +25,7 @@ export function CopyableCommand({
 }: {
   command: string;
   copyAccessibilityLabel?: string;
-  style?: StyleProp<ViewStyle>;
+  style?: ViewProps["style"];
   textStyle?: StyleProp<TextStyle>;
 }) {
   const [isCopied, setCopied] = useState(false);

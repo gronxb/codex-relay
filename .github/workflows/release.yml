@@ -130,8 +130,8 @@ jobs:
       - name: Validate Hot Updater configuration
         if: steps.mobile-release.outputs.deploy == 'true'
         env:
-          MOBILE_ENV: ${{ secrets.MOBILE_ENV }}
-          HOT_UPDATER_ENV: ${{ secrets.HOT_UPDATER_ENV }}
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+          HOT_UPDATER_ENV: ${{ secrets.HOT_UPDATER_ENV_RC22 }}
           HOT_UPDATER_PRIVATE_KEY: ${{ secrets.HOT_UPDATER_PRIVATE_KEY }}
         run: |
           missing=()
@@ -151,13 +151,13 @@ jobs:
         if: steps.mobile-release.outputs.deploy == 'true'
         working-directory: apps/mobile
         env:
-          MOBILE_ENV: ${{ secrets.MOBILE_ENV }}
-          HOT_UPDATER_ENV: ${{ secrets.HOT_UPDATER_ENV }}
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+          HOT_UPDATER_ENV: ${{ secrets.HOT_UPDATER_ENV_RC22 }}
           HOT_UPDATER_PRIVATE_KEY: ${{ secrets.HOT_UPDATER_PRIVATE_KEY }}
         run: |
           umask 077
           printf '%s' "$MOBILE_ENV" > .env
-          printf '%s' "$HOT_UPDATER_ENV" > .env.hotupdater
+          printf '%s' "$HOT_UPDATER_ENV" > .env.hotupdater.rc22
           install -d -m 700 keys
           printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
 

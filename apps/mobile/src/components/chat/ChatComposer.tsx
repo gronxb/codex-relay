@@ -23,7 +23,13 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import { Pressable, TextInput, View, type LayoutChangeEvent } from "react-native";
+import {
+  Pressable,
+  TextInput,
+  View,
+  type LayoutChangeEvent,
+  type TextInputInstance,
+} from "react-native";
 import {
   EnrichedMarkdownTextInput,
   type EnrichedMarkdownTextInputInstance,
@@ -1745,7 +1751,7 @@ function PlanDecisionPanel({
   selectedDecision: "context" | "implement";
 }) {
   const theme = useTheme();
-  const contextInputRef = useRef<TextInput | null>(null);
+  const contextInputRef = useRef<TextInputInstance | null>(null);
   const canSubmit = selectedDecision === "implement" || Boolean(contextDraft.trim());
 
   function selectContextDecision() {
@@ -1863,7 +1869,7 @@ function InputRequestPanel({
   selectedOption?: string;
 }) {
   const theme = useTheme();
-  const answerInputRef = useRef<TextInput | null>(null);
+  const answerInputRef = useRef<TextInputInstance | null>(null);
   const question = request.questions[questionIndex];
   const options = question?.options ?? [];
   const canSubmit = !question || Boolean(selectedOption || answerDraft.trim());
@@ -2033,7 +2039,7 @@ const PlanContextInputRow = memo(function PlanContextInputRow({
   onFocus: () => void;
   onPress: () => void;
   onSelect?: () => void;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
   selected: boolean;
   textColor: string;
   textSecondaryColor: string;

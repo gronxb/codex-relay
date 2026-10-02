@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "provider": "cloudflare",
+  "cliVersion": "1.0.0-rc.22",
+  "providerVersion": "1.0.0-rc.22",
+  "serverVersion": "1.0.0-rc.22",
+  "infrastructureGeneration": 1,
+  "clientAuth": {
+    "plugin": "apiKeys",
+    "varyHeaders": ["x-api-key"],
+    "credential": {
+      "label": "API key",
+      "header": "x-api-key",
+      "env": "HOT_UPDATER_API_KEY"
+    }
+  },
+  "clientPlugins": [
+    {
+      "module": "@hot-updater/react-native",
+      "name": "insights"
+    }
+  ],
+  "packages": {
+    "hot-updater": "1.0.0-rc.22",
+    "@hot-updater/server": "1.0.0-rc.22",
+    "@hot-updater/react-native": "1.0.0-rc.22",
+    "@hot-updater/cloudflare": "1.0.0-rc.22",
+    "@hot-updater/expo": "1.0.0-rc.22"
+  },
+  "requiredInputs": {
+    "workerName": "codex-relay-ota-rc22",
+    "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+    "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+    "d1DatabaseName": "codex-relay-rc22",
+    "bucketName": "codex-relay-rc22-storage"
+  },
+  "upgradeRequirements": ["1.0.0"],
+  "operation": "upgrade",
+  "build": "expo",
+  "files": {
+    ".gitignore": "1ca9035e99b2a41ab5f188d79b45569d5ca88e7271d60bb493845e8a142097e0",
+    "app/hot-updater.config.ts": "92ba2a6a851c13b90a93be33b80c5ecadc277d2584b4b2f9178e3f03bb817c1d",
+    "app/hotUpdater.ts": "9c642a1b12dca9a6491414b057dfc091bc41c9bf4deb8ba295c107abd4e633ba",
+    "app/provision-client-credential.mjs": "1c5189036a96dac9366cfd6171e6ebb78bde4ef49562a7de0b25f4a3f38bf987",
+    "app/verify-server.mjs": "8c79562685bf4d434a33bcabb98af5553c0efe21f8df64f0cf6bc5bc8084356c",
+    "COMMON.md": "73658bce16ef07b8e4d600cff0bc0e5939eb9e6c1909c7682710b7645cf5698a",
+    "env.example": "8a57475d82a6513e4c7f53591c96a5fdc86203784d944fa1ab670ad3ad048ee3",
+    "ENVIRONMENT.md": "42ddf858b130d8eda2cf4f25c7a0c68d69d2228841a170bad87a728883a79920",
+    "SETUP.md": "fd6b5c90b5eed9518d49ba712e579d554dbaad03a50b636ccaf1c23522014370",
+    "upgrades/1.0.0.md": "ffd5d294c52a3b6f7a1f2d28e0706aa6a9fa633b039a23845921a6723d0e003c",
+    "upgrades/README.md": "e0dcb92507473dd84e03530e4458033b66ca4824fc0aa147ed4c22bf5b82561c",
+    "worker/dist/index.js": "cddf5223ced74f058026c8bdbff553d71242d948dc4bbe0f291612ba497549ac",
+    "worker/dist/index.js.map": "b8cb1dc2ff9ba970d52637c4ab51c0fc72810999810aad482c7a6b5a86caa7b3",
+    "worker/dist/README.md": "9d19fbf44a7cc7e623c662f0b26d18d3ae25ba211ac0907eecaa3964b2a07d2f",
+    "worker/migrations/0001_hot-updater_1.0.0.sql": "77c55ddc1731b24bac833d6c00519e6e9df5150ef30ba46bcc095a6f7bf3b5ad",
+    "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
+    "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"
+  }
+}

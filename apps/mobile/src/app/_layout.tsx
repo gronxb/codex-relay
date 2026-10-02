@@ -3,7 +3,7 @@ import "expo-dev-client";
 import "react-native-gesture-handler";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { HotUpdater } from "@hot-updater/react-native";
+import { HotUpdater, insights } from "@hot-updater/react-native";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -245,7 +245,7 @@ const hotUpdaterApiKey =
 
 if (hotUpdaterBaseUrl) {
   HotUpdater.init({
-    insights: true,
+    plugins: [insights()],
     baseURL: hotUpdaterBaseUrl,
     requestHeaders: hotUpdaterApiKey ? { "x-api-key": hotUpdaterApiKey } : undefined,
   });

@@ -36,6 +36,7 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+!apps/mobile/keys/public-key.pem
 
 # local env files
 .env*.local
@@ -54,3 +55,4 @@ apps/mobile/android/
 # hot-updater
 .hot-updater/output
 .codex/hot-updater-rc14/
+.codex/mobile-1.6/

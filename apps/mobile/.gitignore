@@ -11,6 +11,7 @@ expo-env.d.ts
 # hot-updater
 .env
 .env.hotupdater
+.env.hotupdater.rc22
 .hot-updater/output
 .hot-updater/log
 # hot-updater

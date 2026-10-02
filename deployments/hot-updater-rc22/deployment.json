@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "provider": "cloudflare",
+  "resources": {
+    "workerName": "codex-relay-ota-rc22",
+    "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+    "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+    "d1DatabaseName": "codex-relay-rc22",
+    "bucketName": "codex-relay-rc22-storage"
+  },
+  "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+  "deployedServerVersion": "1.0.0-rc.22",
+  "pendingStep": null,
+  "verifiedSteps": [
+    {
+      "id": "cf.account",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": null,
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": "Authenticated discovery: complete D1 list has no selected database; selected R2 returns 404/10006; selected Worker deployments returns 10007. Legacy rc14 endpoint and three migrations verified; legacy DB exported privately.",
+      "checkedAt": "2026-10-02T07:38:51.251Z"
+    },
+    {
+      "id": "cf.storage",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": "APAC bucket exists; managed public URL disabled.",
+      "checkedAt": "2026-10-02T07:39:58.798Z"
+    },
+    {
+      "id": "cf.database",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "databaseName": "codex-relay-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b"
+      },
+      "observation": "New database found by exact unique name in authenticated provider list.",
+      "checkedAt": "2026-10-02T07:40:00.248Z"
+    },
+    {
+      "id": "upgrades/1.0.0.md/cf.schema",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": {
+        "migrations": [
+          {
+            "name": "0001_hot-updater_1.0.0.sql"
+          }
+        ],
+        "schema": [
+          {
+            "key": "schema.apiKeys",
+            "value": "1.0.0"
+          },
+          {
+            "key": "schema.core",
+            "value": "1.0.0"
+          },
+          {
+            "key": "schema.engine",
+            "value": "1"
+          },
+          {
+            "key": "schema.insights",
+            "value": "1.2.0"
+          }
+        ]
+      },
+      "checkedAt": "2026-10-02T07:42:38.477Z"
+    },
+    {
+      "id": "cf.worker",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": {
+        "deploymentVersion": "dd15a560-6ed7-4311-aa27-6552542a7775",
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.22"
+        },
+        "bindingsVerified": true
+      },
+      "checkedAt": "2026-10-02T07:47:20.285Z"
+    },
+    {
+      "id": "cf.signing",
+      "target": {
+        "workerName": "codex-relay-ota-rc22"
+      },
+      "observation": "STORAGE_DOWNLOAD_URL_SIGNING_KEY present; private local reference .codex/mobile-1.6/worker-download.secret",
+      "checkedAt": "2026-10-02T07:48:55.509Z"
+    },
+    {
+      "id": "cf.client-credential",
+      "target": {
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b"
+      },
+      "observation": "Exactly one active client key verified. Credential retained privately in apps/mobile/.env.hotupdater.rc22 and scaffold app/client-credential.local.",
+      "checkedAt": "2026-10-02T07:51:01.015Z"
+    },
+    {
+      "id": "common.verify",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": "Infrastructure doctor success: all seven required checks pass, including unauthenticated rejection and authenticated empty catalog.",
+      "checkedAt": "2026-10-02T07:54:41.458Z"
+    },
+    {
+      "id": "common.local",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage"
+      },
+      "observation": "App doctor success with rc22 packages and server; iOS 1.6.0 production native wiring detected. R2 S3 ListObjectsV2 MaxKeys=1 succeeds with zero objects. Write/download/native OTA verification pending.",
+      "checkedAt": "2026-10-02T07:54:41.466Z"
+    },
+    {
+      "id": "ci.mobile-env",
+      "target": {
+        "repository": "gronxb/codex-relay",
+        "secret": "MOBILE_ENV_RC22"
+      },
+      "startedAt": "2026-10-02T08:07:12.955Z",
+      "observation": "New secret exists with update time 2026-10-02T08:07:14Z; legacy secret unchanged. Secret values cannot be read back.",
+      "checkedAt": "2026-10-02T08:07:36.267Z"
+    },
+    {
+      "id": "ci.provider-env",
+      "target": {
+        "repository": "gronxb/codex-relay",
+        "secret": "HOT_UPDATER_ENV_RC22"
+      },
+      "startedAt": "2026-10-02T08:07:36.268Z",
+      "observation": "New secret exists with update time 2026-10-02T08:07:37Z. Legacy secrets unchanged.",
+      "checkedAt": "2026-10-02T08:08:11.545Z"
+    },
+    {
+      "id": "console.local",
+      "target": {
+        "baseUrl": "http://127.0.0.1:1422",
+        "version": "1.0.0-rc.22"
+      },
+      "observation": "Browser UI shows empty bundles, zero/empty Insights reports without errors, and one active client API key.",
+      "checkedAt": "2026-10-02T08:08:11.545Z"
+    },
+    {
+      "id": "native.qa-artifact",
+      "target": {
+        "buildId": "3750ecab-a37a-4b4c-a6fa-31368a4317d3"
+      },
+      "observation": "EAS simulator Release build finished. Inspected artifact: app 1.6.0, SDK iphonesimulator27.1, min iOS 16.4, SceneDelegate, production channel, embedded public key and rc22 endpoint. Duo runtime validation unperformed. Subsequent iPhone 17 / iOS 26.4 launch failed with No QueryClient set; this candidate is superseded pending a verified replacement.",
+      "checkedAt": "2026-10-02T09:01:08.964Z"
+    },
+    {
+      "id": "native.store-upload",
+      "target": {
+        "buildId": "1cd9bc21-aeed-4152-ad22-caa57a6388e5",
+        "submissionId": "c57c0f46-beda-436c-87e5-a2d211381a49",
+        "ascAppId": "6764463488"
+      },
+      "observation": "Build and upload finished; ASC reports 1.6.0 (51) VALID / IN_BETA_TESTING. IPA verified: SDK iphoneos27.0, min iOS 16.4, SceneDelegate, production channel, OTA public key matches repository, rc22 URL present, legacy URL absent. User owns App Review submission. Do not use build 51 for review: it contains the same duplicate React Query dependency graph that failed native startup. Superseded by build 52.",
+      "checkedAt": "2026-10-02T09:01:08.965Z"
+    },
+    {
+      "id": "native.simulator-query-fix",
+      "target": {
+        "baseBuildId": "3750ecab-a37a-4b4c-a6fa-31368a4317d3",
+        "device": "iPhone 17",
+        "runtime": "iOS 26.4",
+        "bundle": "locally rebundled current-source Hermes Release"
+      },
+      "observation": "Startup, navigation, portrait/landscape, cold-link pairing, keyboard input, and unsent draft preservation through wide-to-compact transition passed. QueryClient startup error absent. Draft cleared without sending. Duo and physical store IPA execution remain unverified.",
+      "checkedAt": "2026-10-02T09:37:57.687753+00:00"
+    },
+    {
+      "id": "native.store-upload-52",
+      "target": {
+        "buildId": "46169ee6-eced-4af7-a740-401bc8d47081",
+        "submissionId": "993c9dc2-a5b6-46bb-82fc-fc1659f57bdf",
+        "ascAppId": "6764463488"
+      },
+      "observation": "Build and upload finished. ASC reports 1.6.0 (52) VALID / IN_BETA_TESTING / READY_FOR_BETA_SUBMISSION. IPA metadata, SceneDelegate, OTA public key, rc22 URL and absence of legacy URL verified. Supersedes 51. User owns App Review submission.",
+      "checkedAt": "2026-10-02T09:37:57.687753+00:00"
+    }
+  ]
+}

@@ -46,12 +46,12 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { KeyboardController } from "react-native-keyboard-controller";
-import PagerView from "react-native-pager-view";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
 import { ThemedText } from "@/components/themed-text";
+import { AdaptivePanes } from "@/components/ui/adaptive-panes";
 import { CopyableCommand } from "@/components/ui/copyable-command";
 import { AppToast } from "@/components/ui/toast";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
@@ -162,11 +162,7 @@ import { ChatShell } from "./ChatShell";
 import type { ChatShellAction } from "./ChatShellHeader";
 import { ConnectionBanner } from "./ConnectionBanner";
 import { approvalCommand } from "./pairing-commands";
-import {
-  EXPANDED_DRAWER_BREAKPOINT,
-  THREE_PANE_LAYOUT_BREAKPOINT,
-  useIpadSplitLayout,
-} from "./ipad-split-layout";
+import { EXPANDED_DRAWER_BREAKPOINT, useIpadSplitLayout } from "./ipad-split-layout";
 import { WorkspacePreviewSurface } from "./WorkspacePreviewSurface";
 import type { WorkspaceMarkdownPreviewTarget } from "./workspace-preview/markdown-target";
 
@@ -188,9 +184,10 @@ const EMPTY_THREADS: ThreadSummary[] = [];
 
 type ChatScreenProps = {
   initialPairingUrl?: string | null;
+  onPairingComplete?: () => void;
 };
 
-export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
+export function ChatScreen({ initialPairingUrl, onPairingComplete }: ChatScreenProps = {}) {
   const isHandlingPairingLink = useRef(false);
   const lastHandledPairingUrl = useRef<string | undefined>(undefined);
   const { width } = useWindowDimensions();
@@ -230,7 +227,8 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
   const [copyToast, setCopyToast] = useState<{ id: number } | undefined>(undefined);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const usesExpandedSidebar = width >= EXPANDED_DRAWER_BREAKPOINT;
-  const usesWideLayout = width >= THREE_PANE_LAYOUT_BREAKPOINT;
+  const usesWideLayout =
+    wideLayoutWidth >= MIN_CHAT_PANE_WIDTH + MIN_PREVIEW_PANE_WIDTH + PREVIEW_RESIZE_HANDLE_WIDTH;
   const drawerNavigation = useNavigation<{
     openDrawer?: () => void;
   }>();
@@ -398,7 +396,6 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       setConnection("offline", errorMessage(caught));
     },
   });
-  const pagerRef = useRef<PagerView>(null);
   const isAttachingImagesRef = useRef(false);
   const isHandlingScanRef = useRef(false);
   const isModernScannerOpenRef = useRef(false);
@@ -1012,9 +1009,6 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
 
   const showPagerPage = useCallback((page: number) => {
     setActivePagerPage(page);
-    requestAnimationFrame(() => {
-      pagerRef.current?.setPage(page);
-    });
   }, []);
 
   const guardWorkspacePreviewAction = useCallback(async () => true, []);
@@ -1305,6 +1299,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         setPasteApprovalServerUrl(undefined);
         hapticSuccess();
         await refresh();
+        onPairingComplete?.();
       } catch (caught) {
         setPastePairOpen(false);
         Alert.alert(
@@ -1316,7 +1311,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
         setPastePairing(false);
       }
     },
-    [queryClient, refresh, syncPairedSessionState],
+    [onPairingComplete, queryClient, refresh, syncPairedSessionState],
   );
 
   useEffect(() => {
@@ -2171,24 +2166,8 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
     setWideLayoutWidth((current) => (current === nextWidth ? current : nextWidth));
   }, []);
 
-  useEffect(() => {
-    if (wideLayoutWidth <= 0) {
-      return;
-    }
-
-    setPreviewPaneWidth((current) => clampPreviewPaneWidth(current, wideLayoutWidth));
-  }, [wideLayoutWidth]);
-
   const clampedPreviewPaneWidth = clampPreviewPaneWidth(previewPaneWidth, wideLayoutWidth);
   const showsWidePreviewPane = hasPairedSession && usesWideLayout && isWidePreviewVisible;
-  const wideChatPaneWidth =
-    wideLayoutWidth > 0
-      ? Math.max(
-          MIN_CHAT_PANE_WIDTH,
-          wideLayoutWidth -
-            (showsWidePreviewPane ? clampedPreviewPaneWidth + PREVIEW_RESIZE_HANDLE_WIDTH : 0),
-        )
-      : 0;
 
   const beginPreviewResize = useCallback(() => {
     previewResizeStartWidthRef.current = clampedPreviewPaneWidth;
@@ -2249,6 +2228,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
     : [];
   const chatPane = (
     <ChatShell
+      horizontalSafeArea={false}
       banner={
         <Animated.View layout={chatBannerLayoutTransition} style={styles.bannerStack}>
           <ConnectionBanner
@@ -2343,6 +2323,7 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
       markdownPreviewTarget={markdownPreviewTarget}
       webPreviewTarget={activeWebPreviewTarget}
       onClose={closeWorkspacePreview}
+      sideBySide={usesWideLayout}
       showCloseButton
       onCheckoutBranch={checkoutBranch}
       onCommitPush={commitPush}
@@ -2353,56 +2334,28 @@ export function ChatScreen({ initialPairingUrl }: ChatScreenProps = {}) {
 
   return (
     <>
-      {usesWideLayout ? (
-        <View onLayout={onWideLayout} style={styles.wideLayout}>
-          <View
-            style={[
-              styles.wideChatPane,
-              wideLayoutWidth > 0 ? { width: wideChatPaneWidth } : styles.wideChatPaneInitial,
-            ]}
-          >
-            {chatPane}
-          </View>
-          {showsWidePreviewPane ? (
-            <>
-              <GestureDetector gesture={previewResizeGesture}>
-                <Animated.View
-                  accessibilityLabel="Resize workspace preview"
-                  style={styles.previewResizeHandle}
-                >
-                  <View style={styles.previewResizeGrip} />
-                </Animated.View>
-              </GestureDetector>
-              <View
-                style={[
-                  styles.widePreviewPane,
-                  wideLayoutWidth > 0
-                    ? { width: clampedPreviewPaneWidth }
-                    : styles.widePreviewPaneInitial,
-                ]}
-              >
-                {workspacePreviewPane}
-              </View>
-            </>
-          ) : null}
-        </View>
-      ) : hasPairedSession ? (
-        <PagerView
-          ref={pagerRef}
-          initialPage={activePagerPage}
-          onPageSelected={(event) => setActivePagerPage(event.nativeEvent.position)}
-          style={styles.pager}
-        >
-          <View key="chat" collapsable={false} style={styles.pagerPage}>
-            {chatPane}
-          </View>
-          <View key="changes" collapsable={false} style={styles.pagerPage}>
-            {workspacePreviewPane}
-          </View>
-        </PagerView>
-      ) : (
-        <View style={styles.pagerPage}>{chatPane}</View>
-      )}
+      <AdaptivePanes
+        primary={chatPane}
+        secondary={hasPairedSession ? workspacePreviewPane : null}
+        divider={
+          <GestureDetector gesture={previewResizeGesture}>
+            <Animated.View
+              accessibilityLabel="Resize workspace preview"
+              style={styles.previewResizeHandle}
+            >
+              <View style={styles.previewResizeGrip} />
+            </Animated.View>
+          </GestureDetector>
+        }
+        width={wideLayoutWidth}
+        secondaryWidth={clampedPreviewPaneWidth}
+        dividerWidth={PREVIEW_RESIZE_HANDLE_WIDTH}
+        sideBySide={usesWideLayout}
+        secondaryVisible={hasPairedSession && (!usesWideLayout || isWidePreviewVisible)}
+        selectedPane={activePagerPage}
+        onSelectPane={setActivePagerPage}
+        onLayout={onWideLayout}
+      />
       {copyToast ? (
         <AppToast
           key={copyToast.id}
@@ -2882,29 +2835,6 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-  pager: {
-    flex: 1,
-  },
-  pagerPage: {
-    flex: 1,
-  },
-  wideLayout: {
-    backgroundColor: Colors.dark.background,
-    flex: 1,
-    flexDirection: "row",
-  },
-  wideChatPane: {
-    minWidth: 0,
-  },
-  wideChatPaneInitial: {
-    flex: 1,
-  },
-  widePreviewPane: {
-    minWidth: 0,
-  },
-  widePreviewPaneInitial: {
-    flex: 1.08,
-  },
   previewResizeGrip: {
     backgroundColor: "rgba(255, 255, 255, 0.22)",
     borderRadius: 1,
@@ -2914,6 +2844,7 @@ const styles = StyleSheet.create({
     width: 2,
   },
   previewResizeHandle: {
+    flex: 1,
     alignItems: "flex-start",
     borderLeftColor: "rgba(255, 255, 255, 0.08)",
     borderLeftWidth: StyleSheet.hairlineWidth,

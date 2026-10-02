@@ -292,7 +292,9 @@ function directFetchHeaders(...inputs: Array<HeadersInit | undefined>): DirectFe
       headers.set(key, value);
     });
   }
-  return Array.from(headers.entries()).map(([key, value]) => ({ key, value }));
+  const result: DirectFetchHeader[] = [];
+  headers.forEach((value, key) => result.push({ key, value }));
+  return result;
 }
 
 function parseHeaders(headersJson: string): DirectFetchHeader[] {

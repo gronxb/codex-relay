@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Pressable, type ViewStyle } from "react-native";
+import { Pressable } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
@@ -37,10 +37,10 @@ export function FastToggle({
     progress.value = reduceMotion ? destination : withTiming(destination, { duration: 140 });
   }, [enabled, progress, reduceMotion]);
 
-  const trackStyle = useAnimatedStyle<ViewStyle>(() => ({
+  const trackStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(progress.value, [0, 1], [theme.powerTrack, theme.powerBlue]),
   }));
-  const thumbStyle = useAnimatedStyle<ViewStyle>(() => ({
+  const thumbStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: interpolate(progress.value, [0, 1], [0, THUMB_TRAVEL]) }],
   }));
 
