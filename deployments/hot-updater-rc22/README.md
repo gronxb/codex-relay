@@ -76,6 +76,8 @@ Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App 
 
 GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
 
+Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The pinned pnpm patch makes both adapter entry points use the public `expo/config` export for the fallback. `pnpm test:release` exercises the installed ESM and CommonJS adapters against the app's real signing-key configuration; both failed before the patch and pass afterward. Keep the patch until an upstream release supports this Expo version.
+
 The existing sequential `ship.N` release convention is retained. The plain `1.6.0` native baseline does not trigger OTA. For a later `1.6.0-ship.N` release, the workflow reads `hot-updater app-version --json`, checks it against Expo config, and passes that exact iOS version to `deploy -t`. There is no additional approval variable or version convention.
 
 Local app configuration reads `.env.hotupdater.rc22`; the CLI's `.env.hotupdater` also points at the new resources. Private legacy backups and logs are under the ignored `.codex/mobile-1.6/` directory. Never commit them.

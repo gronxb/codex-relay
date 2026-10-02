@@ -1,0 +1,26 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+index 526dfeec9a76c56d9847e28f66ce415f72184d6c..47cee3618b75e296f7d972abcb179b21a4db097b 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -6270,7 +6270,7 @@ const loadExpoConfig = async () => {
+ 	} catch (error) {
+ 		if (!isMissingModule(error, "expo/config.js")) throw error;
+ 	}
+-	const module = await importExpoConfigModule("expo/config/index.js");
++	const module = await importExpoConfigModule("expo/config");
+ 	return module.getConfig ? module : module.default;
+ };
+ const getConfig = async (...args) => {
+diff --git a/dist/index.mjs b/dist/index.mjs
+index d60e556c5f34e5a93082dbc625d006d859429599..bedb54b94839a1965bd9753151fd2dcb90a8a7bb 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -6268,7 +6268,7 @@ const loadExpoConfig = async () => {
+ 	} catch (error) {
+ 		if (!isMissingModule(error, "expo/config.js")) throw error;
+ 	}
+-	const module = await importExpoConfigModule("expo/config/index.js");
++	const module = await importExpoConfigModule("expo/config");
+ 	return module.getConfig ? module : module.default;
+ };
+ const getConfig = async (...args) => {

@@ -165,6 +165,9 @@ settings:
 overrides:
   '@libsql/isomorphic-ws>ws': 8.21.0
 
+patchedDependencies:
+  '@hot-updater/expo@1.0.0-rc.22': f1f63b8034cbcd2eb1574ceea5a9a03f4c80559a65d2007e5ae23a16c4dc7438
+
 importers:
 
   .:
@@ -406,7 +409,7 @@ importers:
         version: 1.0.0-rc.22
       '@hot-updater/expo':
         specifier: 1.0.0-rc.22
-        version: 1.0.0-rc.22(expo@58.0.2)(hot-updater@1.0.0-rc.22(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.22)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
+        version: 1.0.0-rc.22(patch_hash=f1f63b8034cbcd2eb1574ceea5a9a03f4c80559a65d2007e5ae23a16c4dc7438)(expo@58.0.2)(hot-updater@1.0.0-rc.22(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.22)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
       '@react-native/metro-config':
         specifier: 0.88.0-rc.3
         version: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -13507,7 +13510,7 @@ snapshots:
       - xml2js
       - zephyr-agent
 
-  '@hot-updater/expo@1.0.0-rc.22(expo@58.0.2)(hot-updater@1.0.0-rc.22(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.22)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
+  '@hot-updater/expo@1.0.0-rc.22(patch_hash=f1f63b8034cbcd2eb1574ceea5a9a03f4c80559a65d2007e5ae23a16c4dc7438)(expo@58.0.2)(hot-updater@1.0.0-rc.22(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.22)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
     dependencies:
       '@babel/core': 7.26.0(supports-color@8.1.1)
       '@babel/types': 7.26.0
