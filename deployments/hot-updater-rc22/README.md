@@ -1,13 +1,13 @@
-# Mobile 1.6.0: rc25 tooling and infrastructure / Expo 58
+# Mobile 1.6.0: rc27 tooling and infrastructure / Expo 58
 
-Current state: mobile tooling, the OTA Worker and the Ship console use Hot Updater rc25. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: mobile tooling, the OTA Worker and the Ship console use Hot Updater rc27. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                                                   | Selected version / target           |
 | --------------------------------------------------------------------------- | ----------------------------------- |
 | Mobile native version                                                       | `1.6.0`                             |
-| Hot Updater CLI, Expo, React Native, Cloudflare plugins, Worker and console | `1.0.0-rc.25`                       |
+| Hot Updater CLI, Expo, React Native, Cloudflare plugins, Worker and console | `1.0.0-rc.27`                       |
 | Existing store binary's Hot Updater SDK                                     | `1.0.0-rc.23` (build 58)            |
 | Expo / React Native / React                                                 | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                                        | `24.8.0` / `24.14.1`                |
@@ -81,9 +81,9 @@ Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App 
 
 ## CI and local operations
 
-GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc25 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
+GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc27 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
 
-Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. After the initial rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440), [#1442](https://github.com/gronxb/hot-updater/pull/1442) switched resolution to the consuming project's `require.resolve` and removed the export-path workaround. Official rc25 includes that change and the legacy Hermes fallback fixes. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc25 packages, with no preview-package URLs or local Expo adapter patch.
+Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. After the initial rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440), [#1442](https://github.com/gronxb/hot-updater/pull/1442) switched resolution to the consuming project's `require.resolve` and removed the export-path workaround. Official rc25 includes that change and the legacy Hermes fallback fixes. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc27 packages, with no preview-package URLs or local Expo adapter patch.
 
 The existing sequential `ship.N` release convention is retained. The plain `1.6.0` native baseline does not trigger OTA. For a later `1.6.0-ship.N` release, the workflow reads `hot-updater app-version --json`, checks it against Expo config, and passes that exact iOS version to `deploy -t`. There is no additional approval variable or version convention.
 
@@ -97,7 +97,7 @@ pnpm exec hot-updater doctor --server-base-url https://codex-relay-ota-rc22.gron
 pnpm exec hot-updater console
 ```
 
-The local console opens at `http://127.0.0.1:1422/`. The deployed rc25 console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com), retaining its existing Tailscale exposure and authentication.
+The local console opens at `http://127.0.0.1:1422/`. The deployed rc27 console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com), retaining its existing Tailscale exposure and authentication.
 
 The Worker runtime under `worker/dist/` is generated and ignored. On a fresh checkout, regenerate it with the pinned app CLI; it preserves existing scaffold files:
 
@@ -184,6 +184,16 @@ The Worker now reports rc25 / generation 1 / admin protocol 2, deployed as versi
 The console was deployed with Ship from local console commit `8c4371e`, image `ship/codex-relay:20261003020003`. Rollout, HTTPS response, retained authentication, Bundles and Insights pages, and authenticated download of the existing rc23 manifest passed. Anonymous manifest download returns 401. The deployed environment matches the existing private environment file.
 
 Validation: 335 server tests passed (5 skipped), release checks passed (13 Node and 6 mobile tests), typechecking and lint passed. The rc25 Expo adapter built the actual iOS Hermes bundle locally and loaded the Expo 58 signing configuration in both ESM and CommonJS. Console tests (9), typechecking, production Node build and Node smoke tests passed. Private receipts and screenshots are under `.codex/mobile-1.6/rc25/`. Native apply/rollback was not repeated for rc25; the rc23 Duo verification above remains the native baseline.
+
+## Official rc27 upgrade
+
+[Hot Updater #1449](https://github.com/gronxb/hot-updater/pull/1449) published rc27 from `f16b4f40700c88a7a334ce822a0d112a2510ec96`, including the rc26 Insights layout restoration and rc27 failure readability improvements. Mobile and console dependencies use the official registry packages. The React Native package differs from rc25 only in version metadata; the existing 1.6.0 binary remains compatible.
+
+Worker version `b8a82482-ebdc-4468-919d-6ac4cabbd0cc` reports rc27 / generation 1 / admin protocol 2. Runtime bytes differ only in the version string; schema and migrations are unchanged. D1/R2 identities, private storage, bindings, API keys and signing keys are retained. Infrastructure doctor, authenticated catalog verification, anonymous rejection and local R2 read access passed.
+
+The Modex console was deployed with Ship from local console commit `3826639`, image `ship/codex-relay:20261003035829`, at the existing URL and Tailscale exposure. Rollout, HTTPS, authentication, Bundles and Insights views passed. Its deployed environment matches the existing private environment file. Server tests (335 passed, 5 skipped), release checks, typechecking, console tests (9), production build and Node smoke tests passed.
+
+The user requested an asset and JavaScript OTA probe for iOS 1.6.0, production, cohort `219`, with public rollout zero. Physical-device confirmation is required before the requested rollback; existing QA releases remain disabled. Test visuals are temporary and must not remain in main. Receipts are stored privately under `.codex/mobile-1.6/rc27/`.
 
 ## Subsequent Duo and OTA battle-test gates
 

@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.25",
+  "deployedServerVersion": "1.0.0-rc.27",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -622,6 +622,123 @@
         "appDoctorPassed": true
       },
       "checkedAt": "2026-10-03T02:05:21.823Z"
+    },
+    {
+      "id": "cf.worker.rc27",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage",
+        "version": "1.0.0-rc.27"
+      },
+      "startedAt": "2026-10-03T03:56:38.227Z",
+      "observation": {
+        "workerVersion": "b8a82482-ebdc-4468-919d-6ac4cabbd0cc",
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.27"
+        },
+        "bindingsAndSecretNamesUnchanged": true,
+        "workerRuntimeOnlyVersionChange": true,
+        "migrationsApplied": []
+      },
+      "checkedAt": "2026-10-03T03:57:54.639Z"
+    },
+    {
+      "id": "common.verify.rc27",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "version": "1.0.0-rc.27"
+      },
+      "observation": {
+        "checks": [
+          {
+            "code": "INFRA_MANIFEST",
+            "status": "pass",
+            "message": "Provider, build and target versions match the packaged scaffold."
+          },
+          {
+            "code": "INFRA_SCAFFOLD",
+            "status": "pass",
+            "message": "Required files, deployment placeholders and provider configuration checks passed."
+          },
+          {
+            "code": "INFRA_DEPLOYMENT_TARGET",
+            "status": "pass",
+            "message": "Deployment record has no unresolved operation or conflicting endpoint. Live checks are still required."
+          },
+          {
+            "code": "INFRA_SERVER_INPUTS",
+            "status": "pass",
+            "message": "inputs verified."
+          },
+          {
+            "code": "INFRA_SERVER_VERSION",
+            "status": "pass",
+            "message": "version verified."
+          },
+          {
+            "code": "INFRA_ANONYMOUS_CATALOG",
+            "status": "pass",
+            "message": "anonymous-catalog verified."
+          },
+          {
+            "code": "INFRA_AUTHENTICATED_CATALOG",
+            "status": "pass",
+            "message": "authenticated-catalog verified."
+          }
+        ],
+        "helper": {
+          "status": "verified",
+          "checks": {
+            "version": "matches-manifest",
+            "anonymousCatalog": 401,
+            "authenticatedCatalog": 200,
+            "catalog": "available"
+          }
+        },
+        "nativeCompatibility": {
+          "from": "1.0.0-rc.25",
+          "to": "1.0.0-rc.27",
+          "files": 278,
+          "changedFiles": [
+            "lib/commonjs/sdkVersion.js",
+            "lib/module/sdkVersion.js",
+            "lib/typescript/commonjs/sdkVersion.d.ts",
+            "lib/typescript/module/sdkVersion.d.ts",
+            "package.json",
+            "src/sdkVersion.ts"
+          ],
+          "onlyVersionMetadataChanged": true,
+          "nativeRebuildRequired": false
+        }
+      },
+      "checkedAt": "2026-10-03T03:58:29.331Z"
+    },
+    {
+      "id": "console.ship.rc27",
+      "target": {
+        "context": "kind-ship",
+        "namespace": "ship-services",
+        "service": "codex-relay",
+        "baseUrl": "https://codex-relay.gron-studio.com",
+        "version": "1.0.0-rc.27",
+        "sourceCommit": "3826639"
+      },
+      "startedAt": "2026-10-03T03:58:29.331Z",
+      "observation": {
+        "image": "ship/codex-relay:20261003035829",
+        "readyReplicas": 1,
+        "exposure": "tailscale",
+        "httpStatus": 200,
+        "environmentUnchanged": true,
+        "anonymousManifestDownload": 401,
+        "authenticatedBrowserChecks": ["Bundles", "Insights rc27 failure layout"]
+      },
+      "checkedAt": "2026-10-03T04:00:59.681Z"
     }
   ]
 }
