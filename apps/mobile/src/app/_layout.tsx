@@ -220,6 +220,13 @@ function TabLayout() {
                   }}
                 />
                 <Stack.Screen
+                  name="ssh"
+                  options={{
+                    animation: "slide_from_right",
+                    title: "SSH",
+                  }}
+                />
+                <Stack.Screen
                   name="workspace-file-editor"
                   options={{
                     animation: "slide_from_right",

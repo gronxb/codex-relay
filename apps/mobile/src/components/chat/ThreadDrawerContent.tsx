@@ -375,6 +375,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
     loadWorkspaceDirectories,
     openNewThreadWorkspacePicker,
     openSettings,
+    openSsh,
     refreshProjects,
     selectThread,
     toggleProject,
@@ -436,6 +437,7 @@ export function ThreadDrawerContent(props: ThreadDrawerContentProps) {
       }}
       showCloseButton={!props.isPermanent}
       onNewChat={() => void openNewThreadWorkspacePicker()}
+      onOpenSsh={openSsh}
       onRefreshProjects={() => void refreshProjects()}
       onSearchChange={(value) => dispatchUi({ type: "set-search-query", value })}
       onSearchClear={() => dispatchUi({ type: "set-search-query", value: "" })}
@@ -821,12 +823,22 @@ function useThreadDrawerActions({
     }, 300);
   }, [navigation]);
 
+  const openSsh = useCallback(() => {
+    hapticSelection();
+    navigation.closeDrawer();
+    cancelIdleTask(pendingDrawerActionTaskRef.current);
+    pendingDrawerActionTaskRef.current = requestIdleTask(() => {
+      requestAnimationFrame(() => router.push("/ssh"));
+    }, 300);
+  }, [navigation]);
+
   return {
     confirmArchiveThread,
     createNewThread,
     loadWorkspaceDirectories,
     openNewThreadWorkspacePicker,
     openSettings,
+    openSsh,
     refreshProjects,
     selectThread,
     toggleProject,
@@ -1080,6 +1092,7 @@ function DrawerListHeader({
   isRefreshingProjects,
   onCloseMenu,
   onNewChat,
+  onOpenSsh,
   onRefreshProjects,
   onSearchChange,
   onSearchClear,
@@ -1091,6 +1104,7 @@ function DrawerListHeader({
   isRefreshingProjects: boolean;
   onCloseMenu: () => void;
   onNewChat: () => void;
+  onOpenSsh: () => void;
   onRefreshProjects: () => void;
   onSearchChange: (value: string) => void;
   onSearchClear: () => void;
@@ -1172,6 +1186,21 @@ function DrawerListHeader({
             <Text style={[styles.newChatText, pressed && styles.drawerPressedContent]}>
               New Chat
             </Text>
+          </>
+        )}
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="SSH"
+        onPress={onOpenSsh}
+        style={styles.newChatRow}
+      >
+        {({ pressed }) => (
+          <>
+            <View style={[styles.newChatIcon, pressed && styles.drawerPressedContent]}>
+              <Icon name="terminal" size={14} tintColor={theme.text} />
+            </View>
+            <Text style={[styles.newChatText, pressed && styles.drawerPressedContent]}>SSH</Text>
           </>
         )}
       </Pressable>
