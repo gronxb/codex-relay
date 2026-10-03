@@ -28,6 +28,7 @@ const bridge = linkBridge<WorkspaceSshTerminalBridge, WorkspaceSshTerminalPostMe
   initialBridge: {
     ...defaultTerminalState,
     closeSession: async () => undefined,
+    copySelection: async () => undefined,
     reportError: async () => undefined,
     reportReady: async () => undefined,
     reportSessionStatus: async () => undefined,
@@ -49,6 +50,7 @@ let isStartingSession = false;
 let isClosed = false;
 let lastResize = { cols: 80, rows: 24 };
 let lastReconnectRequestId = currentState.reconnectRequestId;
+let lastCopySelectionRequestId = currentState.copySelectionRequestId;
 let reconnectAttempt = 0;
 let lastReportedStatus: WorkspaceSshTerminalSessionStatus | undefined;
 let lastReportedMessage: string | undefined;
@@ -58,6 +60,16 @@ bridge.addEventListener("terminalState", (state) => {
   if (state.terminalId === terminalId) {
     currentState = state;
     applyTerminalState(state);
+    if (
+      typeof state.copySelectionRequestId === "number" &&
+      state.copySelectionRequestId !== lastCopySelectionRequestId
+    ) {
+      lastCopySelectionRequestId = state.copySelectionRequestId;
+      const text = terminal?.getSelection() ?? "";
+      if (text) {
+        void bridge.copySelection({ terminalId, text }).catch(() => {});
+      }
+    }
     if (
       typeof state.reconnectRequestId === "number" &&
       state.reconnectRequestId !== lastReconnectRequestId
@@ -124,6 +136,29 @@ async function initializeTerminal() {
 
 function setupTouchScroll() {
   const container = containerElement();
+
+  const dispatchSelectionMouseEvent = (
+    type: "mousedown" | "mousemove" | "mouseup",
+    touch: Touch,
+  ) => {
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const eventTarget = target instanceof HTMLElement ? target : container;
+
+    eventTarget.dispatchEvent(
+      new MouseEvent(type, {
+        bubbles: true,
+        button: 0,
+        buttons: type === "mouseup" ? 0 : 1,
+        cancelable: true,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        screenX: touch.screenX,
+        screenY: touch.screenY,
+        view: window,
+      }),
+    );
+  };
+
   container.addEventListener(
     "touchstart",
     (event) => {
@@ -131,26 +166,54 @@ function setupTouchScroll() {
         scrollTouchLastY = undefined;
         return;
       }
-      scrollTouchLastY = event.touches[0]?.clientY;
-    },
-    { passive: true },
-  );
-  container.addEventListener(
-    "touchmove",
-    (event) => {
-      if (event.touches.length !== 1 || scrollTouchLastY === undefined) {
-        return;
-      }
+
       const touch = event.touches[0];
       if (!touch) {
         return;
       }
+
+      if (currentState.selectionMode) {
+        event.preventDefault();
+        scrollTouchLastY = undefined;
+        dispatchSelectionMouseEvent("mousedown", touch);
+        return;
+      }
+
+      scrollTouchLastY = touch.clientY;
+    },
+    { passive: false },
+  );
+
+  container.addEventListener(
+    "touchmove",
+    (event) => {
+      if (event.touches.length !== 1) {
+        return;
+      }
+
+      const touch = event.touches[0];
+      if (!touch) {
+        return;
+      }
+
+      if (currentState.selectionMode) {
+        event.preventDefault();
+        dispatchSelectionMouseEvent("mousemove", touch);
+        return;
+      }
+
+      if (scrollTouchLastY === undefined) {
+        return;
+      }
+
       const nextY = touch.clientY;
       const deltaY = nextY - scrollTouchLastY;
       scrollTouchLastY = nextY;
+
       if (Math.abs(deltaY) < 2) {
         return;
       }
+
       event.preventDefault();
       container.dispatchEvent(
         new WheelEvent("wheel", {
@@ -165,19 +228,35 @@ function setupTouchScroll() {
     },
     { passive: false },
   );
+
   container.addEventListener(
     "touchend",
-    () => {
+    (event) => {
+      if (currentState.selectionMode) {
+        const touch = event.changedTouches[0];
+        if (touch) {
+          event.preventDefault();
+          dispatchSelectionMouseEvent("mouseup", touch);
+        }
+      }
       scrollTouchLastY = undefined;
     },
-    { passive: true },
+    { passive: false },
   );
+
   container.addEventListener(
     "touchcancel",
-    () => {
+    (event) => {
+      if (currentState.selectionMode) {
+        const touch = event.changedTouches[0];
+        if (touch) {
+          event.preventDefault();
+          dispatchSelectionMouseEvent("mouseup", touch);
+        }
+      }
       scrollTouchLastY = undefined;
     },
-    { passive: true },
+    { passive: false },
   );
 }
 
