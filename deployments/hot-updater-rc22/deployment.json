@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.29",
+  "deployedServerVersion": "1.0.0-rc.30",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -741,6 +741,79 @@
       "checkedAt": "2026-10-03T04:00:59.681Z"
     },
     {
+      "id": "ota.probe.rc27.deploy",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0",
+        "rollout": 0,
+        "targetCohorts": ["219"],
+        "sourceCommit": "cca3efc816878bc25b11ee74b6b32871ed97554e"
+      },
+      "startedAt": "2026-10-03T04:03:01.656Z",
+      "observation": {
+        "releaseId": "01a0fff0-1442-7318-892e-4440ca0d5ec2",
+        "bundleId": "01a0ffed-fffd-7b5a-a405-c82760379b0d",
+        "revision": 1,
+        "enabled": true,
+        "rolloutCohortCount": 0,
+        "signingCompleted": true,
+        "storageUploadCompleted": true,
+        "databaseRegistrationCompleted": true,
+        "patchGeneration": "skipped; no compatible enabled base"
+      },
+      "checkedAt": "2026-10-03T04:06:38.062Z"
+    },
+    {
+      "id": "ota.probe.rc27.target",
+      "target": {
+        "releaseId": "01a0fff0-1442-7318-892e-4440ca0d5ec2",
+        "bundleId": "01a0ffed-fffd-7b5a-a405-c82760379b0d",
+        "expectedRevision": 1,
+        "targetCohorts": ["219"],
+        "rolloutCohortCount": 0
+      },
+      "startedAt": "2026-10-03T04:06:38.062Z",
+      "observation": {
+        "targetRevision": 2,
+        "cohorts": ["219"],
+        "physicalDeviceTest": "User confirmed OTA test completed",
+        "subsequentUserEdit": {
+          "revision": 3,
+          "targetCohorts": []
+        }
+      },
+      "checkedAt": "2026-10-03T04:13:13.809Z"
+    },
+    {
+      "id": "ota.probe.rc27.rollback",
+      "target": {
+        "releaseId": "01a0fff0-1442-7318-892e-4440ca0d5ec2",
+        "bundleId": "01a0ffed-fffd-7b5a-a405-c82760379b0d",
+        "expectedRevision": 3
+      },
+      "startedAt": "2026-10-03T04:13:13.812Z",
+      "observation": {
+        "releaseId": "01a0fff0-1442-7318-892e-4440ca0d5ec2",
+        "bundleId": "01a0ffed-fffd-7b5a-a405-c82760379b0d",
+        "manifestSignatureVerified": true,
+        "assetBytesMatch": true,
+        "assetSignatureVerified": true,
+        "bundleSignatureVerified": true,
+        "bundleMarkerPresent": true,
+        "physicalDeviceTest": "User confirmed completed",
+        "releaseDisabled": true,
+        "releaseRevision": 4,
+        "catalogGeneration": 13,
+        "selectorResult": "BUILTIN",
+        "userRemovedCohortBeforeRollback": true,
+        "temporarySourceChangesReverted": true
+      },
+      "checkedAt": "2026-10-03T04:17:16.208Z"
+    },
+    {
       "id": "upgrades/1.0.0-rc.29.md:worker",
       "action": "Deploy HTTP diagnostics runtime on the existing Worker",
       "target": {
@@ -853,6 +926,326 @@
         }
       },
       "checkedAt": "2026-10-03T08:36:09.758959+00:00"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:stage-preview",
+      "action": "Upload the commit-pinned preview runtime without changing traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "sourceCommit": "041f8acc54debb562963ce5a2853de73bf7ebb11"
+      },
+      "startedAt": "2026-10-03T11:41:45.856Z",
+      "requestId": "a46310ad-5b58-485d-b096-61951c85c4ec",
+      "observation": {
+        "uploadedVersionId": "a46310ad-5b58-485d-b096-61951c85c4ec",
+        "trafficChanged": false
+      },
+      "checkedAt": "2026-10-03T11:41:51.310Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:stage-pause",
+      "action": "Upload a temporary report-ingestion pause wrapper without changing traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "sourceCommit": "041f8acc54debb562963ce5a2853de73bf7ebb11"
+      },
+      "startedAt": "2026-10-03T11:42:22.143Z",
+      "requestId": "b85200bf-6c63-4876-94f6-bc2e5260b716",
+      "observation": {
+        "uploadedVersionId": "b85200bf-6c63-4876-94f6-bc2e5260b716",
+        "trafficChanged": false
+      },
+      "checkedAt": "2026-10-03T11:42:26.097Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:pause",
+      "action": "Temporarily pause POST /events with Retry-After while preserving OTA routes",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "versionId": "b85200bf-6c63-4876-94f6-bc2e5260b716"
+      },
+      "startedAt": "2026-10-03T11:47:13.409Z",
+      "requestId": "0ebc13cf-bcd0-4a44-bd85-777e303dc0f3",
+      "observation": {
+        "reportStatus": 503,
+        "retryAfterSeconds": 30,
+        "activeVersion": "b85200bf-6c63-4876-94f6-bc2e5260b716",
+        "propagationRecheck": true
+      },
+      "checkedAt": "2026-10-03T11:48:03.722Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:migration",
+      "action": "Apply only the pending additive daily-observations migration",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "migration": "0002_hot-updater_1.0.0-rc.30.sql"
+      },
+      "startedAt": "2026-10-03T11:48:03.767Z",
+      "requestId": "0002_hot-updater_1.0.0-rc.30.sql",
+      "observation": {
+        "schema": [
+          {
+            "key": "schema.engine",
+            "value": "1"
+          },
+          {
+            "key": "schema.core",
+            "value": "1.0.0"
+          },
+          {
+            "key": "schema.insights",
+            "value": "1.3.0"
+          },
+          {
+            "key": "schema.apiKeys",
+            "value": "1.0.0"
+          }
+        ],
+        "migrations": [
+          {
+            "name": "0001_hot-updater_1.0.0.sql"
+          },
+          {
+            "name": "0002_hot-updater_1.0.0-rc.30.sql"
+          }
+        ],
+        "tables": [
+          {
+            "name": "bundle_daily_heads"
+          },
+          {
+            "name": "insights_distribution_history"
+          }
+        ],
+        "counts": [
+          {
+            "bundles": 6,
+            "releases": 8,
+            "api_keys": 1
+          }
+        ]
+      },
+      "checkedAt": "2026-10-03T11:48:10.255Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:worker",
+      "action": "Deploy the staged pkg.pr.new runtime and resume Insights ingestion",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "versionId": "a46310ad-5b58-485d-b096-61951c85c4ec",
+        "sourceCommit": "041f8acc54debb562963ce5a2853de73bf7ebb11"
+      },
+      "startedAt": "2026-10-03T11:48:10.317Z",
+      "requestId": "62163046-e1a2-4ea8-b6ea-efa3b155ccd7",
+      "observation": {
+        "activeVersion": "a46310ad-5b58-485d-b096-61951c85c4ec",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.29"
+        },
+        "anonymousReportStatus": 401,
+        "reportPauseRemoved": true,
+        "propagationRecheck": true
+      },
+      "checkedAt": "2026-10-03T11:48:56.698Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:pr1454:console",
+      "action": "Roll out the tested commit-pinned preview Console image",
+      "target": {
+        "context": "kind-ship",
+        "namespace": "ship-services",
+        "deployment": "codex-relay",
+        "container": "app",
+        "previousImage": "ship/codex-relay:20261003082617",
+        "image": "ship/codex-relay:pr1454-041f8ac",
+        "packageCommit": "041f8acc54debb562963ce5a2853de73bf7ebb11"
+      },
+      "startedAt": "2026-10-03T11:48:56.840696+00:00",
+      "requestId": "12",
+      "observation": {
+        "image": "ship/codex-relay:pr1454-041f8ac",
+        "readyReplicas": 1,
+        "httpStatus": 200,
+        "environmentUnchanged": true
+      },
+      "checkedAt": "2026-10-03T11:50:19.928Z"
+    },
+    {
+      "id": "common.verify.pr1454",
+      "action": "Verify the deployed bundle-share preview and retained delivery behavior",
+      "target": {
+        "sourceCommit": "041f8acc54debb562963ce5a2853de73bf7ebb11",
+        "consoleUrl": "https://codex-relay.gron-studio.com/insights"
+      },
+      "observation": {
+        "schemaInsights": "1.3.0",
+        "serverVersion": "1.0.0-rc.29",
+        "catalogRowsPreserved": {
+          "bundles": 6,
+          "releases": 8,
+          "apiKeys": 1
+        },
+        "anonymousCatalog": 401,
+        "authenticatedCatalog": 200,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "consoleEnvironmentUnchanged": true,
+        "consoleTestsPassed": 9,
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorChecksPassed": 7,
+        "serverVerifierPassed": true,
+        "liveScreenshot": ".codex/mobile-1.6/pr1454/bundle-share-live.png",
+        "observedReportingInstallations": 8,
+        "knownBundleInstallations": 1,
+        "unknownBundleInstallations": 7,
+        "appDoctorLimitation": "Dependency alignment compares full preview URL locators literally; not recorded as passing.",
+        "prHead": "759524b8c72217fdf5a0f0193765b30cfb03e02f",
+        "prChecksPassed": 22
+      },
+      "checkedAt": "2026-10-03T12:04:15.271142+00:00"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:rc30:preflight",
+      "action": "Verify official RC30 packages and existing compatible infrastructure",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage",
+        "sourceCommit": "72b562c3074da5c8f0e9eaede8cc33a8b331b44e"
+      },
+      "observation": {
+        "releaseRun": "https://github.com/gronxb/hot-updater/actions/runs/37137677243",
+        "registryPackagesVerified": 7,
+        "schemaEngine": "1",
+        "schemaInsights": "1.3.0",
+        "migrationAlreadyApplied": "0002_hot-updater_1.0.0-rc.30.sql",
+        "migrationMatchesOfficialScaffold": true,
+        "pendingMigrations": 0,
+        "localStorageBoundedReadStatus": 200,
+        "catalogRows": {
+          "bundles": 6,
+          "releases": 8,
+          "apiKeys": 1
+        }
+      },
+      "checkedAt": "2026-10-03T16:48:28.586Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:rc30:worker",
+      "action": "Deploy official RC30 Worker runtime with existing bindings and secrets",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "previousVersionId": "a46310ad-5b58-485d-b096-61951c85c4ec",
+        "packageVersion": "1.0.0-rc.30"
+      },
+      "startedAt": "2026-10-03T16:49:31.653Z",
+      "requestId": "cf1c5eff-92fe-48e4-8020-f520692d0d04",
+      "observation": {
+        "versionId": "c662bf89-8026-46a5-aa30-5bc3bd18bba1",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.30"
+        },
+        "bindingsUnchanged": true,
+        "runtimeSettingsUnchanged": true
+      },
+      "checkedAt": "2026-10-03T16:51:42.425Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.30.md:rc30:console",
+      "action": "Roll out tested official RC30 Console image",
+      "target": {
+        "context": "kind-ship",
+        "namespace": "ship-services",
+        "deployment": "codex-relay",
+        "container": "app",
+        "previousImage": "ship/codex-relay:pr1454-041f8ac",
+        "image": "ship/codex-relay:rc30-72b562c"
+      },
+      "startedAt": "2026-10-03T16:52:14.847Z",
+      "requestId": "13",
+      "observation": {
+        "image": "ship/codex-relay:rc30-72b562c",
+        "readyReplicas": 1,
+        "httpStatus": 200,
+        "environmentUnchanged": true,
+        "anonymousSession": null,
+        "anonymousDownload": 401,
+        "catalogRowsPreserved": {
+          "bundles": 6,
+          "releases": 8,
+          "apiKeys": 1
+        }
+      },
+      "checkedAt": "2026-10-03T16:52:56.452Z"
+    },
+    {
+      "id": "common.verify.rc30",
+      "action": "Verify RC30 infrastructure and local app configuration",
+      "target": {
+        "serverVersion": "1.0.0-rc.30",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "serverTestsPassed": 335,
+        "serverTestsSkipped": 5,
+        "consoleTestsPassed": 9,
+        "typecheckPassed": true,
+        "lintPassed": true,
+        "consoleNodeSmokePassed": true,
+        "otaPublished": false
+      },
+      "checkedAt": "2026-10-03T16:54:52.378Z"
+    },
+    {
+      "id": "console.browser.rc30",
+      "action": "Verify authenticated official RC30 console with existing production reports",
+      "target": {
+        "url": "https://codex-relay.gron-studio.com/insights",
+        "releaseId": "01a1000b-a6ae-7fca-8b6b-44e0cf83fd05",
+        "hostSourceCommit": "f8931e5",
+        "imageDigest": "sha256:1d5152850ad4fcb5ceedb96a53c2f526eba5dfc50d52e9ee7cbd102ed7c79b3b"
+      },
+      "observation": {
+        "existingSessionPreserved": true,
+        "bundleShareRendered": true,
+        "adoptionTabRendered": true,
+        "chartNewestBundleSelected": true,
+        "downloadReports": 245,
+        "interval": "6-hour",
+        "urlRetainsAdoptionTab": true
+      },
+      "checkedAt": "2026-10-03T16:56:38.793Z"
     }
   ]
 }

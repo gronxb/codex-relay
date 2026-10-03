@@ -1,18 +1,19 @@
-# Mobile 1.6.0: rc27 tooling and infrastructure / Expo 58
+# Mobile 1.6.0: Hot Updater RC30 infrastructure / Expo 58
 
-Current state: mobile tooling, the OTA Worker and the Ship console use Hot Updater rc27. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.30` from release PR #1456, including #1457’s release adoption chart. See the RC30 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
-| Component                                                                   | Selected version / target           |
-| --------------------------------------------------------------------------- | ----------------------------------- |
-| Mobile native version                                                       | `1.6.0`                             |
-| Hot Updater CLI, Expo, React Native, Cloudflare plugins, Worker and console | `1.0.0-rc.27`                       |
-| Existing store binary's Hot Updater SDK                                     | `1.0.0-rc.23` (build 58)            |
-| Expo / React Native / React                                                 | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
-| EAS CLI / build Node                                                        | `24.8.0` / `24.14.1`                |
-| Preview and store build image                                               | `macos-tahoe-26.6-xcode-27.0`       |
-| Duo simulator build image                                                   | `macos-tahoe-26.6-xcode-27.1`       |
+| Component                                              | Selected version / target           |
+| ------------------------------------------------------ | ----------------------------------- |
+| Mobile native version                                  | `1.6.0`                             |
+| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.30`                       |
+| Local Expo plugin / React Native SDK                   | `1.0.0-rc.30`                       |
+| Existing store binary's Hot Updater SDK                | `1.0.0-rc.23` (build 58)            |
+| Expo / React Native / React                            | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
+| EAS CLI / build Node                                   | `24.8.0` / `24.14.1`                |
+| Preview and store build image                          | `macos-tahoe-26.6-xcode-27.0`       |
+| Duo simulator build image                              | `macos-tahoe-26.6-xcode-27.1`       |
 
 Expo SDK 58 and the selected React Native version are prereleases. Their native ABI changes require a new binary; do not deliver this JavaScript to a 1.5.0 binary.
 
@@ -27,7 +28,7 @@ Expo SDK 58 and the selected React Native version are prereleases. Their native 
 
 The old Worker, database and storage are preserved for 1.5.0 installations using their embedded rc14 URL. The existing Ship console now manages the 1.6.0 resources. The rc22 configuration rejects the legacy D1 ID. Do not apply rc22 migrations to the old database or repoint its Worker.
 
-New D1 markers: engine `1`, core `1.0.0`, Insights `1.2.0`, API keys `1.0.0`. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
+Current D1 compatibility markers: engine `1`, core `1.0.0`, Insights `1.3.0`, API keys `1.0.0`. These are internal schema versions, independent of the `1.0.0-rc.*` npm release version. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
 
 ## Implementation and completed checks
 
@@ -81,9 +82,9 @@ Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App 
 
 ## CI and local operations
 
-GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc27 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
+GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They retain their names because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
 
-Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. After the initial rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440), [#1442](https://github.com/gronxb/hot-updater/pull/1442) switched resolution to the consuming project's `require.resolve` and removed the export-path workaround. Official rc25 includes that change and the legacy Hermes fallback fixes. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc27 packages, with no preview-package URLs or local Expo adapter patch.
+Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. After the initial rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440), [#1442](https://github.com/gronxb/hot-updater/pull/1442) switched resolution to the consuming project's `require.resolve` and removed the export-path workaround. Official rc25 includes that change and the legacy Hermes fallback fixes. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use official registry RC30 packages. No local Expo adapter patch is used.
 
 The existing sequential `ship.N` release convention is retained. The plain `1.6.0` native baseline does not trigger OTA. For a later `1.6.0-ship.N` release, the workflow reads `hot-updater app-version --json`, checks it against Expo config, and passes that exact iOS version to `deploy -t`. There is no additional approval variable or version convention.
 
@@ -97,7 +98,7 @@ pnpm exec hot-updater doctor --server-base-url https://codex-relay-ota-rc22.gron
 pnpm exec hot-updater console
 ```
 
-The local console opens at `http://127.0.0.1:1422/`. The deployed rc27 console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com), retaining its existing Tailscale exposure and authentication.
+The local console opens at `http://127.0.0.1:1422/`. The deployed RC30 console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com), retaining its existing Tailscale exposure and authentication.
 
 The Worker runtime under `worker/dist/` is generated and ignored. On a fresh checkout, regenerate it with the pinned app CLI; it preserves existing scaffold files:
 
@@ -193,7 +194,7 @@ Worker version `b8a82482-ebdc-4468-919d-6ac4cabbd0cc` reports rc27 / generation 
 
 The Modex console was deployed with Ship from local console commit `3826639`, image `ship/codex-relay:20261003035829`, at the existing URL and Tailscale exposure. Rollout, HTTPS, authentication, Bundles and Insights views passed. Its deployed environment matches the existing private environment file. Server tests (335 passed, 5 skipped), release checks, typechecking, console tests (9), production build and Node smoke tests passed.
 
-The user requested an asset and JavaScript OTA probe for iOS 1.6.0, production, cohort `219`, with public rollout zero. Physical-device confirmation is required before the requested rollback; existing QA releases remain disabled. Test visuals are temporary and must not remain in main. Receipts are stored privately under `.codex/mobile-1.6/rc27/`.
+The asset and JavaScript OTA probe used Release `01a0fff0-1442-7318-892e-4440ca0d5ec2`, Bundle `01a0ffed-fffd-7b5a-a405-c82760379b0d`, iOS 1.6.0, production, cohort `219`, and public rollout zero. The user confirmed the physical-device test completed and manually removed the cohort at revision 3. The Release was then disabled at revision 4; the catalog selects BUILTIN for an installation running the probe. Manifest, SVG asset and Hermes bundle downloads passed signature/integrity checks. Test visuals have been removed from source. Receipts are stored privately under `.codex/mobile-1.6/rc27/`.
 
 ## Subsequent Duo and OTA battle-test gates
 
@@ -258,3 +259,29 @@ Validation: upstream build, typecheck, lint, shadcn design lint, and 4,045 tests
 passed; provider/example CI passed. Modex typechecking and 335 tests passed
 (5 skipped). Console typechecking, 9 tests, production build, and Node smoke
 tests passed. Private receipts are under `.codex/mobile-1.6/rc29/`.
+
+## PR #1454 bundle share preview (2026-10-03)
+
+[Hot Updater #1454](https://github.com/gronxb/hot-updater/pull/1454) was applied to [Modex Insights](https://codex-relay.gron-studio.com/insights). Mobile tooling and the separately hosted console pinned `pkg.pr.new` packages to `041f8acc54debb562963ce5a2853de73bf7ebb11`. PR head `759524b8c72217fdf5a0f0193765b30cfb03e02f` only updates AWS integration write-budget expectations; its runtime matches the deployed preview. All 22 PR checks passed.
+
+The rc22 Worker served version `a46310ad-5b58-485d-b096-61951c85c4ec` at 100% traffic. D1 migration `0002_hot-updater_1.0.0-rc.30.sql` adds daily observation heads and distribution history, raising the internal Insights compatibility marker from `1.2.0` to `1.3.0`. The guide/migration filename identifies the planned release; installed preview package metadata and the server version endpoint still report `1.0.0-rc.29`.
+
+A private D1 export was saved before migration. Insights ingestion was briefly paused during the coordinated schema/runtime cutover and then resumed. Full before/after comparisons preserved all 6 bundle rows, 8 release rows and the existing API key row. Anonymous catalog/artifact requests remain rejected (401); authenticated catalog/artifact requests and signed manifest downloads succeed (200). The existing credentials, signing configuration and legacy 1.5.0 resources are retained.
+
+The Ship deployment uses `ship/codex-relay:pr1454-041f8ac` (image digest `sha256:03ba153cd1aa01b9b7a80400c7e62d5896ef0830106f53900bf1ed583add41ec`). Rollout and authenticated Insights navigation passed; deployment environment and secret fingerprints match the previous deployment. Console tests (9), typecheck, production/Docker builds, auth/protected-route smoke tests and mobile typecheck passed. Scaffold doctor, all seven infrastructure doctor checks and the packaged server verifier passed. App doctor reports a dependency-alignment false positive because it compares the CLI's full preview URL literally with other package locators; it is not recorded as passing.
+
+The authenticated live chart showed 8 real reporting installations: one known bundle at 12.5% and unknown bundle at 87.5%, including counts in the tooltip and the unfinished UTC-day label. Historical days remain empty because daily observation history begins at upgrade. Aggregate health KPIs and the separate Launch failures tab were verified. No synthetic production events or new OTA release were created.
+
+Private backups, provider receipts, test logs and unedited screenshots are under `.codex/mobile-1.6/pr1454/`. Keep this directory ignored.
+
+## Official RC30 upgrade (2026-10-04 KST)
+
+Release [#1456](https://github.com/gronxb/hot-updater/pull/1456) published official `1.0.0-rc.30` from `72b562c3074da5c8f0e9eaede8cc33a8b331b44e`, including [#1457](https://github.com/gronxb/hot-updater/pull/1457). Modex now pins the CLI, Cloudflare, Expo and React Native packages to RC30; the hosted Console also uses RC30. All commit-pinned preview URLs have been removed from the active dependency graph.
+
+The existing Worker `codex-relay-ota-rc22` serves version `c662bf89-8026-46a5-aa30-5bc3bd18bba1` at 100% traffic. `/version` reports RC30 and infrastructure generation 1. The prior preview had already applied `0002_hot-updater_1.0.0-rc.30.sql`; its SQL matches the official scaffold and Insights remains at schema `1.3.0`. No SQL was replayed. Before/after reads confirmed that all 6 bundles, 8 releases and the API key record are unchanged. Worker bindings, runtime settings, signing secret and endpoints are retained.
+
+The Console at <https://codex-relay.gron-studio.com/insights> runs `ship/codex-relay:rc30-72b562c` in `kind-ship` / `ship-services`, with its existing environment and OAuth session. Authenticated browser verification covered Bundle share and Adoption: Chart newest bundle selected the existing production release and rendered 245 cumulative download reports over six-hour intervals, retaining the tab and Release ID in the URL. Its existing sign-in icon patch was carried forward to the RC30 package. Reproducible host sources are saved in local console commit `f8931e5`; the image digest is `sha256:1d5152850ad4fcb5ceedb96a53c2f526eba5dfc50d52e9ee7cbd102ed7c79b3b`.
+
+Validation: Modex server tests (335 passed, 5 skipped), release tests, typechecking and lint passed. Console tests (9 passed), typechecking, Node production build, runtime authentication smoke checks and Docker build passed. Scaffold, infrastructure (7 checks) and app doctors passed. Anonymous catalog/artifact requests return 401; authenticated requests and a signed manifest return 200. R2 reads work with the app configuration’s existing credentials. Private receipts are under `.codex/mobile-1.6/rc30/`.
+
+This migration does not publish a mobile OTA or rebuild the store binary. App 1.6.0 build 58 still embeds SDK RC23; native release OTA behavior was not re-tested for this package upgrade. The previously noted Android native directory remains at 1.5.0 and requires regeneration before an Android release.
