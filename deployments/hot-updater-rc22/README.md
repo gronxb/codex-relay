@@ -222,3 +222,39 @@ Do not publish another QA OTA artifact before the candidate's embedded minimum b
 - [Preparing your app for iPhone Duo](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo)
 - [Xcode 27.1 release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_1-release-notes)
 - [Xcode system requirements](https://developer.apple.com/xcode/system-requirements)
+
+## RC29 HTTP diagnostics upgrade
+
+Hot Updater `next` includes the original-error diagnostics in PR #1450 and HTTP
+response attachments in PR #1452. Version `1.0.0-rc.29` was published after PR
+#1453. Modex's SDK, CLI, Cloudflare, Expo, and Console dependencies now use rc29.
+
+The existing Worker `codex-relay-ota-rc22` runs version
+`5b4e5473-5e6c-4aa4-b582-abba4e1cb0d7` at 100% traffic. Its `/version` reports
+rc29 and infrastructure generation 1. DB/R2 bindings, runtime settings, secret
+names, schema markers, and migration history were verified unchanged. No schema
+migration or resource recreation was needed. Infrastructure and app doctors
+passed; anonymous catalog/artifact requests returned 401, authenticated requests
+returned 200, and an existing signed manifest downloaded successfully.
+
+The Console at <https://codex-relay.gron-studio.com/insights> runs image
+`ship/codex-relay:20261003082617`, built from local console source commit
+`b659bc4`. The rollout preserved its environment and routing. Authenticated
+browser checks covered failure rates, errors to investigate, and error details
+with the reporting SDK and installation context.
+
+HTTP diagnostics keep the existing lifecycle reporting cadence, retries, and
+deduplication. Each report may carry the latest response snapshot with its
+original receive time, status, path, and a body bounded to 4 KiB of JSON UTF-8.
+Successful, cached, and failed responses use the same mechanism. It sends no
+additional telemetry requests and is not a complete HTTP request history.
+
+The app version remains 1.6.0. This upgrade did not publish an OTA or change
+release delivery policy. Store build 58 still embeds the rc23 SDK; response
+collection begins when rc29 JavaScript is distributed. Existing reports that
+did not contain an original error cannot be reconstructed retroactively.
+
+Validation: upstream build, typecheck, lint, shadcn design lint, and 4,045 tests
+passed; provider/example CI passed. Modex typechecking and 335 tests passed
+(5 skipped). Console typechecking, 9 tests, production build, and Node smoke
+tests passed. Private receipts are under `.codex/mobile-1.6/rc29/`.

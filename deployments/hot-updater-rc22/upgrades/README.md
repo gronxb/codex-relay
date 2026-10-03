@@ -6,4 +6,5 @@ Each file records one required infrastructure version. Read the applicable basel
 
 Use the common sections and your provider's section to plan the full transition. Previously completed steps provide context and must not be replayed blindly. Inspect actual migration/resource state, preserve customizations and secrets, and record which version files and steps have been applied and verified. Apply pending changes in order using the target scaffold; investigate conflicting requirements before proceeding.
 
+- [1.0.0-rc.29](./1.0.0-rc.29.md) — HTTP response diagnostics in Insights; runtime and Console upgrade without a database migration
 - [1.0.0](./1.0.0.md) — Release Catalog, manifest artifact protocol v1, and storage engine infrastructure generation

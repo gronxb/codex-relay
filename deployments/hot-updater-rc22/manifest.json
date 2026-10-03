@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.0.0-rc.27",
-  "providerVersion": "1.0.0-rc.27",
-  "serverVersion": "1.0.0-rc.27",
+  "cliVersion": "1.0.0-rc.29",
+  "providerVersion": "1.0.0-rc.29",
+  "serverVersion": "1.0.0-rc.29",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.0.0-rc.27",
-    "@hot-updater/server": "1.0.0-rc.27",
-    "@hot-updater/react-native": "1.0.0-rc.27",
-    "@hot-updater/cloudflare": "1.0.0-rc.27",
-    "@hot-updater/expo": "1.0.0-rc.27"
+    "hot-updater": "1.0.0-rc.29",
+    "@hot-updater/server": "1.0.0-rc.29",
+    "@hot-updater/react-native": "1.0.0-rc.29",
+    "@hot-updater/cloudflare": "1.0.0-rc.29",
+    "@hot-updater/expo": "1.0.0-rc.29"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -34,7 +34,7 @@
     "d1DatabaseName": "codex-relay-rc22",
     "bucketName": "codex-relay-rc22-storage"
   },
-  "upgradeRequirements": ["1.0.0"],
+  "upgradeRequirements": ["1.0.0-rc.29", "1.0.0"],
   "operation": "upgrade",
   "build": "expo",
   "files": {
@@ -47,11 +47,12 @@
     "env.example": "8a57475d82a6513e4c7f53591c96a5fdc86203784d944fa1ab670ad3ad048ee3",
     "ENVIRONMENT.md": "42ddf858b130d8eda2cf4f25c7a0c68d69d2228841a170bad87a728883a79920",
     "SETUP.md": "fd6b5c90b5eed9518d49ba712e579d554dbaad03a50b636ccaf1c23522014370",
+    "upgrades/1.0.0-rc.29.md": "ebaec93656c25a3d0a776097ec48e04f1277cdd99097f7523f2092a58621c6ea",
     "upgrades/1.0.0.md": "ffd5d294c52a3b6f7a1f2d28e0706aa6a9fa633b039a23845921a6723d0e003c",
-    "upgrades/README.md": "e0dcb92507473dd84e03530e4458033b66ca4824fc0aa147ed4c22bf5b82561c",
-    "worker/dist/index.js": "8f40dfb38ed14ef29256130a4fd13e1bbdd168615184590ba913a2e5ab089c4d",
-    "worker/dist/index.js.map": "8c17455ec720b6ee3c40fcac9949d84f0ce009559b99924de058f8df1e559c2d",
-    "worker/dist/README.md": "ea3b97debc5588ac5b97f73220f9b023f52731715fd19b8937feec9ab5dc43f5",
+    "upgrades/README.md": "f99863721117703b27b43515f43a1a3efc7708012b9bd4acac116a93bab3d5f6",
+    "worker/dist/index.js": "594c0d23d813f12b5c0ceaaf294afe6748a5245590ee58c6e6fde011f46f17d0",
+    "worker/dist/index.js.map": "b21f41c8a05c2efdc4ebfd1222ebdab088da1b8164687ef7e74b8fed9c5295f5",
+    "worker/dist/README.md": "c9fe0e828e783b681d17f649e7408b0bee995f72e7abfe84d68ead4729697faf",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "77c55ddc1731b24bac833d6c00519e6e9df5150ef30ba46bcc095a6f7bf3b5ad",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
     "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"

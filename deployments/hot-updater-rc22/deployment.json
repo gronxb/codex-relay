@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.27",
+  "deployedServerVersion": "1.0.0-rc.29",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -739,6 +739,120 @@
         "authenticatedBrowserChecks": ["Bundles", "Insights rc27 failure layout"]
       },
       "checkedAt": "2026-10-03T04:00:59.681Z"
+    },
+    {
+      "id": "upgrades/1.0.0-rc.29.md:worker",
+      "action": "Deploy HTTP diagnostics runtime on the existing Worker",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "previousVersionId": "b8a82482-ebdc-4468-919d-6ac4cabbd0cc",
+        "serverVersion": "1.0.0-rc.29"
+      },
+      "requestId": "5b4e5473-5e6c-4aa4-b582-abba4e1cb0d7",
+      "startedAt": "2026-10-03T08:26:47.093266+00:00",
+      "observation": {
+        "deploymentId": "0f8c8792-9c97-4901-bebb-608bd8daefb9",
+        "workerVersion": "5b4e5473-5e6c-4aa4-b582-abba4e1cb0d7",
+        "trafficPercent": 100,
+        "bindingsRuntimeAndSecretNamesUnchanged": true,
+        "migrationsApplied": []
+      },
+      "checkedAt": "2026-10-03T08:33:32.888680+00:00"
+    },
+    {
+      "id": "common.verify.rc29",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "version": "1.0.0-rc.29"
+      },
+      "observation": {
+        "checks": [
+          {
+            "code": "INFRA_MANIFEST",
+            "status": "pass",
+            "message": "Provider, build and target versions match the packaged scaffold."
+          },
+          {
+            "code": "INFRA_SCAFFOLD",
+            "status": "pass",
+            "message": "Required files, deployment placeholders and provider configuration checks passed."
+          },
+          {
+            "code": "INFRA_DEPLOYMENT_TARGET",
+            "status": "pass",
+            "message": "Deployment record has no unresolved operation or conflicting endpoint. Live checks are still required."
+          },
+          {
+            "code": "INFRA_SERVER_INPUTS",
+            "status": "pass",
+            "message": "inputs verified."
+          },
+          {
+            "code": "INFRA_SERVER_VERSION",
+            "status": "pass",
+            "message": "version verified."
+          },
+          {
+            "code": "INFRA_ANONYMOUS_CATALOG",
+            "status": "pass",
+            "message": "anonymous-catalog verified."
+          },
+          {
+            "code": "INFRA_AUTHENTICATED_CATALOG",
+            "status": "pass",
+            "message": "authenticated-catalog verified."
+          }
+        ],
+        "helper": {
+          "status": "verified",
+          "checks": {
+            "version": "matches-manifest",
+            "anonymousCatalog": 401,
+            "authenticatedCatalog": 200,
+            "catalog": "available"
+          }
+        },
+        "appDoctorPassed": true,
+        "storageListStatus": 200,
+        "schemaUnchanged": true,
+        "migrationsApplied": [],
+        "newOtaReleasePublished": false
+      },
+      "checkedAt": "2026-10-03T08:34:31.963593+00:00"
+    },
+    {
+      "id": "console.ship.rc29",
+      "action": "Roll out the verified rc29 Console image",
+      "target": {
+        "context": "kind-ship",
+        "namespace": "ship-services",
+        "deployment": "codex-relay",
+        "container": "app",
+        "previousImage": "ship/codex-relay:20261003035829",
+        "image": "ship/codex-relay:20261003082617",
+        "sourceCommit": "b659bc4fa857be712bc38254245ddda16841f5f5"
+      },
+      "requestId": "11",
+      "startedAt": "2026-10-03T08:34:31.963593+00:00",
+      "observation": {
+        "readyReplicas": 1,
+        "httpStatus": 200,
+        "environmentUnchanged": true,
+        "authenticatedBrowserChecks": [
+          "Insights failure rates",
+          "Errors to investigate",
+          "Error details and original SDK context"
+        ],
+        "existingReports": "rc23 clients did not send original error details",
+        "artifactRead": {
+          "anonymousArtifact": 401,
+          "authenticatedArtifact": 200,
+          "signedManifest": 200,
+          "manifestBytes": 27309
+        }
+      },
+      "checkedAt": "2026-10-03T08:36:09.758959+00:00"
     }
   ]
 }
