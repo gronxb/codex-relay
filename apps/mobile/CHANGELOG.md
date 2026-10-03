@@ -1,5 +1,12 @@
 # @codex-relay/mobile
 
+## 1.6.0-ship.1
+
+### Patch Changes
+
+- ced5bdc: Upgrade Hot Updater to rc29 to include original update errors and HTTP response details in existing Insights reports without increasing reporting frequency.
+- edb613f: Add a dedicated SSH screen under New Chat in the sidebar whose terminal session stays open while the app is running.
+
 ## 1.5.0-ship.2
 
 ### Patch Changes
