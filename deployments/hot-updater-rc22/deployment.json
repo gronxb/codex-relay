@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.23",
+  "deployedServerVersion": "1.0.0-rc.25",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -445,6 +445,183 @@
         "appReviewSubmitted": false
       },
       "checkedAt": "2026-10-02T15:18:01.623Z"
+    },
+    {
+      "id": "cf.worker.rc25",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "d1DatabaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "d1DatabaseName": "codex-relay-rc22",
+        "bucketName": "codex-relay-rc22-storage",
+        "version": "1.0.0-rc.25"
+      },
+      "startedAt": "2026-10-03T01:58:34.950Z",
+      "observation": {
+        "workerVersion": "e6524385-c236-4f61-b263-29951b14e851",
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.25"
+        },
+        "bindingsAndSecretNamesUnchanged": true,
+        "migrationsApplied": []
+      },
+      "checkedAt": "2026-10-03T01:59:10.327Z"
+    },
+    {
+      "id": "common.verify.rc25",
+      "target": {
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "version": "1.0.0-rc.25"
+      },
+      "observation": {
+        "checks": [
+          {
+            "code": "INFRA_MANIFEST",
+            "status": "pass",
+            "message": "Provider, build and target versions match the packaged scaffold."
+          },
+          {
+            "code": "INFRA_SCAFFOLD",
+            "status": "pass",
+            "message": "Required files, deployment placeholders and provider configuration checks passed."
+          },
+          {
+            "code": "INFRA_DEPLOYMENT_TARGET",
+            "status": "pass",
+            "message": "Deployment record has no unresolved operation or conflicting endpoint. Live checks are still required."
+          },
+          {
+            "code": "INFRA_SERVER_INPUTS",
+            "status": "pass",
+            "message": "inputs verified."
+          },
+          {
+            "code": "INFRA_SERVER_VERSION",
+            "status": "pass",
+            "message": "version verified."
+          },
+          {
+            "code": "INFRA_ANONYMOUS_CATALOG",
+            "status": "pass",
+            "message": "anonymous-catalog verified."
+          },
+          {
+            "code": "INFRA_AUTHENTICATED_CATALOG",
+            "status": "pass",
+            "message": "authenticated-catalog verified."
+          }
+        ],
+        "helper": {
+          "status": "verified",
+          "checks": {
+            "version": "matches-manifest",
+            "anonymousCatalog": 401,
+            "authenticatedCatalog": 200,
+            "catalog": "available"
+          }
+        }
+      },
+      "checkedAt": "2026-10-03T02:00:03.771Z"
+    },
+    {
+      "id": "console.ship.rc25",
+      "target": {
+        "context": "kind-ship",
+        "namespace": "ship-services",
+        "service": "codex-relay",
+        "baseUrl": "https://codex-relay.gron-studio.com",
+        "version": "1.0.0-rc.25",
+        "sourceCommit": "8c4371e"
+      },
+      "startedAt": "2026-10-03T02:00:03.771Z",
+      "observation": {
+        "image": "ship/codex-relay:20261003020003",
+        "readyReplicas": 1,
+        "exposure": "tailscale",
+        "httpStatus": 200,
+        "environmentUnchanged": true,
+        "authenticatedBrowserChecks": [
+          "Bundles",
+          "Insights",
+          "existing rc23 manifest download (26413 bytes)"
+        ],
+        "anonymousManifestDownload": 401
+      },
+      "checkedAt": "2026-10-03T02:05:21.822Z"
+    },
+    {
+      "id": "native.compatibility.rc25",
+      "target": {
+        "appVersion": "1.6.0",
+        "existingBuildNumber": "58"
+      },
+      "observation": {
+        "from": "1.0.0-rc.23",
+        "to": "1.0.0-rc.25",
+        "integrityVerified": true,
+        "filesBefore": 260,
+        "filesAfter": 260,
+        "changedFiles": [
+          "lib/commonjs/sdkVersion.js",
+          "lib/module/sdkVersion.js",
+          "lib/typescript/commonjs/sdkVersion.d.ts",
+          "lib/typescript/module/sdkVersion.d.ts",
+          "package.json",
+          "src/sdkVersion.ts"
+        ],
+        "nativeFilesChanged": [],
+        "onlyVersionLiteralsChanged": true,
+        "nativeRebuildRequired": false
+      },
+      "checkedAt": "2026-10-03T02:05:21.823Z"
+    },
+    {
+      "id": "common.local.rc25",
+      "target": {
+        "version": "1.0.0-rc.25",
+        "platform": "ios",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "releaseRecordsUnchanged": true,
+        "releaseCount": 3,
+        "storageListStatus": 200,
+        "storageMaxKeys": 1,
+        "storageObjectCount": 1,
+        "schema": [
+          [
+            {
+              "key": "schema.engine",
+              "value": "1"
+            },
+            {
+              "key": "schema.core",
+              "value": "1.0.0"
+            },
+            {
+              "key": "schema.insights",
+              "value": "1.2.0"
+            },
+            {
+              "key": "schema.apiKeys",
+              "value": "1.0.0"
+            }
+          ],
+          [
+            {
+              "name": "0001_hot-updater_1.0.0.sql"
+            }
+          ]
+        ],
+        "migrationIdenticalToRc23": true,
+        "localIosHermesBundleBuilt": true,
+        "expoSigningConfigEsmAndCommonJs": true,
+        "newOtaReleasePublished": false,
+        "appDoctorPassed": true
+      },
+      "checkedAt": "2026-10-03T02:05:21.823Z"
     }
   ]
 }

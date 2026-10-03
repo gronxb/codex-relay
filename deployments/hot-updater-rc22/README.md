@@ -1,17 +1,18 @@
-# Mobile 1.6.0: rc23 / Expo 58 preparation
+# Mobile 1.6.0: rc25 tooling and infrastructure / Expo 58
 
-Scope: prepare mobile 1.6.0 with Hot Updater rc23 and Expo 58, upload the store build, and verify iPhone Duo behavior. The OTA service retains the resource names and URL created for rc22. The user will submit App Review. Scoped local OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: mobile tooling, the OTA Worker and the Ship console use Hot Updater rc25. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
-| Component                                                          | Selected version / target           |
-| ------------------------------------------------------------------ | ----------------------------------- |
-| Mobile native version                                              | `1.6.0`                             |
-| Hot Updater CLI, Expo, React Native, Cloudflare plugins and Worker | `1.0.0-rc.23`                       |
-| Expo / React Native / React                                        | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
-| EAS CLI / build Node                                               | `24.8.0` / `24.14.1`                |
-| Preview and store build image                                      | `macos-tahoe-26.6-xcode-27.0`       |
-| Duo simulator build image                                          | `macos-tahoe-26.6-xcode-27.1`       |
+| Component                                                                   | Selected version / target           |
+| --------------------------------------------------------------------------- | ----------------------------------- |
+| Mobile native version                                                       | `1.6.0`                             |
+| Hot Updater CLI, Expo, React Native, Cloudflare plugins, Worker and console | `1.0.0-rc.25`                       |
+| Existing store binary's Hot Updater SDK                                     | `1.0.0-rc.23` (build 58)            |
+| Expo / React Native / React                                                 | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
+| EAS CLI / build Node                                                        | `24.8.0` / `24.14.1`                |
+| Preview and store build image                                               | `macos-tahoe-26.6-xcode-27.0`       |
+| Duo simulator build image                                                   | `macos-tahoe-26.6-xcode-27.1`       |
 
 Expo SDK 58 and the selected React Native version are prereleases. Their native ABI changes require a new binary; do not deliver this JavaScript to a 1.5.0 binary.
 
@@ -24,7 +25,7 @@ Expo SDK 58 and the selected React Native version are prereleases. Their native 
 | D1         | `codex-relay` / `1a140b73-204a-4bcb-8492-f4760c40a834` | `codex-relay-rc22` / `c506b378-f360-4787-8888-1c6183d58a2b` |
 | Private R2 | `codex-relay-storage`                                  | `codex-relay-rc22-storage`                                  |
 
-The old Worker, database, storage, and Ship console are preserved. The rc22 configuration rejects the legacy D1 ID. Do not apply rc22 migrations to the old database or repoint its Worker. Existing installations continue using their embedded rc14 URL.
+The old Worker, database and storage are preserved for 1.5.0 installations using their embedded rc14 URL. The existing Ship console now manages the 1.6.0 resources. The rc22 configuration rejects the legacy D1 ID. Do not apply rc22 migrations to the old database or repoint its Worker.
 
 New D1 markers: engine `1`, core `1.0.0`, Insights `1.2.0`, API keys `1.0.0`. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
 
@@ -68,7 +69,7 @@ Final rc23 candidate **1.6.0 (58)**: build [750bc767-0a33-4e23-ace1-1cf054ebcb8f
 
 IPA inspection confirms version 1.6.0, build 58, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, the repository's OTA public key, and the rc23 service's existing endpoint and client credential. The legacy endpoint is absent. SHA-256: `4de57bd1750f14c981af50a290aa5c1447f5990ba79389cd4d6be205d49f1f4d`. Physical-device TestFlight execution remains pending. App Review is the user's responsibility.
 
-Intermediate candidate **1.6.0 (57)**: build [69cd553e-0a95-436d-bbce-e30548b9ee11](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/69cd553e-0a95-436d-bbce-e30548b9ee11), built from merged main commit `19e349f9e4db660efcf1e21754ad12149f91b341`. The build and Apple upload are `FINISHED`, and App Store Connect reports `VALID`. This rc22 candidate is superseded by the official rc23 build 58. The currently live version remains 1.5.0. App Review has not been submitted by this task; the user owns that step.
+Intermediate candidate **1.6.0 (57)**: build [69cd553e-0a95-436d-bbce-e30548b9ee11](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/69cd553e-0a95-436d-bbce-e30548b9ee11), built from merged main commit `19e349f9e4db660efcf1e21754ad12149f91b341`. The build and Apple upload are `FINISHED`, and App Store Connect reports `VALID`. This rc22 candidate is superseded by the official rc23 build 58. At the time of this upload, the live version was 1.5.0. App Review was handled separately by the user.
 
 The IPA confirms version 1.6.0, build 57, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, production channel, an OTA public key matching the repository key, and the rc22 endpoint and client credential without the legacy endpoint. Its SHA-256 is `bdbe66def223091f517217c7692ae2810e3fdd4f4295faf0e574cdd4df1deb41`. It includes the React Query fix, Duo pane and header changes, pairing-route handoff, first-tap keyboard navigation, native WebView continuity fix, and pinned Expo OTA adapter patch. Simulator verification uses an SDK 27.1 native container; this does not replace a physical-device check of the SDK 27.0 store IPA.
 
@@ -80,9 +81,9 @@ Build 52 / upload `993c9dc2-a5b6-46bb-82fc-fc1659f57bdf` remains `VALID` in App 
 
 ## CI and local operations
 
-GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc23 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
+GitHub secrets `MOBILE_ENV_RC22` and `HOT_UPDATER_ENV_RC22` have been provisioned separately. They keep their names for rc25 because the endpoint, resources and credentials are unchanged. The old `MOBILE_ENV` and `HOT_UPDATER_ENV` secrets are unchanged. The existing `HOT_UPDATER_PRIVATE_KEY` is reused.
 
-Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. The official rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440) uses the public `expo/config` export first, retains legacy layouts, and preserves errors from inside config. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc23 packages, with no preview-package URLs.
+Local OTA verification exposed an rc22 Expo adapter import failure with Expo 58's package exports (`expo/config/index.js.js`). The temporary pnpm patch validated the diagnosis and is now removed. After the initial rc23 fix in [Hot Updater #1440](https://github.com/gronxb/hot-updater/pull/1440), [#1442](https://github.com/gronxb/hot-updater/pull/1442) switched resolution to the consuming project's `require.resolve` and removed the export-path workaround. Official rc25 includes that change and the legacy Hermes fallback fixes. `pnpm test:release` retains real Node ESM/CommonJS checks against the app's signing-key configuration. The application manifest and lockfile use registry rc25 packages, with no preview-package URLs or local Expo adapter patch.
 
 The existing sequential `ship.N` release convention is retained. The plain `1.6.0` native baseline does not trigger OTA. For a later `1.6.0-ship.N` release, the workflow reads `hot-updater app-version --json`, checks it against Expo config, and passes that exact iOS version to `deploy -t`. There is no additional approval variable or version convention.
 
@@ -96,7 +97,7 @@ pnpm exec hot-updater doctor --server-base-url https://codex-relay-ota-rc22.gron
 pnpm exec hot-updater console
 ```
 
-The console is local at `http://127.0.0.1:1422/`. The old remote Ship console continues managing rc14.
+The local console opens at `http://127.0.0.1:1422/`. The deployed rc25 console is [codex-relay.gron-studio.com](https://codex-relay.gron-studio.com), retaining its existing Tailscale exposure and authentication.
 
 The Worker runtime under `worker/dist/` is generated and ignored. On a fresh checkout, regenerate it with the pinned app CLI; it preserves existing scaffold files:
 
@@ -173,6 +174,16 @@ A second local deployment against the upgraded rc23 Worker created Release `01a0
 Signed artifact download, native apply, complete process restart, Insights download/apply events, cohort exclusion, app-version 1.5.0 exclusion, and anonymous catalog rejection all passed. After disabling the Release, the simulator staged and loaded its embedded bundle; another cold launch passed with the original cohort restored. The `UPDATE_APPLIED` Insights event reports SDK `1.0.0-rc.23`. Final Release revision is 3, disabled, rollout zero. The artifact remains stored for audit.
 
 This test used the existing SDK 27.1 simulator container, whose Hot Updater native runtime source is unchanged between rc22 and rc23. Build 58 separately compiles the official rc23 native package. Patch generation was skipped because there were no compatible enabled base bundles; this run establishes signed full-artifact delivery and rollback, not binary-patch or fault-injection behavior.
+
+## Official rc25 upgrade
+
+[Hot Updater #1447](https://github.com/gronxb/hot-updater/pull/1447) published rc25 from `103204a126d6fe174a8453faec3bc1f2f61a5849`. Registry tarball integrity and all required rc25 package versions were verified. Comparing the 260 React Native SDK package files against rc23 found only SDK/package version metadata changes; native sources and runtime behavior are unchanged. The existing 1.6.0 binary remains compatible, so this upgrade does not create another store build or publish an OTA release.
+
+The Worker now reports rc25 / generation 1 / admin protocol 2, deployed as version `e6524385-c236-4f61-b263-29951b14e851`. The SQL migration is byte-identical and the live schema already matches; no migration was applied. D1/R2 bindings and secret names are unchanged. Infrastructure doctor, authenticated catalog verification, anonymous rejection and bounded R2 access passed. All three existing 1.6.0 Release records remain identical, disabled at revision 3 with rollout zero.
+
+The console was deployed with Ship from local console commit `8c4371e`, image `ship/codex-relay:20261003020003`. Rollout, HTTPS response, retained authentication, Bundles and Insights pages, and authenticated download of the existing rc23 manifest passed. Anonymous manifest download returns 401. The deployed environment matches the existing private environment file.
+
+Validation: 335 server tests passed (5 skipped), release checks passed (13 Node and 6 mobile tests), typechecking and lint passed. The rc25 Expo adapter built the actual iOS Hermes bundle locally and loaded the Expo 58 signing configuration in both ESM and CommonJS. Console tests (9), typechecking, production Node build and Node smoke tests passed. Private receipts and screenshots are under `.codex/mobile-1.6/rc25/`. Native apply/rollback was not repeated for rc25; the rc23 Duo verification above remains the native baseline.
 
 ## Subsequent Duo and OTA battle-test gates
 

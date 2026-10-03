@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.0.0-rc.23",
-  "providerVersion": "1.0.0-rc.23",
-  "serverVersion": "1.0.0-rc.23",
+  "cliVersion": "1.0.0-rc.25",
+  "providerVersion": "1.0.0-rc.25",
+  "serverVersion": "1.0.0-rc.25",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.0.0-rc.23",
-    "@hot-updater/server": "1.0.0-rc.23",
-    "@hot-updater/react-native": "1.0.0-rc.23",
-    "@hot-updater/cloudflare": "1.0.0-rc.23",
-    "@hot-updater/expo": "1.0.0-rc.23"
+    "hot-updater": "1.0.0-rc.25",
+    "@hot-updater/server": "1.0.0-rc.25",
+    "@hot-updater/react-native": "1.0.0-rc.25",
+    "@hot-updater/cloudflare": "1.0.0-rc.25",
+    "@hot-updater/expo": "1.0.0-rc.25"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -49,9 +49,9 @@
     "SETUP.md": "fd6b5c90b5eed9518d49ba712e579d554dbaad03a50b636ccaf1c23522014370",
     "upgrades/1.0.0.md": "ffd5d294c52a3b6f7a1f2d28e0706aa6a9fa633b039a23845921a6723d0e003c",
     "upgrades/README.md": "e0dcb92507473dd84e03530e4458033b66ca4824fc0aa147ed4c22bf5b82561c",
-    "worker/dist/index.js": "026434171aa5c4beb47cc3f59c85ca8eb4f0cd25a1c745580451bc245d8e0710",
-    "worker/dist/index.js.map": "04e512d6c9706c76480a641cf650a79e4ab99f1c62daf754a42e29efda5cd0d5",
-    "worker/dist/README.md": "835b4a4b3b77d6960faa60318ce01c7b37cdcd7bbb6090e4dbd23f882ab02622",
+    "worker/dist/index.js": "a224fa6598b00c78080d6d3a0ff17825d83b62d7e23a4ced3ee77eeaefe85a79",
+    "worker/dist/index.js.map": "3881dceaac163604d6b0a9f379c0518958f6e11b11ab55a53ca01129bfc340fa",
+    "worker/dist/README.md": "73f04fe0cf15e51e09cdbf8cdea26923524222f3990a11943358bbf72f1ec589",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "77c55ddc1731b24bac833d6c00519e6e9df5150ef30ba46bcc095a6f7bf3b5ad",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
     "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"
