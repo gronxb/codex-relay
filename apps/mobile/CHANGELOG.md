@@ -1,5 +1,11 @@
 # @codex-relay/mobile
 
+## 1.6.0-ship.2
+
+### Patch Changes
+
+- bd9736f: Upgrade Hot Updater to rc32 so update failures report their original errors, and update checks cut off by the SDK's timeout under Expo's fetch are no longer reported as unknown failures.
+
 ## 1.6.0-ship.1
 
 ### Patch Changes
