@@ -736,10 +736,7 @@
         "httpStatus": 200,
         "environmentUnchanged": true,
         "anonymousManifestDownload": 401,
-        "authenticatedBrowserChecks": [
-          "Bundles",
-          "Insights rc27 failure layout"
-        ]
+        "authenticatedBrowserChecks": ["Bundles", "Insights rc27 failure layout"]
       },
       "checkedAt": "2026-10-03T04:00:59.681Z"
     },
@@ -752,9 +749,7 @@
         "channel": "production",
         "appVersion": "1.6.0",
         "rollout": 0,
-        "targetCohorts": [
-          "219"
-        ],
+        "targetCohorts": ["219"],
         "sourceCommit": "cca3efc816878bc25b11ee74b6b32871ed97554e"
       },
       "startedAt": "2026-10-03T04:03:01.656Z",
@@ -777,17 +772,13 @@
         "releaseId": "01a0fff0-1442-7318-892e-4440ca0d5ec2",
         "bundleId": "01a0ffed-fffd-7b5a-a405-c82760379b0d",
         "expectedRevision": 1,
-        "targetCohorts": [
-          "219"
-        ],
+        "targetCohorts": ["219"],
         "rolloutCohortCount": 0
       },
       "startedAt": "2026-10-03T04:06:38.062Z",
       "observation": {
         "targetRevision": 2,
-        "cohorts": [
-          "219"
-        ],
+        "cohorts": ["219"],
         "physicalDeviceTest": "User confirmed OTA test completed",
         "subsequentUserEdit": {
           "revision": 3,
@@ -1289,11 +1280,7 @@
         "versionId": "51ff4c58-299d-48ff-97b3-f19c3fe35d88",
         "trafficPercent": 0,
         "liveVersion": "1.0.0-rc.30",
-        "bindings": [
-          "DB codex-relay-rc22",
-          "BUCKET codex-relay-rc22-storage",
-          "BUCKET_NAME"
-        ]
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"]
       },
       "checkedAt": "2026-10-05T08:44:03Z"
     },
@@ -1454,11 +1441,7 @@
         "versionId": "8ec016b1-39df-46de-ac22-0a87d1b07bdc",
         "trafficPercent": 0,
         "liveVersion": "1.0.0-rc.31",
-        "bindings": [
-          "DB codex-relay-rc22",
-          "BUCKET codex-relay-rc22-storage",
-          "BUCKET_NAME"
-        ],
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"],
         "schemaUnchanged": "schema.insights 1.2.0, no SQL",
         "restorePoint": "000003d4-00000014-000050fb-a69b520cc1c18ab63d07dd37b06fb1e7"
       },
