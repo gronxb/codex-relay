@@ -1,14 +1,14 @@
-# Mobile 1.6.0: Hot Updater RC31 infrastructure / Expo 58
+# Mobile 1.6.0: Hot Updater RC32 infrastructure / Expo 58
 
-Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.31` from release PR #1460, including #1459’s Release health adoption and crash tracking. See the RC31 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.32` from release PR #1463. It includes #1461 (Release health names bundles by ID) and #1462 (Expo fetch timeouts reported as timeouts). See the RC32 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                              | Selected version / target           |
 | ------------------------------------------------------ | ----------------------------------- |
 | Mobile native version                                  | `1.6.0`                             |
-| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.31`                       |
-| Local Expo plugin / React Native SDK                   | `1.0.0-rc.31`                       |
+| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.32`                       |
+| Local Expo plugin / React Native SDK                   | `1.0.0-rc.32`                       |
 | Existing store binary's Hot Updater SDK                | `1.0.0-rc.23` (build 58)            |
 | Expo / React Native / React                            | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                   | `24.8.0` / `24.14.1`                |
@@ -323,3 +323,29 @@ The live schema now matches RC31's `0001_hot-updater_1.0.0.sql` exactly: 49 obje
 - Console: tests (9), typechecking, Node production build, auth and protected-route smoke checks, and Docker build.
 
 Private receipts, backups and screenshots are under `.codex/mobile-1.6/rc31/`.
+
+## Official RC32 upgrade (2026-10-05 KST)
+
+Release [#1463](https://github.com/gronxb/hot-updater/pull/1463) published official `1.0.0-rc.32` from `28f8637a456f58581a1354f4bd8a7eae5177cdc5`. It includes:
+
+- [#1461](https://github.com/gronxb/hot-updater/pull/1461): Release health names bundles by release ID, and Adoption shows applies only.
+- [#1462](https://github.com/gronxb/hot-updater/pull/1462): requests the SDK's timeout cuts off are reported as `Request timed out` under Expo's fetch too. Expo rejects that abort with `fetch failed: FetchRequestCanceledException`, which the SDK had reported as an unknown update-check failure. Expo's other fetch failures without a response classify as network errors.
+
+The database schema is unchanged (Insights `1.2.0`); no SQL ran. Worker `codex-relay-ota-rc22` was uploaded as version `8ec016b1-39df-46de-ac22-0a87d1b07bdc` without traffic and then switched to 100% at the same URL.
+
+The Ship console runs `ship/codex-relay:rc32-28f8637` (digest `sha256:90516c2f0bd93462b32087144e554b877fbe4af60da2224d9f7ca857f2e76bbd`), with host sources in local console commit `eeb8896`.
+
+Before/after reads preserved all 6 bundles, 1 patch, 8 releases, 2 release catalogs, 2 channels and the API key, and RC32 recorded a live report 32 seconds after the switch (Time Travel bookmark `000003d4-00000014-000050fb-a69b520cc1c18ab63d07dd37b06fb1e7`). The RC32 Console, run locally against the live database, names the two newest production bundles by ID (306 and 5 applies) and shows Adoption as applies only.
+
+**OTA.** Devices report original errors only from a bundle built with SDK rc.32. The store binary's built-in bundle (rc.23) and the public SSH-screen bundle (rc.27) send none, so their reports stay without messages until an OTA. No OTA was published with this upgrade.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks; app passed.
+- Packaged server verifier: version matches, anonymous catalog 401, authenticated 200.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200.
+- R2 bounded list: 200.
+- Modex: server tests, release tests, typechecking and lint.
+- Console: tests, typechecking, Node build, smoke checks and Docker build.
+
+Private receipts are under `.codex/mobile-1.6/rc32/`.
