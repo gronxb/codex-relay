@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.30",
+  "deployedServerVersion": "1.0.0-rc.31",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1246,6 +1246,187 @@
         "urlRetainsAdoptionTab": true
       },
       "checkedAt": "2026-10-03T16:56:38.793Z"
+    },
+    {
+      "id": "rc31:cutover:attempt-1",
+      "action": "Marker 1.3.0 -> 1.2.0, then Worker deploy with the app D1 token",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b"
+      },
+      "observation": {
+        "markerSetAt": "2026-10-05T08:42:30Z",
+        "deploy": "refused: the app D1 token has no access to the Worker service; nothing was uploaded",
+        "markerRestoredAt": "2026-10-05T08:42:48Z",
+        "schemaInsights": "1.3.0",
+        "liveVersion": "1.0.0-rc.30",
+        "anonymousCatalog": 401,
+        "authenticatedCatalog": 200,
+        "consoleRolled": false
+      },
+      "checkedAt": "2026-10-05T08:44:30Z"
+    },
+    {
+      "id": "rc31:worker-version",
+      "action": "Upload the official RC31 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.31"
+      },
+      "requestId": "51ff4c58-299d-48ff-97b3-f19c3fe35d88",
+      "observation": {
+        "versionId": "51ff4c58-299d-48ff-97b3-f19c3fe35d88",
+        "trafficPercent": 0,
+        "liveVersion": "1.0.0-rc.30",
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"]
+      },
+      "checkedAt": "2026-10-05T08:44:03Z"
+    },
+    {
+      "id": "rc31:cutover",
+      "action": "Set schema.insights 1.3.0 -> 1.2.0, route 100% to RC31 version 51ff4c58, roll the Ship console to RC31",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "previousVersionId": "c662bf89-8026-46a5-aa30-5bc3bd18bba1",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc30-72b562c"
+        }
+      },
+      "requestId": "51ff4c58-299d-48ff-97b3-f19c3fe35d88",
+      "observation": {
+        "markerSetAt": "2026-10-05T08:44:19Z",
+        "schemaInsights": "1.2.0",
+        "versionDeployedAt": "2026-10-05T08:44:23Z",
+        "versionId": "51ff4c58-299d-48ff-97b3-f19c3fe35d88",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.31"
+        },
+        "bindingsUnchanged": true,
+        "verifier": {
+          "version": "matches-manifest",
+          "anonymousCatalog": 401,
+          "authenticatedCatalog": 200
+        },
+        "consoleImage": "ship/codex-relay:rc31-464f5e3",
+        "consoleReadyReplicas": 1,
+        "consoleHttpStatus": 200
+      },
+      "checkedAt": "2026-10-05T08:45:32Z"
+    },
+    {
+      "id": "rc31:schema-cleanup",
+      "action": "Drop what the RC31 1.0.0 baseline no longer has",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "databaseName": "codex-relay-rc22"
+      },
+      "observation": {
+        "dropped": [
+          "bundle_daily_heads (1448 rows)",
+          "insights_distribution_history (183 rows)",
+          "index bundle_events_recent",
+          "insights_sketches.launch_users",
+          "insights_sketches_daily.launch_users"
+        ],
+        "schemaMatchesBaseline": "0001_hot-updater_1.0.0.sql of RC31: 49 objects, no differences",
+        "schemaSettings": {
+          "schema.engine": "1",
+          "schema.core": "1.0.0",
+          "schema.insights": "1.2.0",
+          "schema.apiKeys": "1.0.0"
+        },
+        "migrationHistory": [
+          "0001_hot-updater_1.0.0.sql",
+          "0002_hot-updater_1.0.0-rc.30.sql (kept as history)"
+        ],
+        "rowsPreserved": {
+          "bundles": 6,
+          "bundlePatches": 1,
+          "releases": 8,
+          "releaseCatalogs": 2,
+          "channels": 2,
+          "apiKeys": 1
+        },
+        "ingestionAfterCutover": "UPDATE_DOWNLOADED recorded at 2026-10-05T08:44:49Z",
+        "backup": "private D1 export before cutover; Time Travel bookmark 0000038d-00000000-000050fb-bf486526a14d21bb97d958bea8828539"
+      },
+      "checkedAt": "2026-10-05T08:46:14Z"
+    },
+    {
+      "id": "common.verify.rc31",
+      "action": "Verify RC31 infrastructure and local app configuration",
+      "target": {
+        "serverVersion": "1.0.0-rc.31",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "localStorageBoundedList": 200,
+        "otaPublished": false
+      },
+      "checkedAt": "2026-10-05T08:46:53Z"
+    },
+    {
+      "id": "console.local.rc31",
+      "action": "Check the RC31 Console against the live database",
+      "target": {
+        "command": "hot-updater console (apps/mobile, RC31 CLI)",
+        "database": "codex-relay-rc22",
+        "hostedConsole": "https://codex-relay.gron-studio.com/insights",
+        "hostedImage": "ship/codex-relay:rc31-464f5e3",
+        "hostSourceCommit": "2511d5b"
+      },
+      "observation": {
+        "hostedPodReady": true,
+        "hostedHttpStatus": 200,
+        "hostedSchemaErrors": 0,
+        "hostedAuthenticatedCheck": "not run: the OAuth session was not available",
+        "adoptionTabRendered": true,
+        "adoptionBundles": {
+          "01a10009-bba2-740c-994c-4283351e481d": {
+            "applied": 295,
+            "updateFailures": 25
+          },
+          "01a1010a-e5d7-7e8a-b756-298c94435939": {
+            "applied": 5,
+            "updateFailures": 0
+          }
+        },
+        "crashesTabRendered": true,
+        "crashes": {
+          "01a10009-bba2-740c-994c-4283351e481d": {
+            "crashes": 2,
+            "rate": "0.7%"
+          },
+          "01a1010a-e5d7-7e8a-b756-298c94435939": {
+            "crashes": 1,
+            "rate": "16.7% of 6 attempts, below the 20-attempt minimum"
+          }
+        },
+        "rollbackRecommended": false
+      },
+      "checkedAt": "2026-10-05T12:26:45Z"
     }
   ]
 }

@@ -1,14 +1,14 @@
-# Mobile 1.6.0: Hot Updater RC30 infrastructure / Expo 58
+# Mobile 1.6.0: Hot Updater RC31 infrastructure / Expo 58
 
-Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.30` from release PR #1456, including #1457’s release adoption chart. See the RC30 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.31` from release PR #1460, including #1459’s Release health adoption and crash tracking. See the RC31 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                              | Selected version / target           |
 | ------------------------------------------------------ | ----------------------------------- |
 | Mobile native version                                  | `1.6.0`                             |
-| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.30`                       |
-| Local Expo plugin / React Native SDK                   | `1.0.0-rc.30`                       |
+| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.31`                       |
+| Local Expo plugin / React Native SDK                   | `1.0.0-rc.31`                       |
 | Existing store binary's Hot Updater SDK                | `1.0.0-rc.23` (build 58)            |
 | Expo / React Native / React                            | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                   | `24.8.0` / `24.14.1`                |
@@ -28,7 +28,7 @@ Expo SDK 58 and the selected React Native version are prereleases. Their native 
 
 The old Worker, database and storage are preserved for 1.5.0 installations using their embedded rc14 URL. The existing Ship console now manages the 1.6.0 resources. The rc22 configuration rejects the legacy D1 ID. Do not apply rc22 migrations to the old database or repoint its Worker.
 
-Current D1 compatibility markers: engine `1`, core `1.0.0`, Insights `1.3.0`, API keys `1.0.0`. These are internal schema versions, independent of the `1.0.0-rc.*` npm release version. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
+Current D1 compatibility markers: engine `1`, core `1.0.0`, Insights `1.2.0`, API keys `1.0.0`. These are internal schema versions, independent of the `1.0.0-rc.*` npm release version. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
 
 ## Implementation and completed checks
 
@@ -285,3 +285,41 @@ The Console at <https://codex-relay.gron-studio.com/insights> runs `ship/codex-r
 Validation: Modex server tests (335 passed, 5 skipped), release tests, typechecking and lint passed. Console tests (9 passed), typechecking, Node production build, runtime authentication smoke checks and Docker build passed. Scaffold, infrastructure (7 checks) and app doctors passed. Anonymous catalog/artifact requests return 401; authenticated requests and a signed manifest return 200. R2 reads work with the app configuration’s existing credentials. Private receipts are under `.codex/mobile-1.6/rc30/`.
 
 This migration does not publish a mobile OTA or rebuild the store binary. App 1.6.0 build 58 still embeds SDK RC23; native release OTA behavior was not re-tested for this package upgrade. The previously noted Android native directory remains at 1.5.0 and requires regeneration before an Android release.
+
+## Official RC31 upgrade (2026-10-05 KST)
+
+Release [#1460](https://github.com/gronxb/hot-updater/pull/1460) published official `1.0.0-rc.31` from `464f5e3162f059b5b9df701158b6b164099a5886`, including [#1459](https://github.com/gronxb/hot-updater/pull/1459). Release health now compares bundle deployments in two tabs: Adoption plots applies per bundle, and Crashes plots recoveries with a crash rate. It recommends a rollback at 5% of at least 20 attempts. Bundle share, the Downloads/Adoption tabs, the metrics row and Launch failures are gone. Insights returns to the 1.0.0 baseline at schema `1.2.0`. RC31 deletes the RC30 migration and upgrade guide, so the scaffold's `upgrades/` and `worker/migrations/` lose their RC30 files.
+
+The database left RC30 by a fence-safe cutover. The Worker's schema fence keeps a passing check per isolate and rechecks failures.
+
+1. A private D1 export and Time Travel bookmark `0000038d-00000000-000050fb-bf486526a14d21bb97d958bea8828539` were taken first.
+2. The RC31 Worker was uploaded as version `51ff4c58-299d-48ff-97b3-f19c3fe35d88` without traffic.
+3. `schema.insights` was set from `1.3.0` to `1.2.0`. Within seconds, 100% of traffic moved to that version and the Ship console rolled out. Worker deploys use wrangler's OAuth login, since the app's D1 token has no Worker access.
+4. Once RC31 served, the leftovers the RC31 baseline no longer has were dropped:
+   - `bundle_daily_heads` (1,448 rows) and `insights_distribution_history` (183 rows);
+   - the `bundle_events_recent` index;
+   - the `launch_users` sketch columns.
+
+The live schema now matches RC31's `0001_hot-updater_1.0.0.sql` exactly: 49 objects, no differences. The `0002_hot-updater_1.0.0-rc.30.sql` row stays in D1 migration history.
+
+**First attempt.** The first cutover used the app's D1 token for the deploy. The deploy was refused while the marker already read `1.2.0`, and the marker was restored after 18 seconds (08:42:30–08:42:48Z). RC30 kept serving: authenticated catalog 200, anonymous 401.
+
+**Data.** All 6 bundles, 1 patch, 8 releases, 2 release catalogs, 2 channels and the API key are unchanged. Insights events, heads and aggregates were preserved and kept growing through the cutover. RC31 recorded a live `UPDATE_DOWNLOADED` 26 seconds after the switch. Endpoints, bindings, R2, secrets and signing are retained.
+
+**Console.** The Console at <https://codex-relay.gron-studio.com/insights> runs `ship/codex-relay:rc31-464f5e3` (digest `sha256:0106cd8db8dfb397dda9a518566214d36c1bdbafec9d43c9c8036954d85aa2e7`) with its existing environment. The sign-in icon patch moves to RC31. Host sources are in local console commit `2511d5b`. The pod is ready, answers 200, and logs no schema errors. Its OAuth session wasn't available to this run, so the RC31 Console was checked locally (`hot-updater console`) against the live database instead:
+
+- Adoption showed the two newest production bundles (295 and 5 applies, 25 and 0 update failures).
+- Crashes showed 2 crashes (0.7%) and 1 crash in 6 attempts (16.7%). The second is below the 20-attempt minimum, so there was no rollback prompt.
+
+**OTA.** None is needed. React Native RC31 differs from RC30 only in its SDK version string and its `@hot-updater/plugin-insights` pin, and that package's client code is unchanged.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks; app passed.
+- Packaged server verifier: version matches, anonymous catalog 401, authenticated 200.
+- Artifacts: anonymous 401, authenticated 200, and the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list with the app's credentials: 200.
+- Modex: server tests (335 passed, 5 skipped), release tests (13 Node, 6 mobile), typechecking and lint.
+- Console: tests (9), typechecking, Node production build, auth and protected-route smoke checks, and Docker build.
+
+Private receipts, backups and screenshots are under `.codex/mobile-1.6/rc31/`.
