@@ -1,14 +1,14 @@
 # Mobile 1.6.0: Hot Updater RC32 infrastructure / Expo 58
 
-Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.35` from release PR #1472, and native `1.6.1` is being prepared for TestFlight with that SDK. See the RC35 record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.36` from release PR #1480, and native `1.6.1` goes to TestFlight with that SDK. See the RC36 record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                              | Selected version / target           |
 | ------------------------------------------------------ | ----------------------------------- |
 | Mobile native version                                  | `1.6.1` (store: `1.6.0`)            |
-| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.35`                       |
-| Local Expo plugin / React Native SDK                   | `1.0.0-rc.35`                       |
+| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.36`                       |
+| Local Expo plugin / React Native SDK                   | `1.0.0-rc.36`                       |
 | Existing store binary's Hot Updater SDK                | `1.0.0-rc.23` (build 58)            |
 | Expo / React Native / React                            | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                   | `24.8.0` / `24.14.1`                |
@@ -28,7 +28,7 @@ Expo SDK 58 and the selected React Native version are prereleases. Their native 
 
 The old Worker, database and storage are preserved for 1.5.0 installations using their embedded rc14 URL. The existing Ship console now manages the 1.6.0 resources. The rc22 configuration rejects the legacy D1 ID. Do not apply rc22 migrations to the old database or repoint its Worker.
 
-Current D1 compatibility markers: engine `1`, core `1.0.0`, Insights `1.2.0`, API keys `1.0.0`. These are internal schema versions, independent of the `1.0.0-rc.*` npm release version. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
+Current D1 compatibility markers: engine `1`, core `1.0.0`, Insights `1.0.0`, API keys `1.0.0`. These are internal schema versions, independent of the `1.0.0-rc.*` npm release version. The existing client credential is registered in the new database. Artifact signing retains the existing app key pair; the new Worker has a separate download-URL signing secret.
 
 ## Implementation and completed checks
 
@@ -455,3 +455,32 @@ Release [#1472](https://github.com/gronxb/hot-updater/pull/1472) published offic
 **Native 1.6.1.** `app.config.ts` and the package version move to `1.6.1`, so the next ship OTA targets 1.6.1 (`1.6.1-ship.1`). Existing 1.6.0 installations keep receiving only 1.6.0 releases.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc35/`.
+
+## Official RC36 upgrade (2026-10-07 KST)
+
+Release [#1480](https://github.com/gronxb/hot-updater/pull/1480) published official `1.0.0-rc.36` from `33b092adb`, carrying [#1479](https://github.com/gronxb/hot-updater/pull/1479):
+
+- **Insights reports installations on the built-in bundle.** The SDK passes `minBundleId` to client plugins, and the Insights client sends it with each report. The server counts installations that run their build's built-in bundle in a new gauge, `insights_builtin_distribution`. The console's Distribution shows **Built-in app** with the bundle ID under each app version instead of **Unknown bundle**, and event and installation details mark the built-in bundle. Reports from older binaries (rc23 in 1.6.0) count as before.
+- **iOS reads the built-in bundle ID from the `HOT_UPDATER_MIN_BUNDLE_ID` build setting** instead of the compile time of `HotUpdater.mm`. EAS builds don't pass the setting, so this app still falls back to the compile time.
+
+**Infrastructure.** The 1.0.0 baseline gains one table, with no other change, and the schema markers stay.
+
+1. Time Travel bookmark `00000585-0000000a-000050fc-c6bcad9d9a064e7f15761e95fc90d21f` was taken first.
+2. `insights_builtin_distribution` and its three indexes were created from the RC36 baseline. The RC35 Worker ignores them. Live D1 then matched the baseline: 53 of 53 objects, nothing missing or extra.
+3. The RC36 Worker was uploaded as version `cb0a3b0f-7436-44d5-8d27-265b4575d3de` without traffic.
+4. At 19:22:58Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc36-33b092a` four seconds later.
+
+`/version` reports `1.0.0-rc.36`.
+
+**Console.** Host sources are pinned to RC36 in the local console repository, and the sign-in icon patch moves to RC36. The pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+**Native 1.6.1.** A production build with the RC36 SDK goes to TestFlight; see the EAS record in the private receipts.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc36/`.

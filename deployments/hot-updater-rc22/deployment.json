@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.35",
+  "deployedServerVersion": "1.0.0-rc.36",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1776,6 +1776,86 @@
         "restorePoint": "0000055d-00000010-000050fc-686dcfaa8a2ea98cc2249f6fcf8d2916"
       },
       "checkedAt": "2026-10-06T16:31:22Z"
+    },
+    {
+      "id": "rc36:d1-builtin-distribution",
+      "action": "Create insights_builtin_distribution and its three indexes from the RC36 1.0.0 baseline (additive; markers unchanged)",
+      "target": {
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "databaseName": "codex-relay-rc22"
+      },
+      "requestId": "time-travel-bookmark:00000585-0000000a-000050fc-c6bcad9d9a064e7f15761e95fc90d21f",
+      "observation": {
+        "queries": 4,
+        "liveObjects": 53,
+        "baselineObjects": 53,
+        "missing": 0,
+        "extra": 0,
+        "markers": {
+          "schema.engine": "1",
+          "schema.core": "1.0.0",
+          "schema.insights": "1.0.0",
+          "schema.apiKeys": "1.0.0"
+        }
+      }
+    },
+    {
+      "id": "rc36:worker-version",
+      "action": "Upload the official RC36 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.36"
+      },
+      "requestId": "cb0a3b0f-7436-44d5-8d27-265b4575d3de",
+      "observation": {
+        "versionId": "cb0a3b0f-7436-44d5-8d27-265b4575d3de",
+        "trafficPercent": 0
+      }
+    },
+    {
+      "id": "rc36:cutover",
+      "action": "Route 100% to RC36 version cb0a3b0f, roll the Ship console to RC36",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "4e0b46a1-4e3a-45d2-9f7c-ca10619943d8",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc35-9b432c1",
+          "image": "ship/codex-relay:rc36-33b092a"
+        }
+      },
+      "requestId": "cb0a3b0f-7436-44d5-8d27-265b4575d3de",
+      "observation": {
+        "deployedAt": "2026-10-06T19:22:58Z",
+        "consoleRolledOutAt": "2026-10-06T19:23:02Z",
+        "version": "1.0.0-rc.36"
+      }
+    },
+    {
+      "id": "common.verify.rc36",
+      "action": "Verify RC36 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.36",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "r2BoundedList": 200,
+        "consolePod": "Running",
+        "consolePublic": 200
+      }
     }
   ]
 }
