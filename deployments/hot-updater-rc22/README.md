@@ -1,14 +1,14 @@
 # Mobile 1.6.0: Hot Updater RC32 infrastructure / Expo 58
 
-Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.32` from release PR #1463. It includes #1461 (Release health names bundles by ID) and #1462 (Expo fetch timeouts reported as timeouts). See the RC32 upgrade record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
+Current state: the Hot Updater CLI, Cloudflare plugin, Expo plugin, React Native SDK, OTA Worker and Ship console use official `1.0.0-rc.35` from release PR #1472, and native `1.6.1` is being prepared for TestFlight with that SDK. See the RC35 record below for deployment verification. The user reports that mobile 1.6.0 is released on the App Store; its existing rc23 binary does not need rebuilding for this upgrade. The OTA service retains the resource names and URL created for rc22. Scoped local rc23 OTA smoke tests have passed on Duo; fault injection and binary patch tests remain pending.
 
 ## Baseline and compatibility
 
 | Component                                              | Selected version / target           |
 | ------------------------------------------------------ | ----------------------------------- |
-| Mobile native version                                  | `1.6.0`                             |
-| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.32`                       |
-| Local Expo plugin / React Native SDK                   | `1.0.0-rc.32`                       |
+| Mobile native version                                  | `1.6.1` (store: `1.6.0`)            |
+| Hot Updater CLI, Cloudflare plugin, Worker and console | `1.0.0-rc.35`                       |
+| Local Expo plugin / React Native SDK                   | `1.0.0-rc.35`                       |
 | Existing store binary's Hot Updater SDK                | `1.0.0-rc.23` (build 58)            |
 | Expo / React Native / React                            | `58.0.2` / `0.88.0-rc.3` / `19.3.0` |
 | EAS CLI / build Node                                   | `24.8.0` / `24.14.1`                |
@@ -425,3 +425,33 @@ I also ran the RC34 Console locally against the live database:
 - Console: tests (9), typechecking, Node build, smoke checks and Docker build.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc34/`.
+
+## Official RC35 upgrade and native 1.6.1 (2026-10-07 KST)
+
+Release [#1472](https://github.com/gronxb/hot-updater/pull/1472) published official `1.0.0-rc.35` from `9b432c1cb`. Every package now shares that version ([#1477](https://github.com/gronxb/hot-updater/pull/1477)). It changes only the React Native SDK, so this app needs a new binary to get it:
+
+- **One retry after an unfinished launch** ([#1471](https://github.com/gronxb/hot-updater/pull/1471), issue #1469). A launch that ends before its first render without a crash still rolls back and reports `RECOVERED`, but the bundle no longer goes into crash history at once: a later session retries it once.
+- **Launches without UI stay pending** ([#1470](https://github.com/gronxb/hot-updater/pull/1470), issue #1468). A background launch no longer leaves an unfinished launch behind, so the next launch does not roll a healthy bundle back.
+- **A session's launch result stays final** when an update downloads during the session.
+- **Android builds the New Architecture by default.** This app ships only on iOS.
+
+**Infrastructure.** No schema or binding changed: the scaffold differs from RC34 only in versions and the Worker bundle, and the migration is identical.
+
+1. Time Travel bookmark `0000055d-00000010-000050fc-686dcfaa8a2ea98cc2249f6fcf8d2916` was taken first.
+2. The RC35 Worker was uploaded as version `4e0b46a1-4e3a-45d2-9f7c-ca10619943d8` without traffic, with the same D1, R2 and variable bindings.
+3. At 16:30:33Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc35-9b432c1` three seconds later.
+
+`/version` reports `1.0.0-rc.35`. The schema markers are unchanged.
+
+**Console.** The Ship console runs `ship/codex-relay:rc35-9b432c1` with its existing environment. Host sources are pinned to RC35 in the local console repository, and the sign-in icon patch moves to RC35. The pod is ready, answers 200, and logs no schema errors.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+**Native 1.6.1.** `app.config.ts` and the package version move to `1.6.1`, so the next ship OTA targets 1.6.1 (`1.6.1-ship.1`). Existing 1.6.0 installations keep receiving only 1.6.0 releases.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc35/`.

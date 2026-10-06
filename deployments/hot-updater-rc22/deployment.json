@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.34",
+  "deployedServerVersion": "1.0.0-rc.35",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1716,6 +1716,66 @@
         "otaPublished": false
       },
       "checkedAt": "2026-10-06T06:05:05Z"
+    },
+    {
+      "id": "rc35:worker-version",
+      "action": "Upload the official RC35 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.35"
+      },
+      "requestId": "4e0b46a1-4e3a-45d2-9f7c-ca10619943d8",
+      "observation": {
+        "versionId": "4e0b46a1-4e3a-45d2-9f7c-ca10619943d8",
+        "trafficPercent": 0,
+        "liveVersion": "1.0.0-rc.34",
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"],
+        "restorePoint": "0000055d-00000010-000050fc-686dcfaa8a2ea98cc2249f6fcf8d2916"
+      },
+      "checkedAt": "2026-10-06T16:28:48Z"
+    },
+    {
+      "id": "rc35:cutover",
+      "action": "Route 100% to RC35 version 4e0b46a1, roll the Ship console to RC35 (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "0a52cb66-d6e9-40c5-bf03-14a0e57b3259",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc34-4baee78"
+        }
+      },
+      "requestId": "4e0b46a1-4e3a-45d2-9f7c-ca10619943d8",
+      "observation": {
+        "deployedAt": "2026-10-06T16:30:33Z",
+        "consoleRolledAt": "2026-10-06T16:30:36Z",
+        "schemaMarkersChanged": false,
+        "versionId": "4e0b46a1-4e3a-45d2-9f7c-ca10619943d8",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.35"
+        },
+        "bindingsUnchanged": true,
+        "artifact": {
+          "anonymous": 401,
+          "authenticated": 200,
+          "signedManifest": 200,
+          "manifestBytes": 27309
+        },
+        "storageBoundedList": 200,
+        "consoleImage": "ship/codex-relay:rc35-9b432c1",
+        "consoleImageDigest": "sha256:cd9ee28ec70a74fa23aba07cc7ef8b49d6f7f85d198ae871a21b9244ff78a0fa",
+        "consoleReadyReplicas": 1,
+        "consoleHttpStatus": 200,
+        "consoleSchemaErrors": 0,
+        "restorePoint": "0000055d-00000010-000050fc-686dcfaa8a2ea98cc2249f6fcf8d2916"
+      },
+      "checkedAt": "2026-10-06T16:31:22Z"
     }
   ]
 }
