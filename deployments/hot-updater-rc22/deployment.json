@@ -1889,6 +1889,29 @@
         "appReviewSubmitted": false
       },
       "checkedAt": "2026-10-06T19:41:29Z"
+    },
+    {
+      "id": "rc36:native-1.6.1-60",
+      "action": "Build native 1.6.1 (60) with the RC36 SDK and submit it to TestFlight",
+      "target": {
+        "appVersion": "1.6.1",
+        "buildNumber": "60",
+        "profile": "production",
+        "sdk": "1.0.0-rc.36"
+      },
+      "requestId": "61c47db8-9ff4-451f-872d-3f5f02eb26ff",
+      "observation": {
+        "easBuild": "61c47db8-9ff4-451f-872d-3f5f02eb26ff",
+        "easSubmission": "360a21f5-7c19-4053-ae7b-d9fb5d982a12",
+        "uploadedToAppStoreConnect": true,
+        "ipaChecked": {
+          "CFBundleShortVersionString": "1.6.1",
+          "CFBundleVersion": "60",
+          "bundleHasMinBundleId": true,
+          "bundleHasRc22Url": true
+        },
+        "supersedes": "1.6.1 (59), rc.35"
+      }
     }
   ]
 }

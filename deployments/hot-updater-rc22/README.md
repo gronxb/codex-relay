@@ -483,6 +483,6 @@ Release [#1480](https://github.com/gronxb/hot-updater/pull/1480) published offic
 - R2 bounded list: 200.
 - Console: tests (9), typechecking, Node build, smoke checks and Docker build.
 
-**Native 1.6.1.** A production build with the RC36 SDK goes to TestFlight; see the EAS record in the private receipts.
+**Native 1.6.1 (60).** EAS build `61c47db8-9ff4-451f-872d-3f5f02eb26ff` (production, RC36 SDK) was uploaded to App Store Connect through EAS submission `360a21f5-7c19-4053-ae7b-d9fb5d982a12`. The IPA reports 1.6.1 (60) and its bundle carries the RC36 Insights client and the rc22 URL. It supersedes 1.6.1 (59), built with RC35; test 60 in TestFlight.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc36/`.
