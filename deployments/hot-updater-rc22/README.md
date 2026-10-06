@@ -386,3 +386,42 @@ The batch was first rehearsed on SQLite copies of two exports. The backfill matc
 - Console: tests (9), typechecking, Node build, smoke checks and Docker build.
 
 Private receipts, backups and screenshots are under `.codex/mobile-1.6/rc33/`.
+
+## Official RC34 upgrade (2026-10-06 KST)
+
+Release [#1467](https://github.com/gronxb/hot-updater/pull/1467) published official `1.0.0-rc.34` from `4baee783b57557b1948b478ff3153d6646d05f28`, including [#1466](https://github.com/gronxb/hot-updater/pull/1466):
+
+- **Crash exit reasons are gone.** Android 11+ reported only an `ApplicationExitInfo` reason such as `CRASH` or `ANR`, with no stack trace or message, and iOS reported nothing. This app, iOS only, had none. The Update failures card loses **Crashes by exit reason**, and a crash count in Release health is no longer a link.
+- **The Insights schema version is pinned to `1.0.0`**, as core's is, while the 1.0.0 baseline changes in place.
+- **Console tooltips are shorter.** Each says what the number is and how it is computed.
+
+**Cutover.** No table changed: the RC34 baseline differs from RC33's only in the Insights marker, and the database had no exit-reason rows.
+
+1. A private D1 export and Time Travel bookmark `000004cb-00000010-000050fc-b80ee06a8445c4b122f2ec5878f27b76` were taken first.
+2. The RC34 Worker was uploaded as version `0a52cb66-d6e9-40c5-bf03-14a0e57b3259` without traffic.
+3. At 06:02:23Z, `schema.insights` was set from `1.4.0` to `1.0.0`.
+4. 100% of traffic moved to that version three seconds later, and the Ship console rolled out two seconds after that.
+
+The live schema matches RC34's `0001_hot-updater_1.0.0.sql` exactly: 49 objects, no differences.
+
+**Data.** All 7 bundles, 3 patches, 9 releases, 2 release catalogs, 2 channels and the API key are unchanged, as are the Insights rows. RC34 recorded a live `UPDATE_DOWNLOADED` at 06:04:06Z. Endpoints, bindings, R2, secrets and signing are retained.
+
+**Console.** The Ship console runs `ship/codex-relay:rc34-4baee78` (image `sha256:a21bb1d6fedb31cbd8c513fa82dacb160ed8acfb307ab6b974ea327ef02745d3`) with its existing environment. Host sources are in local console commit `0b59c9a`, and the sign-in icon patch moves to RC34. The pod is ready, answers 200, and logs no schema errors.
+
+I also ran the RC34 Console locally against the live database:
+
+- Release health shows ship.2 with 0 crashes and ship.1 with 1 crash in 6 attempts (16.7%), as plain counts.
+- Update failures loads without the exit-reason section.
+
+**OTA.** None is needed. The SDK stops reading Android exit reasons, and this app runs only on iOS, where nothing was ever read.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks; app passed.
+- Packaged server verifier: version matches, anonymous catalog 401, authenticated 200.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Modex: server tests (335 passed, 5 skipped), release tests (13), typechecking and lint.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc34/`.

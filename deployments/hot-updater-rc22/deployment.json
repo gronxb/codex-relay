@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.33",
+  "deployedServerVersion": "1.0.0-rc.34",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1618,6 +1618,104 @@
         "otaPublished": false
       },
       "checkedAt": "2026-10-06T02:09:26Z"
+    },
+    {
+      "id": "rc34:worker-version",
+      "action": "Upload the official RC34 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.34"
+      },
+      "requestId": "0a52cb66-d6e9-40c5-bf03-14a0e57b3259",
+      "observation": {
+        "versionId": "0a52cb66-d6e9-40c5-bf03-14a0e57b3259",
+        "trafficPercent": 0,
+        "liveVersion": "1.0.0-rc.33",
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"],
+        "restorePoint": "000004cb-00000010-000050fc-b80ee06a8445c4b122f2ec5878f27b76"
+      },
+      "checkedAt": "2026-10-06T06:02:23Z"
+    },
+    {
+      "id": "rc34:cutover",
+      "action": "schema.insights 1.4.0 -> 1.0.0, route 100% to RC34 version 0a52cb66, roll the Ship console to RC34 (no table changes)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "previousVersionId": "c89fd3c3-646e-4c5f-a1ca-0dd996eea88f",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc33-49f8d54"
+        }
+      },
+      "requestId": "0a52cb66-d6e9-40c5-bf03-14a0e57b3259",
+      "observation": {
+        "markerSetAt": "2026-10-06T06:02:23Z",
+        "deployedAt": "2026-10-06T06:02:26Z",
+        "consoleRolledAt": "2026-10-06T06:02:28Z",
+        "schemaInsights": "1.0.0",
+        "exitReasonRows": 0,
+        "liveSchemaMatchesBaseline": "49 objects, no differences (d1_migrations aside)",
+        "versionId": "0a52cb66-d6e9-40c5-bf03-14a0e57b3259",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.34"
+        },
+        "bindingsUnchanged": true,
+        "verifier": {
+          "version": "matches-manifest",
+          "anonymousCatalog": 401,
+          "authenticatedCatalog": 200
+        },
+        "consoleImage": "ship/codex-relay:rc34-4baee78",
+        "consoleImageDigest": "sha256:a21bb1d6fedb31cbd8c513fa82dacb160ed8acfb307ab6b974ea327ef02745d3",
+        "consoleReadyReplicas": 1,
+        "consoleHttpStatus": 200,
+        "consoleSchemaErrors": 0,
+        "restorePoint": "000004cb-00000010-000050fc-b80ee06a8445c4b122f2ec5878f27b76"
+      },
+      "checkedAt": "2026-10-06T06:03:11Z"
+    },
+    {
+      "id": "common.verify.rc34",
+      "action": "Verify RC34 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.34",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "localStorageBoundedList": 200,
+        "rowsPreserved": {
+          "bundles": 7,
+          "bundlePatches": 3,
+          "releases": 9,
+          "releaseCatalogs": 2,
+          "channels": 2,
+          "apiKeys": 1
+        },
+        "ingestionAfterCutover": "UPDATE_DOWNLOADED recorded at 2026-10-06T06:04:06Z",
+        "liveSchemaMatchesBaseline": true,
+        "consoleLocalCheck": "Release health crash counts are plain numbers (01a10c61-d8cd-7b56-ba25-7f83b9c169e9: 0; 01a1010e-5ceb-70d8-8ac7-c902b9419178: 1 of 6, 16.7%); Update failures loads with no exit-reason section",
+        "consoleHostSourceCommit": "0b59c9a",
+        "otaPublished": false
+      },
+      "checkedAt": "2026-10-06T06:05:05Z"
     }
   ]
 }
