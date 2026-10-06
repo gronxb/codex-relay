@@ -349,3 +349,40 @@ Before/after reads preserved all 6 bundles, 1 patch, 8 releases, 2 release catal
 - Console: tests, typechecking, Node build, smoke checks and Docker build.
 
 Private receipts are under `.codex/mobile-1.6/rc32/`.
+
+## Official RC33 upgrade (2026-10-06 KST)
+
+Release [#1465](https://github.com/gronxb/hot-updater/pull/1465) published official `1.0.0-rc.33` from `49f8d5448305c029dd1a0de77a1a2b5fce6ee733`, including [#1464](https://github.com/gronxb/hot-updater/pull/1464). The Bundles column's **Active days** becomes **Applied**: a release's apply reports, as EAS Update counts the users who have run an update. Known crashes are now rated over applied plus known crashes, as in Release health. Insights moves to schema `1.4.0` in the 1.0.0 baseline:
+
+- hourly and daily counters lose `launches` and `failed_updates`, which nothing read;
+- a release's lifetime counters count `applies`.
+
+**Cutover.** The cutover was fence-safe:
+
+1. A private D1 export and Time Travel bookmark `0000048b-0000001a-000050fc-7e04ff6fef7da5a3a5f7c2651b0918ae` were taken first.
+2. The RC33 Worker was uploaded as version `c89fd3c3-646e-4c5f-a1ca-0dd996eea88f` without traffic.
+3. One D1 batch then ran at 02:05:24Z:
+   - It dropped the two unused columns from `insights_overview` and `insights_overview_daily`.
+   - It rebuilt `insights_overview_lifetime` in the baseline's column order, with `applies` counted from the apply reports kept in `bundle_events`.
+   - It set `schema.insights` to `1.4.0`.
+
+   Four seconds later, 100% of traffic moved to that version. The Ship console rolled out a second after.
+
+The batch was first rehearsed on SQLite copies of two exports. The backfill matched all 9 release lifetime identities with the RC33 plugin's own identity hash and wrote 430 applies: 350 for the SSH-screen bundle and 65 for ship.2, where Active days had read 403 and 72. Ship.1, held to cohort `707`, now shows 5 applies and 1 known crash (16.67%), where it showed 6 active days (14.29%). Downloads, known crashes, update failures and patch counters were copied unchanged. The live schema now matches RC33's `0001_hot-updater_1.0.0.sql` exactly: 49 objects, no differences.
+
+**Data.** All 7 bundles, 3 patches, 9 releases, 2 release catalogs, 2 channels and the API key are unchanged. Insights events, heads, sketches and aggregates were preserved. RC33 recorded a live `UPDATE_DOWNLOADED` 31 seconds after the switch, then an apply. The lifetime applies total (431) equals the apply reports in `bundle_events`. Endpoints, bindings, R2, secrets and signing are retained.
+
+**Console.** The Ship console runs `ship/codex-relay:rc33-49f8d54` (image `sha256:ba13e7f0601afc53db0fcb4a06b8a174d2ad8ce190bca39cbfb64adc8bde5130`) with its existing environment. Host sources are in local console commit `b2e9f87`, and the sign-in icon patch moves to RC33. The pod is ready, answers 200, and logs no schema errors. The RC33 Console, run locally against the live database, shows Applied on the Bundles page: ship.2 has 416 downloads, 66 applies and 0 known crashes.
+
+**OTA.** None is needed. React Native RC33 changes only its SDK version and its `@hot-updater/plugin-insights` pin, and the Insights client code is unchanged.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks; app passed.
+- Packaged server verifier: version matches, anonymous catalog 401, authenticated 200.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Modex: server tests (335 passed, 5 skipped), release tests (13), typechecking and lint.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+Private receipts, backups and screenshots are under `.codex/mobile-1.6/rc33/`.

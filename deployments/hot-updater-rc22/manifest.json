@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.0.0-rc.32",
-  "providerVersion": "1.0.0-rc.32",
-  "serverVersion": "1.0.0-rc.32",
+  "cliVersion": "1.0.0-rc.33",
+  "providerVersion": "1.0.0-rc.33",
+  "serverVersion": "1.0.0-rc.33",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.0.0-rc.32",
-    "@hot-updater/server": "1.0.0-rc.32",
-    "@hot-updater/react-native": "1.0.0-rc.32",
-    "@hot-updater/cloudflare": "1.0.0-rc.32",
-    "@hot-updater/expo": "1.0.0-rc.32"
+    "hot-updater": "1.0.0-rc.33",
+    "@hot-updater/server": "1.0.0-rc.33",
+    "@hot-updater/react-native": "1.0.0-rc.33",
+    "@hot-updater/cloudflare": "1.0.0-rc.33",
+    "@hot-updater/expo": "1.0.0-rc.33"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -50,10 +50,10 @@
     "upgrades/1.0.0-rc.29.md": "ebaec93656c25a3d0a776097ec48e04f1277cdd99097f7523f2092a58621c6ea",
     "upgrades/1.0.0.md": "ffd5d294c52a3b6f7a1f2d28e0706aa6a9fa633b039a23845921a6723d0e003c",
     "upgrades/README.md": "f99863721117703b27b43515f43a1a3efc7708012b9bd4acac116a93bab3d5f6",
-    "worker/dist/index.js": "58feb116c202285a358e2759875ca64e274bebf4f77ad8a978ce64adfa0d7d15",
-    "worker/dist/index.js.map": "d8b957c06448d412c78499a74d48f3d130afae933b7410e359e181037e29632f",
-    "worker/dist/README.md": "494e8ae2582685f6c24f1aacd159d6b1ef1611a99b92fe62acc6b09e6d5563ea",
-    "worker/migrations/0001_hot-updater_1.0.0.sql": "8e6aae128662bb8f7b0c6729f548df5c93a27a90e4b61c40d4010f67ee7f29dc",
+    "worker/dist/index.js": "8bbece2f873b97f034d7b70cf08cb43de8ad22daff8e81137dd6975cecf4cb10",
+    "worker/dist/index.js.map": "ef65b763ae4abca6868c7dae62112b01aaee7057474deb4be23b4b787a283569",
+    "worker/dist/README.md": "311010df3125a77865dd0ab704a37295f842af4bebde0c307975c676d9d733fa",
+    "worker/migrations/0001_hot-updater_1.0.0.sql": "2e4ff6a09dad88f582cfdbfb38f21fdec3e0181ab3ad51d9379d2001f3e41ed2",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
     "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"
   }

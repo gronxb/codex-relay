@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.32",
+  "deployedServerVersion": "1.0.0-rc.33",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1518,6 +1518,106 @@
         "otaPublished": false
       },
       "checkedAt": "2026-10-05T13:41:16Z"
+    },
+    {
+      "id": "rc33:worker-version",
+      "action": "Upload the official RC33 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.33"
+      },
+      "requestId": "c89fd3c3-646e-4c5f-a1ca-0dd996eea88f",
+      "observation": {
+        "versionId": "c89fd3c3-646e-4c5f-a1ca-0dd996eea88f",
+        "trafficPercent": 0,
+        "liveVersion": "1.0.0-rc.32",
+        "bindings": ["DB codex-relay-rc22", "BUCKET codex-relay-rc22-storage", "BUCKET_NAME"],
+        "restorePoint": "0000048b-0000001a-000050fc-7e04ff6fef7da5a3a5f7c2651b0918ae"
+      },
+      "checkedAt": "2026-10-06T02:05:14Z"
+    },
+    {
+      "id": "rc33:cutover",
+      "action": "One D1 batch (drop hourly/daily launches and failed_updates, rebuild insights_overview_lifetime with applies backfilled from bundle_events, schema.insights 1.2.0 -> 1.4.0), route 100% to RC33 version c89fd3c3, roll the Ship console to RC33",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "databaseId": "c506b378-f360-4787-8888-1c6183d58a2b",
+        "previousVersionId": "8ec016b1-39df-46de-ac22-0a87d1b07bdc",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc32-28f8637"
+        }
+      },
+      "requestId": "c89fd3c3-646e-4c5f-a1ca-0dd996eea88f",
+      "observation": {
+        "schemaBatchAt": "2026-10-06T02:05:24Z",
+        "deployedAt": "2026-10-06T02:05:28Z",
+        "consoleRolledAt": "2026-10-06T02:05:29Z",
+        "schemaInsights": "1.4.0",
+        "lifetimeRows": 31,
+        "appliesBackfilled": 430,
+        "backfillIdentitiesMatched": "9/9",
+        "liveSchemaMatchesBaseline": "49 objects, no differences (d1_migrations aside)",
+        "versionId": "c89fd3c3-646e-4c5f-a1ca-0dd996eea88f",
+        "trafficPercent": 100,
+        "version": {
+          "adminProtocol": 2,
+          "infrastructureGeneration": 1,
+          "version": "1.0.0-rc.33"
+        },
+        "bindingsUnchanged": true,
+        "verifier": {
+          "version": "matches-manifest",
+          "anonymousCatalog": 401,
+          "authenticatedCatalog": 200
+        },
+        "consoleImage": "ship/codex-relay:rc33-49f8d54",
+        "consoleImageDigest": "sha256:ba13e7f0601afc53db0fcb4a06b8a174d2ad8ce190bca39cbfb64adc8bde5130",
+        "consoleReadyReplicas": 1,
+        "consoleHttpStatus": 200,
+        "consoleSchemaErrors": 0,
+        "restorePoint": "0000048b-0000001a-000050fc-7e04ff6fef7da5a3a5f7c2651b0918ae"
+      },
+      "checkedAt": "2026-10-06T02:06:25Z"
+    },
+    {
+      "id": "common.verify.rc33",
+      "action": "Verify RC33 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.33",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "localStorageBoundedList": 200,
+        "rowsPreserved": {
+          "bundles": 7,
+          "bundlePatches": 3,
+          "releases": 9,
+          "releaseCatalogs": 2,
+          "channels": 2,
+          "apiKeys": 1
+        },
+        "ingestionAfterCutover": "UPDATE_DOWNLOADED recorded at 2026-10-06T02:05:59Z, then UPDATE_APPLIED; lifetime applies 431 = UPDATE_APPLIED events 431",
+        "liveSchemaMatchesBaseline": true,
+        "consoleLocalCheck": "Bundles page shows Applied (01a10c61-d8cd-7b56-ba25-7f83b9c169e9: 416 downloads, 66 applied, 0 known crashes; 01a1000b-a6ae-7fca-8b6b-44e0cf83fd05: 350 applied, 2 known crashes 0.57%)",
+        "consoleHostSourceCommit": "b2e9f87",
+        "otaPublished": false
+      },
+      "checkedAt": "2026-10-06T02:09:26Z"
     }
   ]
 }
