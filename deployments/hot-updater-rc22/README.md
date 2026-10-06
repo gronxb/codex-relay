@@ -454,6 +454,8 @@ Release [#1472](https://github.com/gronxb/hot-updater/pull/1472) published offic
 
 **Native 1.6.1.** `app.config.ts` and the package version move to `1.6.1`, so the next ship OTA targets 1.6.1 (`1.6.1-ship.1`). Existing 1.6.0 installations keep receiving only 1.6.0 releases.
 
+Store candidate **1.6.1 (59)**: build [289d2aa0-b84e-4f42-b155-2c048566eb65](https://expo.dev/accounts/gronxb/projects/codex-relay/builds/289d2aa0-b84e-4f42-b155-2c048566eb65), built from clean main commit `9be6c4781`, and EAS submission [797c198c-4c5a-4d79-adff-f410a454353a](https://expo.dev/accounts/gronxb/projects/codex-relay/submissions/797c198c-4c5a-4d79-adff-f410a454353a) uploaded it to App Store Connect for TestFlight with the EAS-managed API key. The IPA shows version 1.6.1, build 59, iPhoneOS SDK 27.0, deployment target 16.4, SceneDelegate, the production channel, an OTA public key matching the repository key, the rc22 endpoint without the legacy endpoint, and SDK `1.0.0-rc.35`. SHA-256: `3e4a723de5d2cfad7ad04bd208f25a9e7326891225c6b4ae174924349fee6a20`. App Review is not submitted.
+
 Private receipts and backups are under `.codex/mobile-1.6/rc35/`.
 
 ## Official RC36 upgrade (2026-10-07 KST)

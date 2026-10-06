@@ -1856,6 +1856,39 @@
         "consolePod": "Running",
         "consolePublic": 200
       }
+    },
+    {
+      "id": "rc35:native-1.6.1-59",
+      "action": "Build native 1.6.1 with the RC35 SDK and submit it to TestFlight",
+      "target": {
+        "sourceCommit": "9be6c4781",
+        "buildId": "289d2aa0-b84e-4f42-b155-2c048566eb65",
+        "ascAppId": "6764463488",
+        "appVersion": "1.6.1",
+        "buildNumber": "59"
+      },
+      "requestId": "797c198c-4c5a-4d79-adff-f410a454353a",
+      "observation": {
+        "buildStatus": "FINISHED",
+        "ipaSha256": "3e4a723de5d2cfad7ad04bd208f25a9e7326891225c6b4ae174924349fee6a20",
+        "ipa": {
+          "shortVersion": "1.6.1",
+          "bundleVersion": "59",
+          "platformSdk": "27.0",
+          "minimumOs": "16.4",
+          "sceneDelegate": true,
+          "channel": "production",
+          "otaPublicKeyMatchesRepository": true,
+          "rc22EndpointPresent": true,
+          "legacyEndpointPresent": false,
+          "sdkVersion": "1.0.0-rc.35"
+        },
+        "transport": "EAS Submit with the EAS-managed App Store Connect API key",
+        "submissionId": "797c198c-4c5a-4d79-adff-f410a454353a",
+        "submissionStatus": "uploaded; Apple processing",
+        "appReviewSubmitted": false
+      },
+      "checkedAt": "2026-10-06T19:41:29Z"
     }
   ]
 }
