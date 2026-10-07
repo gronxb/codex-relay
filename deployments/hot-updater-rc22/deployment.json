@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.37",
+  "deployedServerVersion": "1.0.0-rc.38",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -2023,6 +2023,70 @@
         "launchSdkVersion": "1.0.0-rc.37",
         "launchMinBundleId": "01a0f5e7-c3d0-7000-8000-000000000000",
         "appVersion161Reports": 0
+      }
+    },
+    {
+      "id": "rc38:worker-version",
+      "action": "Upload the official RC38 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.38"
+      },
+      "requestId": "4d724e57-5ace-4252-ab55-cb4f08e79d70",
+      "observation": {
+        "versionId": "4d724e57-5ace-4252-ab55-cb4f08e79d70",
+        "trafficPercent": 0
+      }
+    },
+    {
+      "id": "rc38:cutover",
+      "action": "Route 100% to RC38 version 4d724e57, roll the Ship console to RC38",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "3b540eb4-77c0-4221-a7f1-bb3c749706dd",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc37-15184ee",
+          "image": "ship/codex-relay:rc38-c09c023"
+        }
+      },
+      "requestId": "time-travel-bookmark:0000065e-0000000e-000050fd-7b2732dd5b7437c393ec01963f69e672",
+      "observation": {
+        "deployedAt": "2026-10-07T08:47:54Z",
+        "consoleRolledAt": "2026-10-07T08:47:57Z",
+        "versionEndpoint": "1.0.0-rc.38",
+        "schemaMarkersChanged": false
+      }
+    },
+    {
+      "id": "common.verify.rc38",
+      "action": "Verify RC38 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.38",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "r2BoundedList": 200,
+        "consoleTests": 9,
+        "consoleTypecheck": true,
+        "consoleNodeBuild": true,
+        "consoleSmoke": true,
+        "consoleImage": "ship/codex-relay:rc38-c09c023",
+        "consoleHttp": 200
       }
     }
   ]

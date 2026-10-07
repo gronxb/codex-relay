@@ -534,3 +534,31 @@ The infrastructure doctor's catalog checks pass for 1.6.0 and 1.6.1. To undo the
 **First reports.** 47 minutes after the widening, 32 installations on 1.6.0 had downloaded the bundle and 3 had launched it. Each launch reported SDK `1.0.0-rc.37` and the 1.6.0 binary's built-in bundle `01a0f5e7-c3d0-7000-8000-000000000000`, and none crashed back. One download failed with reason `unknown` from the RC23 SDK, in line with the 80 to 100 update failures a day before this OTA. No 1.6.1 installation had reported yet.
 
 **Kept launch reports after RC37.** In the first 38 minutes after the cutover, the server kept 21 `UNCHANGED` rows, all first reports of new installations (the head count grew from 3,231 to 3,265 in about two hours). Launches that changed nothing wrote no event.
+
+## Official RC38 upgrade (2026-10-07 KST)
+
+Release [#1484](https://github.com/gronxb/hot-updater/pull/1484) published official `1.0.0-rc.38` from `c09c02375`, carrying [#1485](https://github.com/gronxb/hot-updater/pull/1485), which fixes two report orders that #1481's review flagged. Only the server and the console changed; the React Native SDK's code is the same as RC37.
+
+- A launch report made, by its event ID, before the installation's latest report is late even after a later report, such as a user switch or the next day's launch, replaced the apply it preceded. It no longer counts a launch and a download of the bundle the installation left, or moves the installation back to it.
+- A download that repeats the installation's pending one, from the same bundle to the same bundle, counts nothing, so a download reported twice before its launch counts once.
+
+**Infrastructure.** No schema or binding changed, and the schema markers stay.
+
+1. Time Travel bookmark `0000065e-0000000e-000050fd-7b2732dd5b7437c393ec01963f69e672` was taken first.
+2. The RC38 Worker was uploaded as version `4d724e57-5ace-4252-ab55-cb4f08e79d70` without traffic, with the same D1, R2 and variable bindings.
+3. At 08:47:54Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc38-c09c023` three seconds later.
+
+`/version` reports `1.0.0-rc.38`.
+
+**Console.** Host sources are pinned to RC38 in the local console repository, and the sign-in icon patch moves to RC38. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+No OTA: the app's JavaScript is unchanged, so `1.6.1-ship.1` stays the release for 1.6.x.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc38/`.
