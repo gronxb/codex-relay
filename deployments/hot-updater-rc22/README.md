@@ -609,3 +609,33 @@ Both catalogs answer anonymous requests with 401 and the app's key with 200, lis
 **Stale `/version` at the edge.** The Worker's cache (`"cache": { "enabled": true }` in `wrangler.json`) kept serving the RC38 `/version`, which carries no `Cache-Control`, from some edges for more than 13 minutes after the cutover, while a cache-busting query read RC39. The infrastructure doctor therefore reported `INFRA_SERVER_VERSION` after the widening although RC39 was live. The same probes run with a cache-busting query (`.codex/mobile-1.6/rc39/catalog-check.mjs`) passed. Catalogs are not affected: they send `s-maxage=5` and revalidate.
 
 **First reports.** 15 minutes after the widening, 15 installations on 1.6.0 had downloaded the bundle and one had launched it, reporting SDK `1.0.0-rc.39`. None crashed back or failed to update. The bundle's hourly download counter matched its 15 download rows, and no launch had implied a download yet.
+
+## Official RC40 upgrade (2026-10-07 KST)
+
+Release [#1491](https://github.com/gronxb/hot-updater/pull/1491) published official `1.0.0-rc.40` from `d6a7d374e`, carrying [#1490](https://github.com/gronxb/hot-updater/pull/1490). Only the console changed; the server and the React Native SDK's code are the same as RC39 apart from their versions.
+
+- On a phone, a tap anywhere on a bundle card opens its Bundle Detail.
+- Release health opens on 24h, and a bundle row's Insights summary opens it over the period that covers the release's deployment.
+- The bundle a native build shipped is labeled **Built-in bundle**, also on the App Store 1.6.0 installations, whose SDK (rc.23) reports no `minBundleId`.
+- **Update failures** shows one rate per kind of failure. Before this, codex-relay's card showed 292 failed checks and 54 failed updates in seven days; the numbers were right, but every failed check came from app 1.6.0 on SDK rc.23, rc.27, or rc.29, which report every failed check, offline ones included, without a reason.
+
+**Infrastructure.** No schema or binding changed, and the schema markers stay.
+
+1. Time Travel bookmark `000006a5-00000000-000050fd-62cbb51496b1ee78cced96ef3d231bef` was taken first.
+2. The RC40 Worker was uploaded as version `6ee6af55-a3c4-40c7-a44c-2a87e82f4b6b` without traffic, with the same D1, R2 and variable bindings.
+3. At 13:38:46Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc40-d6a7d37` three seconds later.
+
+`/version` reports `1.0.0-rc.40`.
+
+**Console.** Host sources are pinned to RC40 in the local console repository, and the sign-in icon patch moves to RC40. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.2` stays the release for 1.6.x.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc40/`.

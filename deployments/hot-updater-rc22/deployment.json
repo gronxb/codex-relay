@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.39",
+  "deployedServerVersion": "1.0.0-rc.40",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -2187,6 +2187,71 @@
         "launchSdkVersion": "1.0.0-rc.39",
         "hourlyDownloadCounter": 15,
         "versionEndpointCachedAtEdge": "plain GET /version served rc.38 from the Worker cache for 13+ minutes after the cutover; cache-busted reads served rc.39"
+      }
+    },
+    {
+      "id": "rc40:worker-version",
+      "action": "Upload the official RC40 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.40"
+      },
+      "requestId": "6ee6af55-a3c4-40c7-a44c-2a87e82f4b6b",
+      "observation": {
+        "versionId": "6ee6af55-a3c4-40c7-a44c-2a87e82f4b6b",
+        "trafficPercent": 0
+      }
+    },
+    {
+      "id": "rc40:cutover",
+      "action": "Route 100% to RC40 version 6ee6af55, roll the Ship console to RC40",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "54fe027f-55df-4bdd-b347-6d6f9224714a",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc39-8d358d5",
+          "image": "ship/codex-relay:rc40-d6a7d37"
+        }
+      },
+      "requestId": "time-travel-bookmark:000006a5-00000000-000050fd-62cbb51496b1ee78cced96ef3d231bef",
+      "observation": {
+        "deployedAt": "2026-10-07T13:38:46Z",
+        "consoleRolledAt": "2026-10-07T13:38:49Z",
+        "versionEndpoint": "1.0.0-rc.40",
+        "schemaMarkersChanged": false
+      }
+    },
+    {
+      "id": "common.verify.rc40",
+      "action": "Verify RC40 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.40",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "r2BoundedList": 200,
+        "catalogGeneration": 26,
+        "consoleTests": 9,
+        "consoleTypecheck": true,
+        "consoleNodeBuild": true,
+        "consoleSmoke": true,
+        "consoleImage": "ship/codex-relay:rc40-d6a7d37",
+        "consoleHttp": 200
       }
     }
   ]
