@@ -562,3 +562,32 @@ Release [#1484](https://github.com/gronxb/hot-updater/pull/1484) published offic
 No OTA: the app's JavaScript is unchanged, so `1.6.1-ship.1` stays the release for 1.6.x.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc38/`.
+
+## Official RC39 upgrade (2026-10-07 KST)
+
+Release [#1488](https://github.com/gronxb/hot-updater/pull/1488) published official `1.0.0-rc.39` from `8d358d516`, carrying [#1487](https://github.com/gronxb/hot-updater/pull/1487). The server and the console changed; the React Native SDK's code is the same as RC37 apart from its version.
+
+- **Release health draws downloads beside launches.** Adoption shows each bundle's downloads as a dashed line and its launches as a solid line, in the bundle's color, and its table shows both counts for the period. The Per interval / Cumulative switch is gone.
+- A download that a launch or crash implied, when its download report never arrived, now also counts in the bundle's hourly download counter, so the dashed line covers every download its release counts.
+- The console names the counts Downloaded, Launched, and Crashed everywhere, including Release health's crash table.
+
+**Insights before RC39.** No stored event carried `implied_download`, so the hourly download counters needed no backfill. Every download row came from a different installation: 1,367 for the SSH-screen bundle, 1,212 for `1.6.0-ship.2`, and 244 for `1.6.1-ship.1`. 3,531 installations had reported.
+
+**Infrastructure.** No schema or binding changed, and the schema markers stay.
+
+1. Time Travel bookmark `0000067b-00000030-000050fd-4edaa5190fbde3b30d8f4f4ceb560995` was taken first.
+2. The RC39 Worker was uploaded as version `54fe027f-55df-4bdd-b347-6d6f9224714a` without traffic, with the same D1, R2 and variable bindings.
+3. At 10:51:44Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc39-8d358d5` four seconds later.
+
+`/version` reports `1.0.0-rc.39`.
+
+**Console.** Host sources are pinned to RC39 in the local console repository, and the sign-in icon patch moves to RC39. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc39/`.

@@ -203,8 +203,8 @@ importers:
         specifier: ^5.2.14
         version: 5.2.14(d8aadd757832538287612c5b8bfdda5e)
       '@hot-updater/react-native':
-        specifier: 1.0.0-rc.38
-        version: 1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+        specifier: 1.0.0-rc.39
+        version: 1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
       '@legendapp/list':
         specifier: 3.3.10
         version: 3.3.10(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
@@ -402,11 +402,11 @@ importers:
         version: 1.12.0(@expo/metro-config@57.0.12(expo@58.0.2)(supports-color@8.1.1)(typescript@6.0.3))(metro-cache@0.87.1(supports-color@8.1.1))(metro-transform-worker@0.84.5(supports-color@8.1.1))(metro@0.87.1(supports-color@8.1.1))(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)(tailwindcss@4.3.3)
     devDependencies:
       '@hot-updater/cloudflare':
-        specifier: 1.0.0-rc.38
-        version: 1.0.0-rc.38
+        specifier: 1.0.0-rc.39
+        version: 1.0.0-rc.39
       '@hot-updater/expo':
-        specifier: 1.0.0-rc.38
-        version: 1.0.0-rc.38(expo@58.0.2)(hot-updater@1.0.0-rc.38(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
+        specifier: 1.0.0-rc.39
+        version: 1.0.0-rc.39(expo@58.0.2)(hot-updater@1.0.0-rc.39(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
       '@react-native/metro-config':
         specifier: 0.88.0-rc.3
         version: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -429,8 +429,8 @@ importers:
         specifier: 20.14.5
         version: 20.14.5
       hot-updater:
-        specifier: 1.0.0-rc.38
-        version: 1.0.0-rc.38(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+        specifier: 1.0.0-rc.39
+        version: 1.0.0-rc.39(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
       monaco-editor-core:
         specifier: 0.56.0
         version: 0.56.0
@@ -2309,27 +2309,27 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hot-updater/android-helper@1.0.0-rc.38':
-    resolution: {integrity: sha512-uL8rqq3W3BLQ5RSUjrX5cvI+sL3EkO8zVXCc8eZq2ZZRP+7H/eVEPuhdr9uX5w2oYuMrbAGRxuaMUJ9bqJUSVA==}
+  '@hot-updater/android-helper@1.0.0-rc.39':
+    resolution: {integrity: sha512-26MGNvkm1RQxGI9EEwSpbUZWcJ0XRdkE2hBVF6+FjyeFkc90Nys3Yqu+edVcIIjsdRTdSHGbCVzkNoXREJz75g==}
 
-  '@hot-updater/apple-helper@1.0.0-rc.38':
-    resolution: {integrity: sha512-9U/7PHgAdp0FrsQdAQZxHyhVPosFrsJJn9vx9JYFynJObNz9ES1iM8ljIILmqnCaau5Pjv0FA9Iflp5WzZcFCw==}
+  '@hot-updater/apple-helper@1.0.0-rc.39':
+    resolution: {integrity: sha512-tZebokozv/NhG2XAO29SMDG4sQvVFe55hXHUZBKextP9JDe9ttA7hsiWi3noaYS9ExkDVg0K1E4hkZqm32Ku1A==}
 
-  '@hot-updater/bare@1.0.0-rc.38':
-    resolution: {integrity: sha512-FeC3sk2LDxDHZo8Kafgwo/19RpS2IwLj69ps3sqofGVl1W9HmlXJzSSttQza1t7mC2LQ62LdmJLbgY6a8/IFgw==}
+  '@hot-updater/bare@1.0.0-rc.39':
+    resolution: {integrity: sha512-CdVJE/TqV6BiimaKBsoj4Tqe430ecuqsYwoN26qXR96kR0uRhacx7LauCR6fnyGqawQws8Za87WhdRBREC0j2w==}
 
-  '@hot-updater/bsdiff@1.0.0-rc.38':
-    resolution: {integrity: sha512-1o2jqSsGPUgknsPTMKX23uB5W4hyhlgcRmaQKPnq2GUrl/o3CvuHQdI6Ofx2qAyQ9TQ0ib1KvlKhUO0RvNigig==}
+  '@hot-updater/bsdiff@1.0.0-rc.39':
+    resolution: {integrity: sha512-E1Tr77ONqGhIvCYEEajG5MSkQZZ2lg9u1d0bLWrwKPUE2fhFwb3TLPZv4JeS/w5XTbFvR8FL3Rb3pUecbT0yBg==}
 
-  '@hot-updater/cli-tools@1.0.0-rc.38':
-    resolution: {integrity: sha512-OWt79EZO//PbNX+g1itmU55TzMIFxJrB3gjeUAYAi9lMVyVi1cmqFLO71KvxLBz3FsLouUaShpMIWMcT923K9Q==}
+  '@hot-updater/cli-tools@1.0.0-rc.39':
+    resolution: {integrity: sha512-uwhJdJvrzOSVsNq0gwMGM8fEPJhLNRrSw/aU0Uo5gtRxWro7mqSRv3cT0C5sbDuD3Iv7IRK+ynugktlrPIjtyQ==}
     engines: {node: '>=20.19.0'}
 
-  '@hot-updater/cloudflare@1.0.0-rc.38':
-    resolution: {integrity: sha512-YBtxYG1g96kWWSv5O3qEc0b0H6yT63drNQ+CrMcWSIELdWfEhmPdIQZn59MDIA2Qj18xjUidUkaNFNjZIyZiKQ==}
+  '@hot-updater/cloudflare@1.0.0-rc.39':
+    resolution: {integrity: sha512-a/nXK/PrfPaqBzTK3a2aImOVToryEHi0ZSwhaXrnom0y4FbbcvDPfNt1oj8XdZimhB4Or8WUumQt46ZM8jbUYQ==}
 
-  '@hot-updater/console@1.0.0-rc.38':
-    resolution: {integrity: sha512-ZecPIt2xeSI690mtmS8JDUw44QgbNOYW5R6cCH1p9wwQArnx3ieEWIFAAtvX1dWeGROm3IweZwbwPDJ7+UzPnw==}
+  '@hot-updater/console@1.0.0-rc.39':
+    resolution: {integrity: sha512-WNr9ABXK0H501AAFBHM9/6sKnkmt5epVDAHoHM/VBKQUHvwbiFsJfYUUCicYdCjgJD1hWaJwqisDByWFje90ZA==}
     peerDependencies:
       '@hot-updater/cli-tools': '*'
       react: ^19.0.0
@@ -2339,8 +2339,8 @@ packages:
       '@hot-updater/cli-tools':
         optional: true
 
-  '@hot-updater/expo@1.0.0-rc.38':
-    resolution: {integrity: sha512-tj90FuqjRzWjeLDEnKiIE34JFHAc5s6BGic7KWe1PgViXSDeCmAYnhWDDaw901SUeh4gxIvR1MoUYEnVgQ6Wjw==}
+  '@hot-updater/expo@1.0.0-rc.39':
+    resolution: {integrity: sha512-dXmfl/XjD2ACllZ5g+rrh5KI9mAJ2CWKXQ4LI2eeJQ/lKft7zhbhCVwR2RpBBoS7+9n9g93mfntm+JCsBYIIBQ==}
     peerDependencies:
       expo: '>=50.0.0'
       hot-updater: '*'
@@ -2350,33 +2350,33 @@ packages:
       hot-updater:
         optional: true
 
-  '@hot-updater/plugin-api-keys@1.0.0-rc.38':
-    resolution: {integrity: sha512-pP3sU8EUpDI/r9cUTSLgIdYcuGojsjOC+DtEEQgN9e0MqhyjqxjLAlGhccwKD+zwkLPqlmEHTeloksI95KSJGQ==}
+  '@hot-updater/plugin-api-keys@1.0.0-rc.39':
+    resolution: {integrity: sha512-sr6CC/x90ygHuNUN97n/6YJYd8In1A4aLCUIEW5bWdfI8Ujdz/42itFK0Cn9afZnWFyuH4AAGvvhxM7enuj4fQ==}
     peerDependencies:
-      '@hot-updater/plugin-core': ^1.0.0-rc.38
+      '@hot-updater/plugin-core': ^1.0.0-rc.39
 
-  '@hot-updater/plugin-core@1.0.0-rc.38':
-    resolution: {integrity: sha512-Ma8i/Y8JFaKkyTkAr3JCuVc02ZjJ5PwDjZxv0XFZe7m7t4DfQgBAZ0SJov8OA8XGekU41penjypUHOSy64EX7Q==}
+  '@hot-updater/plugin-core@1.0.0-rc.39':
+    resolution: {integrity: sha512-OR8DzYgxRmO1He2Wwwf0uA7zV1HfNEfJMEJFXKxigB+IoStqerAOsJtyest032Ulqsvgsdhsh+z50n3e0JyiiA==}
 
-  '@hot-updater/plugin-insights@1.0.0-rc.38':
-    resolution: {integrity: sha512-8qARYvDOrSSro0XQbCD7+T0IhjfFHHmV6FySHM5yFvU765AMYIWU5YPi6lcNxE0anvY5Uj/ce6MYwtib8MMBcA==}
+  '@hot-updater/plugin-insights@1.0.0-rc.39':
+    resolution: {integrity: sha512-LO4AAT7lRZzteng2RDxUTpVagbLGIJYxdp+ZKXtUdBoGCDmhqSmETmY5pC8Nc/5wqMHpnPZgoH9ad2GaIZOLwg==}
     peerDependencies:
-      '@hot-updater/plugin-core': ^1.0.0-rc.38
+      '@hot-updater/plugin-core': ^1.0.0-rc.39
     peerDependenciesMeta:
       '@hot-updater/plugin-core':
         optional: true
 
-  '@hot-updater/protocol@1.0.0-rc.38':
-    resolution: {integrity: sha512-9ESd3GQ21BPZVO/K30k1jxGzmXJl84tWfndEUzuAh3HJ6eb0MZ9Q+VsS94Ji2c63bCIx9wHPeQZCoHD+a2LneA==}
+  '@hot-updater/protocol@1.0.0-rc.39':
+    resolution: {integrity: sha512-i2wqPhu5DSs5M5fxqlgftyjgHwT9TIyx3ky3z4hyPDuKCiqiiQtKrYFIipDHh5Fy/Wx0jYzC8LPyX5rWFikZ1Q==}
 
-  '@hot-updater/react-native@1.0.0-rc.38':
-    resolution: {integrity: sha512-a7T/Ffpq7gdpy+d0qYLJb9lMPYA8mXBd+FpZQhMcpvj/z+jITPTDGKqAfR9T79gXoNk/iK4jXRs8EFqh8VquIA==}
+  '@hot-updater/react-native@1.0.0-rc.39':
+    resolution: {integrity: sha512-nht1JCos4xM6TZ8HnGkA1LBxElENl84D/VXOeZnmmLsq/ues0++9B5IWu7sy6aBq+AXpftgb5rWoEK4//Dvjhw==}
     peerDependencies:
       react: '*'
       react-native: '*'
 
-  '@hot-updater/server@1.0.0-rc.38':
-    resolution: {integrity: sha512-nnSvoon/lYbtL5r38eTz5WdsVz3iiHQYQJ0hnGkUZr4tlZ5m/gyTLCjYFB6vKYUQA3KI5kPuDLtpnWA9LDqxNA==}
+  '@hot-updater/server@1.0.0-rc.39':
+    resolution: {integrity: sha512-3e6qHJ1paw+RUXHGKNacVSVgA2OXwQSS5dqnCt/o/doyahWjEUZ5hpSOtEiwuMi7/Usfsm/DM//NhglJspAMiA==}
     peerDependencies:
       '@prisma/client': '*'
       drizzle-orm: '*'
@@ -6745,18 +6745,18 @@ packages:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  hot-updater@1.0.0-rc.38:
-    resolution: {integrity: sha512-XBB4JxcO8z65CCnsX0WH752x3vzf9gIdL3pyQFOp4gxvfHyqjI6K6QIBPtiw+AVqaQIogEGxz8cf9KBGlam08g==}
+  hot-updater@1.0.0-rc.39:
+    resolution: {integrity: sha512-0d9qm+LnCXU5bG4KUQio61Oggw1usiU7PKKzSFB8/teznDZ8IYLUVopXbEYnILTqwzjFFhbXN8I2yEtRNSamSg==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
       '@aws-sdk/client-kms': ^3.1066.0
       '@expo/fingerprint': '*'
       '@google-cloud/kms': ^6.0.0
-      '@hot-updater/aws': ^1.0.0-rc.38
-      '@hot-updater/cloudflare': ^1.0.0-rc.38
-      '@hot-updater/firebase': ^1.0.0-rc.38
-      '@hot-updater/supabase': ^1.0.0-rc.38
+      '@hot-updater/aws': ^1.0.0-rc.39
+      '@hot-updater/cloudflare': ^1.0.0-rc.39
+      '@hot-updater/firebase': ^1.0.0-rc.39
+      '@hot-updater/supabase': ^1.0.0-rc.39
     peerDependenciesMeta:
       '@aws-sdk/client-kms':
         optional: true
@@ -13331,11 +13331,11 @@ snapshots:
     dependencies:
       hono: 4.12.15
 
-  '@hot-updater/android-helper@1.0.0-rc.38':
+  '@hot-updater/android-helper@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/protocol': 1.0.0-rc.38
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/protocol': 1.0.0-rc.39
       execa: 9.5.2
     transitivePeerDependencies:
       - '@prisma/client'
@@ -13343,10 +13343,10 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/apple-helper@1.0.0-rc.38':
+  '@hot-updater/apple-helper@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
       execa: 9.5.2
       fast-xml-parser: 5.8.0
     transitivePeerDependencies:
@@ -13355,10 +13355,10 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/bare@1.0.0-rc.38':
+  '@hot-updater/bare@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
       uuidv7: 1.2.1
     transitivePeerDependencies:
       - '@prisma/client'
@@ -13366,13 +13366,13 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/bsdiff@1.0.0-rc.38': {}
+  '@hot-updater/bsdiff@1.0.0-rc.39': {}
 
-  '@hot-updater/cli-tools@1.0.0-rc.38':
+  '@hot-updater/cli-tools@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/protocol': 1.0.0-rc.38
-      '@hot-updater/server': 1.0.0-rc.38
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/protocol': 1.0.0-rc.39
+      '@hot-updater/server': 1.0.0-rc.39
       oxc-parser: 0.141.0
       oxc-transform: 0.141.0
       unconfig: 7.5.0
@@ -13382,14 +13382,14 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/cloudflare@1.0.0-rc.38':
+  '@hot-updater/cloudflare@1.0.0-rc.39':
     dependencies:
       '@aws-sdk/client-s3': 3.1066.0
       '@aws-sdk/lib-storage': 3.1008.0(@aws-sdk/client-s3@3.1066.0)
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/protocol': 1.0.0-rc.38
-      '@hot-updater/server': 1.0.0-rc.38
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/protocol': 1.0.0-rc.39
+      '@hot-updater/server': 1.0.0-rc.39
       cloudflare: 4.2.0
       hono: 4.12.34
       uuidv7: 1.2.1
@@ -13400,14 +13400,14 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/console@1.0.0-rc.38(@hot-updater/cli-tools@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)':
+  '@hot-updater/console@1.0.0-rc.39(@hot-updater/cli-tools@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fontsource-variable/inter': 5.3.0
-      '@hot-updater/bsdiff': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/protocol': 1.0.0-rc.38
-      '@hot-updater/server': 1.0.0-rc.38
+      '@hot-updater/bsdiff': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/protocol': 1.0.0-rc.39
+      '@hot-updater/server': 1.0.0-rc.39
       '@tailwindcss/vite': 4.3.3(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
       '@tanstack/react-devtools': 0.10.12(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(csstype@3.2.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(solid-js@1.9.15)
       '@tanstack/react-query': 5.104.0(react@19.3.0)
@@ -13434,7 +13434,7 @@ snapshots:
       verkit: 0.4.0
       vite: 8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
     optionalDependencies:
-      '@hot-updater/cli-tools': 1.0.0-rc.38
+      '@hot-updater/cli-tools': 1.0.0-rc.39
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -13507,17 +13507,17 @@ snapshots:
       - xml2js
       - zephyr-agent
 
-  '@hot-updater/expo@1.0.0-rc.38(expo@58.0.2)(hot-updater@1.0.0-rc.38(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
+  '@hot-updater/expo@1.0.0-rc.39(expo@58.0.2)(hot-updater@1.0.0-rc.39(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
     dependencies:
       '@babel/core': 7.26.0(supports-color@8.1.1)
       '@babel/types': 7.26.0
-      '@hot-updater/bare': 1.0.0-rc.38
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/plugin-core': 1.0.0-rc.38
+      '@hot-updater/bare': 1.0.0-rc.39
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/plugin-core': 1.0.0-rc.39
       uuidv7: 1.2.1
     optionalDependencies:
       expo: 58.0.2(c3a13f6443b9d259c1744bffa67788ba)
-      hot-updater: 1.0.0-rc.38(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+      hot-updater: 1.0.0-rc.39(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
     transitivePeerDependencies:
       - '@prisma/client'
       - drizzle-orm
@@ -13525,41 +13525,41 @@ snapshots:
       - mongodb
       - supports-color
 
-  '@hot-updater/plugin-api-keys@1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)':
+  '@hot-updater/plugin-api-keys@1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)':
     dependencies:
-      '@hot-updater/plugin-core': 1.0.0-rc.38
+      '@hot-updater/plugin-core': 1.0.0-rc.39
 
-  '@hot-updater/plugin-core@1.0.0-rc.38':
+  '@hot-updater/plugin-core@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/protocol': 1.0.0-rc.38
+      '@hot-updater/protocol': 1.0.0-rc.39
       es-toolkit: 1.46.1
       mime: 4.1.0
       verkit: 0.4.0
 
-  '@hot-updater/plugin-insights@1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)':
+  '@hot-updater/plugin-insights@1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)':
     dependencies:
-      '@hot-updater/protocol': 1.0.0-rc.38
+      '@hot-updater/protocol': 1.0.0-rc.39
     optionalDependencies:
-      '@hot-updater/plugin-core': 1.0.0-rc.38
+      '@hot-updater/plugin-core': 1.0.0-rc.39
 
-  '@hot-updater/protocol@1.0.0-rc.38': {}
+  '@hot-updater/protocol@1.0.0-rc.39': {}
 
-  '@hot-updater/react-native@1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
+  '@hot-updater/react-native@1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
     dependencies:
-      '@hot-updater/plugin-insights': 1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)
-      '@hot-updater/protocol': 1.0.0-rc.38
+      '@hot-updater/plugin-insights': 1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)
+      '@hot-updater/protocol': 1.0.0-rc.39
       react: 19.3.0
       react-native: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
       use-sync-external-store: 1.5.0(react@19.3.0)
     transitivePeerDependencies:
       - '@hot-updater/plugin-core'
 
-  '@hot-updater/server@1.0.0-rc.38':
+  '@hot-updater/server@1.0.0-rc.39':
     dependencies:
-      '@hot-updater/plugin-api-keys': 1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/plugin-insights': 1.0.0-rc.38(@hot-updater/plugin-core@1.0.0-rc.38)
-      '@hot-updater/protocol': 1.0.0-rc.38
+      '@hot-updater/plugin-api-keys': 1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/plugin-insights': 1.0.0-rc.39(@hot-updater/plugin-core@1.0.0-rc.39)
+      '@hot-updater/protocol': 1.0.0-rc.39
       rou3: 0.7.9
       verkit: 0.4.0
 
@@ -18113,21 +18113,21 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
 
-  hot-updater@1.0.0-rc.38(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0):
+  hot-updater@1.0.0-rc.39(@expo/fingerprint@0.20.12(supports-color@8.1.1))(@hot-updater/cloudflare@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0):
     dependencies:
-      '@hot-updater/android-helper': 1.0.0-rc.38
-      '@hot-updater/apple-helper': 1.0.0-rc.38
-      '@hot-updater/bsdiff': 1.0.0-rc.38
-      '@hot-updater/cli-tools': 1.0.0-rc.38
-      '@hot-updater/console': 1.0.0-rc.38(@hot-updater/cli-tools@1.0.0-rc.38)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
-      '@hot-updater/plugin-core': 1.0.0-rc.38
-      '@hot-updater/protocol': 1.0.0-rc.38
-      '@hot-updater/server': 1.0.0-rc.38
+      '@hot-updater/android-helper': 1.0.0-rc.39
+      '@hot-updater/apple-helper': 1.0.0-rc.39
+      '@hot-updater/bsdiff': 1.0.0-rc.39
+      '@hot-updater/cli-tools': 1.0.0-rc.39
+      '@hot-updater/console': 1.0.0-rc.39(@hot-updater/cli-tools@1.0.0-rc.39)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.34)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(crossws@0.4.12(srvx@0.11.22))(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+      '@hot-updater/plugin-core': 1.0.0-rc.39
+      '@hot-updater/protocol': 1.0.0-rc.39
+      '@hot-updater/server': 1.0.0-rc.39
       '@iarna/toml': 2.2.5
       jiti: 2.6.1
     optionalDependencies:
       '@expo/fingerprint': 0.20.12(supports-color@8.1.1)
-      '@hot-updater/cloudflare': 1.0.0-rc.38
+      '@hot-updater/cloudflare': 1.0.0-rc.39
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
