@@ -515,3 +515,22 @@ Release [#1482](https://github.com/gronxb/hot-updater/pull/1482) published offic
 - Console: tests (9), typechecking, Node build, smoke checks and Docker build.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc37/`.
+
+## OTA `1.6.1-ship.1` on 1.6.x (2026-10-07 KST)
+
+Release PR [#116](https://github.com/gronxb/codex-relay/pull/116) (merge `8a01f71`) shipped the RC37 SDK through the release workflow: release `01a11483-89ad-7b05-a063-abb3897d1117`, bundle `01a1147f-ed45-7d68-aa89-52da2cf0bea4`, 100% of production, targeting 1.6.1.
+
+**Widened to 1.6.x.** The RC35 section recorded that existing 1.6.0 installations keep receiving only 1.6.0 releases. This OTA deliberately reaches them too: since `1.6.0-ship.2` the app's code changed only its version, and the SDK's JavaScript changed only in [hot-updater#1466](https://github.com/gronxb/hot-updater/pull/1466) (it stops reading a native field it ignored) and [hot-updater#1479](https://github.com/gronxb/hot-updater/pull/1479) (it sends `minBundleId`). Neither needs native code the 1.6.0 binary (RC23 native) lacks.
+
+At 04:00:13Z, `hot-updater bundle update 01a11483-… --target-app-version 1.6.x --expected-revision 1` moved the release to revision 2 and the iOS production catalog from generation 23 to 24, as its dry run projected:
+
+| App version              | Before (generation 23)                          | After (generation 24)                        |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------- |
+| 1.6.0                    | `1.6.0-ship.2`, then the earlier 1.6.0 releases | `1.6.1-ship.1` first, then the same releases |
+| above 1.6.0, below 1.7.0 | `1.6.1-ship.1` (1.6.1 only)                     | `1.6.1-ship.1`                               |
+
+The infrastructure doctor's catalog checks pass for 1.6.0 and 1.6.1. To undo the widening, set the release's target back to `1.6.1`; 1.6.0 installations then return to `1.6.0-ship.2`.
+
+**First reports.** 47 minutes after the widening, 32 installations on 1.6.0 had downloaded the bundle and 3 had launched it. Each launch reported SDK `1.0.0-rc.37` and the 1.6.0 binary's built-in bundle `01a0f5e7-c3d0-7000-8000-000000000000`, and none crashed back. One download failed with reason `unknown` from the RC23 SDK, in line with the 80 to 100 update failures a day before this OTA. No 1.6.1 installation had reported yet.
+
+**Kept launch reports after RC37.** In the first 38 minutes after the cutover, the server kept 21 `UNCHANGED` rows, all first reports of new installations (the head count grew from 3,231 to 3,265 in about two hours). Launches that changed nothing wrote no event.

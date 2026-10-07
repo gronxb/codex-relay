@@ -1976,6 +1976,54 @@
         "consoleImage": "ship/codex-relay:rc37-15184ee",
         "consoleHttp": 200
       }
+    },
+    {
+      "id": "rc37:ota-1.6.1-ship.1",
+      "action": "Deploy @codex-relay/mobile 1.6.1-ship.1 (Hot Updater rc37 JS) through the release workflow, then widen its target from 1.6.1 to 1.6.x so the App Store 1.6.0 binary receives it",
+      "target": {
+        "platform": "ios",
+        "channel": "production",
+        "releaseId": "01a11483-89ad-7b05-a063-abb3897d1117",
+        "bundleId": "01a1147f-ed45-7d68-aa89-52da2cf0bea4",
+        "releasePr": "https://github.com/gronxb/codex-relay/pull/116",
+        "mergeCommit": "8a01f71ab",
+        "releaseRun": "37568899223"
+      },
+      "requestId": "bundle-update:01a11483-89ad-7b05-a063-abb3897d1117@revision-2",
+      "observation": {
+        "deployedTargetAppVersion": "1.6.1",
+        "widenedTargetAppVersion": "1.6.x",
+        "widenedAt": "2026-10-07T04:00:13Z",
+        "expectedRevision": 1,
+        "revisionAfter": 2,
+        "catalogGenerationBefore": 23,
+        "catalogGenerationAfter": 24,
+        "segmentsAfter": {
+          "1.6.0": ["01a11483", "01a10c61", "01a1010e", "01a1000b"],
+          "(1.6.0, 1.7.0-0)": ["01a11483"]
+        },
+        "rollbackPath": "bundle update 01a11483-89ad-7b05-a063-abb3897d1117 --target-app-version 1.6.1",
+        "why": "Since 1.6.0-ship.2 the app code changed only its version, and the SDK JavaScript only in hot-updater#1466 and #1479; neither needs native code the 1.6.0 binary (RC23 native) lacks."
+      }
+    },
+    {
+      "id": "rc37:ota-1.6.1-ship.1-monitor",
+      "action": "Watch the widened 1.6.1-ship.1 release on 1.6.0 for crashes",
+      "target": {
+        "releaseId": "01a11483-89ad-7b05-a063-abb3897d1117",
+        "bundleId": "01a1147f-ed45-7d68-aa89-52da2cf0bea4",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "window": "2026-10-07T04:00:13Z/2026-10-07T04:46:53Z",
+        "downloads": 32,
+        "launches": 3,
+        "recovered": 0,
+        "downloadFailures": 1,
+        "launchSdkVersion": "1.0.0-rc.37",
+        "launchMinBundleId": "01a0f5e7-c3d0-7000-8000-000000000000",
+        "appVersion161Reports": 0
+      }
     }
   ]
 }
