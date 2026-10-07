@@ -591,3 +591,21 @@ Release [#1488](https://github.com/gronxb/hot-updater/pull/1488) published offic
 - Console: tests (9), typechecking, Node build, smoke checks and Docker build.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc39/`.
+
+## OTA `1.6.1-ship.2` on 1.6.x (2026-10-07 KST)
+
+Release PR [#117](https://github.com/gronxb/codex-relay/pull/117) (merge `d324327`) shipped the RC39 SDK through the release workflow: release `01a11605-07d9-7bb5-ba57-269dd187fe95`, bundle `01a11601-629e-70f3-9fc9-8958f3cbe749`, 100% of production, targeting 1.6.1. The SDK's JavaScript is the same as RC37's apart from its version, so, like `1.6.1-ship.1`, it needs no native code the 1.6.0 binary lacks.
+
+At 11:01:02Z, `hot-updater bundle update 01a11605-… --target-app-version 1.6.x --expected-revision 1` moved the release to revision 2 and the iOS production catalog from generation 25 to 26, as its dry run projected:
+
+| App version              | Before (generation 25)                          | After (generation 26)                        |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------- |
+| 1.6.0                    | `1.6.1-ship.1`, then the earlier 1.6.0 releases | `1.6.1-ship.2` first, then the same releases |
+| 1.6.1                    | `1.6.1-ship.2`, then `1.6.1-ship.1`             | the same                                     |
+| above 1.6.0, below 1.7.0 | `1.6.1-ship.1`                                  | `1.6.1-ship.2`, then `1.6.1-ship.1`          |
+
+Both catalogs answer anonymous requests with 401 and the app's key with 200, listing `1.6.1-ship.2` first. To undo the widening, set the release's target back to `1.6.1`.
+
+**Stale `/version` at the edge.** The Worker's cache (`"cache": { "enabled": true }` in `wrangler.json`) kept serving the RC38 `/version`, which carries no `Cache-Control`, from some edges for more than 13 minutes after the cutover, while a cache-busting query read RC39. The infrastructure doctor therefore reported `INFRA_SERVER_VERSION` after the widening although RC39 was live. The same probes run with a cache-busting query (`.codex/mobile-1.6/rc39/catalog-check.mjs`) passed. Catalogs are not affected: they send `s-maxage=5` and revalidate.
+
+**First reports.** 15 minutes after the widening, 15 installations on 1.6.0 had downloaded the bundle and one had launched it, reporting SDK `1.0.0-rc.39`. None crashed back or failed to update. The bundle's hourly download counter matched its 15 download rows, and no launch had implied a download yet.

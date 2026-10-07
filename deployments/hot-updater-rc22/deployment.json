@@ -2153,6 +2153,41 @@
         "consoleHttp": 200,
         "impliedDownloadRowsBeforeCutover": 0
       }
+    },
+    {
+      "id": "rc39:ota-1.6.1-ship.2",
+      "action": "Deploy @codex-relay/mobile 1.6.1-ship.2 (Hot Updater rc39 JS) through the release workflow, then widen its target from 1.6.1 to 1.6.x so the App Store 1.6.0 binary receives it",
+      "target": {
+        "platform": "ios",
+        "channel": "production",
+        "releaseId": "01a11605-07d9-7bb5-ba57-269dd187fe95",
+        "bundleId": "01a11601-629e-70f3-9fc9-8958f3cbe749",
+        "releasePr": "https://github.com/gronxb/codex-relay/pull/117",
+        "mergeCommit": "d3243279a",
+        "releaseRun": "37610573715"
+      },
+      "requestId": "bundle-update:01a11605-07d9-7bb5-ba57-269dd187fe95@revision-2",
+      "observation": {
+        "widenedAt": "2026-10-07T11:01:02Z",
+        "catalogGeneration": {
+          "before": 25,
+          "after": 26
+        },
+        "catalogFirstRelease": {
+          "1.6.0": "01a11605-07d9-7bb5-ba57-269dd187fe95",
+          "1.6.1": "01a11605-07d9-7bb5-ba57-269dd187fe95"
+        },
+        "anonymousCatalog": 401,
+        "authenticatedCatalog": 200,
+        "window": "2026-10-07T11:01:02Z/2026-10-07T11:15:57Z",
+        "downloads": 15,
+        "launches": 1,
+        "recovered": 0,
+        "updateFailures": 0,
+        "launchSdkVersion": "1.0.0-rc.39",
+        "hourlyDownloadCounter": 15,
+        "versionEndpointCachedAtEdge": "plain GET /version served rc.38 from the Worker cache for 13+ minutes after the cutover; cache-busted reads served rc.39"
+      }
     }
   ]
 }
