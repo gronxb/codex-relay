@@ -486,3 +486,32 @@ Release [#1480](https://github.com/gronxb/hot-updater/pull/1480) published offic
 **Native 1.6.1 (60).** EAS build `61c47db8-9ff4-451f-872d-3f5f02eb26ff` (production, RC36 SDK) was uploaded to App Store Connect through EAS submission `360a21f5-7c19-4053-ae7b-d9fb5d982a12`. The IPA reports 1.6.1 (60) and its bundle carries the RC36 Insights client and the rc22 URL. It supersedes 1.6.1 (59), built with RC35; test 60 in TestFlight.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc36/`.
+
+## Official RC37 upgrade (2026-10-07 KST)
+
+Release [#1482](https://github.com/gronxb/hot-updater/pull/1482) published official `1.0.0-rc.37` from `15184eec5`, carrying [#1481](https://github.com/gronxb/hot-updater/pull/1481). Only the server and the console changed; the React Native SDK's code is the same as RC36.
+
+- **Insights keeps the launches that change an installation.** A launch report becomes an event only when it is the installation's first report, names a new app version or native build, runs another bundle with no apply report for it, runs the same bundle under another release, or comes from another channel. A launch that changes nothing still writes no event, so a daily launch costs what it did.
+- **The console shows each release as Downloaded, Launched, and Crashed**, counting installations once each. The bundle detail shows the downloads not launched yet, and Release health's Adoption counts launches per interval or as a running total.
+- A download or apply that arrives after its installation already ran the bundle counts nothing, and a launch whose download report never arrived counts that download too.
+
+**Insights before RC37.** 3,231 installations had reported, 1,057 of them in the last 24 hours. Each installation downloaded a bundle once (the SSH-screen bundle: 1,367 downloads by 1,367 installations; `1.6.0-ship.2`: 1,190 by 1,190), while 380 and 228 of them reported launching it.
+
+**Infrastructure.** No schema or binding changed, and the schema markers stay.
+
+1. Time Travel bookmark `00000608-00000002-000050fd-e6ad1d534df5d80946d3b134cc303829` was taken first.
+2. The RC37 Worker was uploaded as version `3b540eb4-77c0-4221-a7f1-bb3c749706dd` without traffic, with the same D1, R2 and variable bindings.
+3. At 03:33:03Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc37-15184ee` four seconds later.
+
+`/version` reports `1.0.0-rc.37`.
+
+**Console.** Host sources are pinned to RC37 in the local console repository, and the sign-in icon patch moves to RC37. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc37/`.

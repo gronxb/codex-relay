@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.36",
+  "deployedServerVersion": "1.0.0-rc.37",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -1911,6 +1911,70 @@
           "bundleHasRc22Url": true
         },
         "supersedes": "1.6.1 (59), rc.35"
+      }
+    },
+    {
+      "id": "rc37:worker-version",
+      "action": "Upload the official RC37 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.37"
+      },
+      "requestId": "3b540eb4-77c0-4221-a7f1-bb3c749706dd",
+      "observation": {
+        "versionId": "3b540eb4-77c0-4221-a7f1-bb3c749706dd",
+        "trafficPercent": 0
+      }
+    },
+    {
+      "id": "rc37:cutover",
+      "action": "Route 100% to RC37 version 3b540eb4, roll the Ship console to RC37",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "cb0a3b0f-7436-44d5-8d27-265b4575d3de",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc36-33b092a",
+          "image": "ship/codex-relay:rc37-15184ee"
+        }
+      },
+      "requestId": "time-travel-bookmark:00000608-00000002-000050fd-e6ad1d534df5d80946d3b134cc303829",
+      "observation": {
+        "deployedAt": "2026-10-07T03:33:03Z",
+        "consoleRolledAt": "2026-10-07T03:33:07Z",
+        "versionEndpoint": "1.0.0-rc.37",
+        "schemaMarkersChanged": false
+      }
+    },
+    {
+      "id": "common.verify.rc37",
+      "action": "Verify RC37 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.37",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "anonymousArtifact": 401,
+        "authenticatedArtifact": 200,
+        "signedManifest": 200,
+        "manifestBytes": 27309,
+        "r2BoundedList": 200,
+        "consoleTests": 9,
+        "consoleTypecheck": true,
+        "consoleNodeBuild": true,
+        "consoleSmoke": true,
+        "consoleImage": "ship/codex-relay:rc37-15184ee",
+        "consoleHttp": 200
       }
     }
   ]
