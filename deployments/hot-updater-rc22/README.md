@@ -669,4 +669,13 @@ Release [#1492](https://github.com/gronxb/hot-updater/pull/1492) published offic
 
 **App.** The app moves to the instance (`src/lib/hot-updater.ts`), adds `remoteConfig()` with in-app defaults, fetches and activates at launch, and shows the active Remote Config in the hidden Hot Updater panel (tap the version five times), with a forced fetch. This ships as an OTA.
 
+**OTA on 1.6.x.** Release PR [#118](https://github.com/gronxb/codex-relay/pull/118) (merge `f5f6396`) had CI deploy `1.6.1-ship.3` (release `01a11cc3-2b38-71da-9ce8-d8f49d5fb304`, bundle `01a11cbf-aec9-7f63-b5ae-117e2ebcb91d`) to 1.6.1. After a first launch on SDK rc.41 and no crash, it was widened to 1.6.x at 18:42:54Z (catalog generation 27 → 28); to undo, set the target back to 1.6.1. Forty minutes after the deploy: 16 downloads (3 on 1.6.0, 13 on 1.6.1), 2 launches on SDK rc.41, no crash or rollback, and one download that timed out on a device still on its rc.36 built-in bundle.
+
+**Remote Config battle test.** Templates were published through the plugin API over production D1, as the console publishes them:
+
+1. v1: `settings_notice` with a default and a different value for app versions `>=1.6.1`. The Worker served each app version its own value, and an `If-None-Match` request got `304`.
+2. A local Release build on a simulator (app 1.6.0, cohort 521) downloaded `1.6.1-ship.3`, ran it after a relaunch, fetched v1 at launch, and the hidden panel showed the default value.
+3. v2 added a condition for cohort 521. A forced fetch in the panel showed its value at once.
+4. A rollback to v1 published v3, and the next forced fetch showed v1's value again.
+
 Private receipts and backups are under `.codex/mobile-1.6/rc41/`.

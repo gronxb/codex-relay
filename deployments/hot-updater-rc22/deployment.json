@@ -2341,6 +2341,43 @@
         "catalogGeneration": 26,
         "console": 200
       }
+    },
+    {
+      "id": "rc41:ota",
+      "action": "Deploy 1.6.1-ship.3 (RC41 SDK, Remote Config) through release PR #118 and widen it to app versions 1.6.x",
+      "target": {
+        "releaseId": "01a11cc3-2b38-71da-9ce8-d8f49d5fb304",
+        "bundleId": "01a11cbf-aec9-7f63-b5ae-117e2ebcb91d",
+        "targetAppVersion": "1.6.x",
+        "previousTargetAppVersion": "1.6.1"
+      },
+      "observation": {
+        "releasePr": 118,
+        "mergeCommit": "f5f6396",
+        "widenedAt": "2026-10-08T18:42:54Z",
+        "catalogGeneration": 28,
+        "after40Minutes": {
+          "downloads": 16,
+          "applies": 2,
+          "crashes": 0,
+          "failedDownloads": 1,
+          "failedDownloadReason": "network timeout on SDK rc.36 (built-in bundle)"
+        }
+      }
+    },
+    {
+      "id": "rc41:remote-config-battle-test",
+      "action": "Publish, target, and roll back Remote Config on production and read it in the app",
+      "target": {
+        "parameter": "settings_notice",
+        "device": "local Release build on simulator CodexRelay-RC41, app 1.6.0, cohort 521, running 1.6.1-ship.3"
+      },
+      "observation": {
+        "v1": "default + appVersion >=1.6.1; the Worker served each app version its value, ETag 304",
+        "v2": "cohort 521 condition; the app showed it after a forced fetch",
+        "v3": "rollback to v1; the app showed v1 again",
+        "activeVersion": 3
+      }
     }
   ]
 }
