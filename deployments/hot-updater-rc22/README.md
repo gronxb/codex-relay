@@ -639,3 +639,34 @@ Release [#1491](https://github.com/gronxb/hot-updater/pull/1491) published offic
 No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.2` stays the release for 1.6.x.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc40/`.
+
+## Official RC41 upgrade (2026-10-09 KST)
+
+Release [#1492](https://github.com/gronxb/hot-updater/pull/1492) published official `1.0.0-rc.41` from `95ec8ff06`, carrying [#1486](https://github.com/gronxb/hot-updater/pull/1486):
+
+- **Remote Config.** The managed server runs `remoteConfig()` beside Insights and API keys. Devices fetch their values from `GET /remote-config` with the client API key; the server evaluates the conditions and answers only the values, cacheable for five seconds with an `ETag`. The console has a Remote Config page: parameters, conditions, a preview for a device, publish, versions and rollback.
+- **The SDK is instance-only.** `HotUpdater` keeps only `init`, which returns the app's instance with every method and each plugin's API; the app's call sites move to that instance.
+- `@hot-updater/plugin-remote-config` is a new package. Its first version was published by hand, and trusted publishing was set up for it, before the release job published the rest.
+
+**Infrastructure.** The 1.0.0 baseline gains Remote Config's two tables and the `schema.remoteConfig` marker, with no other change.
+
+1. Time Travel bookmark `00000836-00000004-000050fe-25b24cf4e906206c8ced52b29353575e` was taken first.
+2. `remote_config_active`, `remote_config_versions` and `schema.remoteConfig` = `1.0.0` were created from the RC41 baseline. The RC40 Worker ignores them. Live D1 then matched the baseline: 55 objects.
+3. The RC41 Worker was uploaded as version `68b82656-6044-4cb0-9788-a10355c88ace` without traffic. Its preview URL answered `/remote-config` with `200 {"version":0,"values":{}}` with the API key and `401` without, over production D1.
+4. At 18:13:57Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc41-95ec8ff` four seconds later.
+
+`/version` reports `1.0.0-rc.41`.
+
+**Console.** Host sources are pinned to RC41 in the local console repository, the sign-in icon patch moves to RC41, and `@hot-updater/plugin-remote-config` gains its own minimum-release-age exclusion. The console takes `plugins` from `@hot-updater/cloudflare`, so it shows Remote Config with no other change. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200. Release catalogs: generation 26 for 1.6.0 and 1.6.1, `1.6.1-ship.2` first.
+- Remote Config: `GET /remote-config` 200 with the API key, 401 without.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+**App.** The app moves to the instance (`src/lib/hot-updater.ts`), adds `remoteConfig()` with in-app defaults, fetches and activates at launch, and shows the active Remote Config in the hidden Hot Updater panel (tap the version five times), with a forced fetch. This ships as an OTA.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc41/`.

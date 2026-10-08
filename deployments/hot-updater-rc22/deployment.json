@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.40",
+  "deployedServerVersion": "1.0.0-rc.41",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -2252,6 +2252,94 @@
         "consoleSmoke": true,
         "consoleImage": "ship/codex-relay:rc40-d6a7d37",
         "consoleHttp": 200
+      }
+    },
+    {
+      "id": "rc41:d1-remote-config",
+      "action": "Create Remote Config tables and the schema.remoteConfig marker from the RC41 baseline before the cutover",
+      "target": {
+        "d1DatabaseName": "codex-relay-rc22",
+        "statements": [
+          "CREATE TABLE remote_config_active",
+          "CREATE TABLE remote_config_versions",
+          "INSERT schema.remoteConfig 1.0.0"
+        ]
+      },
+      "observation": {
+        "timeTravelBookmark": "00000836-00000004-000050fe-25b24cf4e906206c8ced52b29353575e",
+        "objectsBefore": 53,
+        "objectsAfter": 55,
+        "markers": [
+          "schema.apiKeys",
+          "schema.core",
+          "schema.engine",
+          "schema.insights",
+          "schema.remoteConfig"
+        ]
+      }
+    },
+    {
+      "id": "rc41:worker-version",
+      "action": "Upload the official RC41 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.41"
+      },
+      "requestId": "68b82656-6044-4cb0-9788-a10355c88ace",
+      "observation": {
+        "versionId": "68b82656-6044-4cb0-9788-a10355c88ace",
+        "trafficPercent": 0,
+        "previewRemoteConfig": "200 {\"version\":0,\"values\":{}} with x-api-key, 401 without"
+      }
+    },
+    {
+      "id": "rc41:cutover",
+      "action": "Route 100% to RC41 version 68b82656, roll the Ship console to RC41",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "6ee6af55-a3c4-40c7-a44c-2a87e82f4b6b",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc40-d6a7d37",
+          "image": "ship/codex-relay:rc41-95ec8ff"
+        }
+      },
+      "observation": {
+        "deployedAt": "2026-10-08T18:13:57Z",
+        "consoleRolledAt": "2026-10-08T18:14:01Z"
+      }
+    },
+    {
+      "id": "common.verify.rc41",
+      "action": "Verify RC41 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.41",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "artifacts": {
+          "anonymous": 401,
+          "authenticated": 200,
+          "signedManifest": 200,
+          "manifestBytes": 27309
+        },
+        "r2BoundedList": 200,
+        "remoteConfig": {
+          "authenticated": 200,
+          "anonymous": 401
+        },
+        "catalogGeneration": 26,
+        "console": 200
       }
     }
   ]

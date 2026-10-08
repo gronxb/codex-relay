@@ -3,11 +3,9 @@ import "expo-dev-client";
 import "react-native-gesture-handler";
 
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { HotUpdater, insights } from "@hot-updater/react-native";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import Constants from "expo-constants";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { router, Stack } from "expo-router";
@@ -20,7 +18,12 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { useInitialPushNotificationRegistration } from "@/hooks/use-initial-push-notification-registration";
-import { addHotUpdaterLog, formatHotUpdaterProgress } from "@/lib/hot-updater-logs";
+import { hotUpdater } from "@/lib/hot-updater";
+import {
+  addHotUpdaterLog,
+  formatHotUpdaterProgress,
+  hotUpdaterErrorDetails,
+} from "@/lib/hot-updater-logs";
 import {
   configurePushNotificationPresentation,
   notificationResponseThreadId,
@@ -79,20 +82,24 @@ TextInputWithDefaults.defaultProps = {
 };
 
 async function checkForLaunchUpdate() {
+  if (hotUpdater === null) {
+    addHotUpdaterLog("warning", "OTA launch check skipped", "No update server is configured.");
+    return;
+  }
   addHotUpdaterLog(
     "info",
     "OTA launch check started",
     [
-      `App version: ${HotUpdater.getAppVersion()}`,
-      `Channel: ${HotUpdater.getChannel()}`,
-      `Default channel: ${HotUpdater.getDefaultChannel()}`,
-      `Cohort: ${HotUpdater.getCohort()}`,
-      `Bundle: ${HotUpdater.getBundleId()}`,
-      `Min bundle: ${HotUpdater.getMinBundleId()}`,
+      `App version: ${hotUpdater.getAppVersion()}`,
+      `Channel: ${hotUpdater.getChannel()}`,
+      `Default channel: ${hotUpdater.getDefaultChannel()}`,
+      `Cohort: ${hotUpdater.getCohort()}`,
+      `Bundle: ${hotUpdater.getBundleId()}`,
+      `Min bundle: ${hotUpdater.getMinBundleId()}`,
     ].join("\n"),
   );
 
-  const updateInfo = await HotUpdater.checkForUpdate({
+  const updateInfo = await hotUpdater.checkForUpdate({
     updateStrategy: "appVersion",
     onError: (error) => {
       addHotUpdaterLog(
@@ -138,13 +145,14 @@ function TabLayout() {
   }, [fontsLoaded]);
 
   useEffect(() => {
-    const unsubscribeProgress = HotUpdater.addListener("onProgress", (event) => {
+    const unsubscribeProgress = hotUpdater?.addListener("onProgress", (event) => {
       addHotUpdaterLog("info", "OTA download progress", formatHotUpdaterProgress(event));
     });
 
     void checkForLaunchUpdate().catch(() => undefined);
+    void refreshRemoteConfig();
 
-    return unsubscribeProgress;
+    return () => unsubscribeProgress?.();
   }, []);
 
   useEffect(() => {
@@ -243,19 +251,26 @@ function TabLayout() {
   );
 }
 
-const hotUpdaterBaseUrl = process.env.EXPO_PUBLIC_HOT_UPDATER_BASE_URL?.trim();
-const hotUpdaterApiKey =
-  process.env.EXPO_PUBLIC_HOT_UPDATER_API_KEY?.trim() ||
-  (typeof Constants.expoConfig?.extra?.hotUpdaterApiKey === "string"
-    ? Constants.expoConfig.extra.hotUpdaterApiKey.trim()
-    : undefined);
-
-if (hotUpdaterBaseUrl) {
-  HotUpdater.init({
-    plugins: [insights()],
-    baseURL: hotUpdaterBaseUrl,
-    requestHeaders: hotUpdaterApiKey ? { "x-api-key": hotUpdaterApiKey } : undefined,
-  });
+/** Applies the Remote Config values the server picks, at most every 12 hours. */
+async function refreshRemoteConfig() {
+  // Absent when the plugin could not set up, such as on a binary without its storage.
+  const remoteConfig = hotUpdater?.remoteConfig;
+  if (!remoteConfig) {
+    return;
+  }
+  try {
+    const activated = await remoteConfig.fetchAndActivate();
+    addHotUpdaterLog(
+      "info",
+      "Remote Config fetched",
+      [
+        `Activated: ${activated ? "new values" : "no change"}`,
+        `Version: ${remoteConfig.activeVersion}`,
+      ].join("\n"),
+    );
+  } catch (error) {
+    addHotUpdaterLog("warning", "Remote Config fetch failed", hotUpdaterErrorDetails(error));
+  }
 }
 
 export default TabLayout;

@@ -1,10 +1,9 @@
-import { HotUpdater } from "@hot-updater/react-native";
 import { useSelector } from "@legendapp/state/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import { Heart } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Alert, Linking, Pressable, ScrollView, Switch, View } from "react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -31,9 +30,12 @@ import {
   type CodexRelayServerUrlCandidate,
 } from "@/lib/codex-relay-api";
 import { hapticSelection, hapticWarning } from "@/lib/haptics";
+import { hotUpdater, hotUpdaterBaseUrl } from "@/lib/hot-updater";
 import {
+  addHotUpdaterLog,
   clearHotUpdaterLogs,
   formatHotUpdaterLogTime,
+  hotUpdaterErrorDetails,
   useHotUpdaterLogs,
 } from "@/lib/hot-updater-logs";
 import { formatMobileReleaseVersion } from "@/lib/mobile-release-version";
@@ -57,7 +59,6 @@ import { chatStore$, resetChatSessionState, setConnection, setServerUrl } from "
 
 import mobilePackage from "../../package.json";
 
-const hotUpdaterBaseUrl = process.env.EXPO_PUBLIC_HOT_UPDATER_BASE_URL?.trim();
 const hotUpdaterBaseUrlStatus = hotUpdaterBaseUrl ? "configured" : "missing";
 const pushNotificationTrackColor = {
   false: "rgba(255, 255, 255, 0.16)",
@@ -86,7 +87,7 @@ export default function SettingsScreen() {
     ? (machineName ?? connectedComputerName(serverUrl))
     : "No paired computer";
   const [appVersion] = useState(
-    () => HotUpdater.getAppVersion() ?? Constants.expoConfig?.version ?? "1.0.0",
+    () => hotUpdater?.getAppVersion() ?? Constants.expoConfig?.version ?? "1.0.0",
   );
   const releaseVersionLabel = formatMobileReleaseVersion(appVersion, mobilePackage.version);
   const [appliedBundleSuffix] = useState(appliedHotUpdateBundleSuffix);
@@ -126,7 +127,11 @@ export default function SettingsScreen() {
 
     async function checkForAppUpdate() {
       try {
-        const updateInfo = await HotUpdater.checkForUpdate({
+        if (hotUpdater === null) {
+          setAppUpdate({ status: "current", updateInfo: null });
+          return;
+        }
+        const updateInfo = await hotUpdater.checkForUpdate({
           updateStrategy: "appVersion",
         });
 
@@ -297,7 +302,7 @@ export default function SettingsScreen() {
     setAppUpdate((current) => ({ ...current, status: "updating" }));
 
     try {
-      await HotUpdater.reload();
+      await hotUpdater?.reload();
     } catch {
       setAppUpdate((current) => ({ ...current, status: "error" }));
       hapticWarning();
@@ -702,7 +707,7 @@ export default function SettingsScreen() {
               >
                 <View style={styles.hotUpdaterLogHeader}>
                   <ThemedText type="smallBold" style={styles.hotUpdaterLogTitle}>
-                    Logs ({HotUpdater.getCohort()})
+                    Logs ({hotUpdater?.getCohort() ?? "none"})
                   </ThemedText>
                   <View style={styles.hotUpdaterLogActions}>
                     <Pressable
@@ -747,6 +752,9 @@ export default function SettingsScreen() {
                     {hotUpdaterBaseUrlStatus}
                   </ThemedText>
                 </View>
+                {hotUpdater?.remoteConfig ? (
+                  <RemoteConfigPanel remoteConfig={hotUpdater.remoteConfig} />
+                ) : null}
                 {hotUpdaterLogs.length > 0 ? (
                   hotUpdaterLogs.map((entry) => (
                     <View key={entry.id} style={styles.hotUpdaterLogRow}>
@@ -974,8 +982,8 @@ function settingsErrorMessage(error: unknown) {
 
 function appliedHotUpdateBundleSuffix() {
   try {
-    const bundleId = HotUpdater.getBundleId();
-    if (!bundleId || bundleId === HotUpdater.getMinBundleId()) {
+    const bundleId = hotUpdater?.getBundleId();
+    if (!bundleId || bundleId === hotUpdater?.getMinBundleId()) {
       return undefined;
     }
     return bundleId.slice(-8);
@@ -984,7 +992,79 @@ function appliedHotUpdateBundleSuffix() {
   }
 }
 
-type AppUpdateInfo = Awaited<ReturnType<typeof HotUpdater.checkForUpdate>>;
+/** The Remote Config the app has active, and a forced fetch to apply new values now. */
+function RemoteConfigPanel({
+  remoteConfig,
+}: {
+  remoteConfig: NonNullable<typeof hotUpdater>["remoteConfig"];
+}) {
+  const values = useSyncExternalStore(remoteConfig.subscribe, remoteConfig.getAll);
+  const [fetching, setFetching] = useState(false);
+  const notice = remoteConfig.getString("settings_notice");
+  const fetchedAtMs = remoteConfig.fetchedAtMs;
+
+  async function fetchNow() {
+    setFetching(true);
+    try {
+      const activated = await remoteConfig.fetchAndActivate({ force: true });
+      addHotUpdaterLog(
+        "info",
+        "Remote Config fetched",
+        [
+          `Activated: ${activated ? "new values" : "no change"}`,
+          `Version: ${remoteConfig.activeVersion}`,
+        ].join("\n"),
+      );
+    } catch (error) {
+      addHotUpdaterLog("warning", "Remote Config fetch failed", hotUpdaterErrorDetails(error));
+      hapticWarning();
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  return (
+    <View style={styles.remoteConfigSection}>
+      <View style={styles.hotUpdaterLogHeader}>
+        <ThemedText type="smallBold" style={styles.hotUpdaterLogTitle}>
+          Remote Config v{remoteConfig.activeVersion}
+        </ThemedText>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Fetch Remote Config now"
+          disabled={fetching}
+          onPress={() => void fetchNow()}
+          style={({ pressed }) => [styles.hotUpdaterLogButton, pressed && styles.pressed]}
+        >
+          <ThemedText type="code" style={styles.hotUpdaterLogButtonText}>
+            {fetching ? "Fetching" : "Fetch"}
+          </ThemedText>
+        </Pressable>
+      </View>
+      <ThemedText type="code" themeColor="textSecondary" style={styles.hotUpdaterLogDetails}>
+        {remoteConfig.lastFetchStatus}
+        {fetchedAtMs === null ? null : ` · ${formatHotUpdaterLogTime(fetchedAtMs)}`}
+      </ThemedText>
+      {notice ? (
+        <ThemedText type="small" style={styles.hotUpdaterLogMessage}>
+          {notice}
+        </ThemedText>
+      ) : null}
+      {Object.entries(values).map(([key, value]) => (
+        <View key={key} style={styles.hotUpdaterConfigRow}>
+          <ThemedText type="code" style={styles.hotUpdaterConfigLabel}>
+            {key}
+          </ThemedText>
+          <ThemedText type="code" style={styles.hotUpdaterConfigValue} numberOfLines={2}>
+            {value.asString() === "" ? '""' : value.asString()} · {value.getSource()}
+          </ThemedText>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+type AppUpdateInfo = Awaited<ReturnType<NonNullable<typeof hotUpdater>["checkForUpdate"]>>;
 
 type AppUpdateState = {
   status: "checking" | "current" | "downloading" | "ready" | "updating" | "error";
@@ -1200,6 +1280,10 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.monoMedium,
     fontSize: 9,
     lineHeight: 12,
+  },
+  remoteConfigSection: {
+    gap: Spacing.one,
+    marginTop: Spacing.two,
   },
   hotUpdaterConfigRow: {
     backgroundColor: "rgba(140, 199, 255, 0.07)",

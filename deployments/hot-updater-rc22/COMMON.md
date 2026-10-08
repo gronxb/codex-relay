@@ -161,7 +161,7 @@ command or generated files alone do not prove that a remote step is complete.
 ## App integration
 
 When the requested setup includes app integration, connect the verified base URL
-to the existing HotUpdater.init or HotUpdater.wrap call.
+to the existing HotUpdater.init call.
 Send the saved client API key in its x-api-key request
 header.
 Add `insights()` from `@hot-updater/react-native` to that call's `plugins` once, so the app works with
@@ -251,7 +251,7 @@ separate validation result.
     ```ts
     import { HotUpdater, insights } from "@hot-updater/react-native";
 
-    HotUpdater.init({
+    export const hotUpdater = HotUpdater.init({
       baseURL: "<verified-base-url>",
       requestHeaders: {
         "x-api-key": "<registered-client-credential>",
@@ -260,14 +260,16 @@ separate validation result.
     });
     ```
 
-    Explain that this belongs at module scope and that init does not check for
-    updates.
+    Explain that this belongs in its own module, such as `src/hotUpdater.ts`,
+    that init runs once at its top level and returns the instance the app
+    imports, and that it does not check for updates by itself.
     Without its client plugins, the app sends the server's plugins nothing.
-    Show the next check call with the app's actual strategy, for example
-    `HotUpdater.checkForUpdate({ updateStrategy: "appVersion" })` or
-    `HotUpdater.checkForUpdate({ updateStrategy: "fingerprint" })`.
-    Preserve existing initialization options and plugins; do not add init
-    alongside wrap.
+    Show the check with the app's actual strategy, for example
+    `export default hotUpdater.wrap({ updateStrategy: "appVersion" })(App);`
+    around the app's root, or
+    `hotUpdater.checkForUpdate({ updateStrategy: "fingerprint" })` in the
+    app's own update flow. Preserve existing initialization options and
+    plugins, and keep a single init call.
     Include this handoff for infrastructure-only setup too, with app integration
     and native OTA checks identified as remaining work. If registration or
     verification is blocked, report that blocker instead of a completed setup.
