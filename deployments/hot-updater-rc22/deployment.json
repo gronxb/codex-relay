@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.41",
+  "deployedServerVersion": "1.0.0-rc.42",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -2377,6 +2377,85 @@
         "v2": "cohort 521 condition; the app showed it after a forced fetch",
         "v3": "rollback to v1; the app showed v1 again",
         "activeVersion": 3
+      }
+    },
+    {
+      "id": "rc42:worker-version",
+      "action": "Upload the official RC42 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.42"
+      },
+      "requestId": "5d1c7d27-f106-413c-9e1b-ad9dc9462286",
+      "observation": {
+        "versionId": "5d1c7d27-f106-413c-9e1b-ad9dc9462286",
+        "trafficPercent": 0,
+        "timeTravelBookmark": "000008d9-0000000e-000050ff-e80f983cf822db94ed629f8a80a60de4",
+        "previewVersion": "1.0.0-rc.42",
+        "previewRemoteConfig": "200 with x-api-key, 401 without"
+      }
+    },
+    {
+      "id": "rc42:cutover",
+      "action": "Route 100% to RC42 version 5d1c7d27, roll the Ship console to RC42",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "68b82656-6044-4cb0-9788-a10355c88ace",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc41-95ec8ff",
+          "image": "ship/codex-relay:rc42-4f62e3c"
+        }
+      },
+      "observation": {
+        "deployedAt": "2026-10-09T05:29:07Z",
+        "consoleRolledAt": "2026-10-09T05:29:10Z"
+      }
+    },
+    {
+      "id": "common.verify.rc42",
+      "action": "Verify RC42 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.42",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersion": "1.6.0"
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "artifacts": {
+          "anonymous": 401,
+          "authenticated": 200,
+          "signedManifest": 200,
+          "manifestBytes": 27309
+        },
+        "r2BoundedList": 200,
+        "remoteConfig": {
+          "authenticated": 200,
+          "anonymous": 401
+        },
+        "catalogGeneration": 28,
+        "console": 200
+      }
+    },
+    {
+      "id": "rc42:remote-config-restore",
+      "action": "Roll production Remote Config back to v3 after the console QA, with the RC42 CLI",
+      "target": {
+        "rollbackSource": 3,
+        "expectedVersion": 15
+      },
+      "observation": {
+        "publishedVersion": 16,
+        "parameters": ["settings_notice"],
+        "conditions": ["TestFlight 1.6.1"]
       }
     }
   ]

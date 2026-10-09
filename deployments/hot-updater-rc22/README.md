@@ -679,3 +679,41 @@ Release [#1492](https://github.com/gronxb/hot-updater/pull/1492) published offic
 4. A rollback to v1 published v3, and the next forced fetch showed v1's value again.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc41/`.
+
+## Official RC42 upgrade (2026-10-09 KST)
+
+Release [#1495](https://github.com/gronxb/hot-updater/pull/1495) published official `1.0.0-rc.42` from `4f62e3c47`, carrying [#1493](https://github.com/gronxb/hot-updater/pull/1493), [#1494](https://github.com/gronxb/hot-updater/pull/1494) and [#1496](https://github.com/gronxb/hot-updater/pull/1496):
+
+- **Console Remote Config fixes.**
+  - A condition's value has a **Remove value** button, and a value removed in the same edit comes back when its condition is added again.
+  - Dialogs no longer flash empty or broken text while closing.
+  - A condition named after its rules follows them when they change.
+  - Publish changes lists what added items set.
+  - The sidebar reads Bundles, Insights, Remote Config, API keys.
+- **CLI.** `hot-updater remote-config` (show, versions, publish, rollback, preview) and `hot-updater insights` (overview, failures, events, installations) work on this project's D1 from the app directory.
+- The server and the React Native SDK change only in their versions.
+
+**Infrastructure.** No schema, binding or marker changed.
+
+1. Time Travel bookmark `000008d9-0000000e-000050ff-e80f983cf822db94ed629f8a80a60de4` was taken first.
+2. The RC42 Worker was uploaded as version `5d1c7d27-f106-413c-9e1b-ad9dc9462286` without traffic. Its preview URL reported `1.0.0-rc.42` and answered `/remote-config` with `200` with the API key and `401` without.
+3. At 05:29:07Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc42-4f62e3c` three seconds later.
+
+`/version` reports `1.0.0-rc.42`.
+
+**Console.** Host sources are pinned to RC42 in the local console repository, and the sign-in icon patch moves to RC42. The pod is running, logs no schema errors, and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200. Release catalogs: generation 28 for 1.6.0 and 1.6.1, `1.6.1-ship.3` first.
+- Remote Config: `GET /remote-config` 200 with the API key, 401 without.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+- The RC42 CLI read the versions, the preview and the Insights overview from production D1.
+
+**Remote Config.** The console QA had published test data in v4–v15: a `qa_limit` parameter and a cohort 707 condition. `hot-updater remote-config rollback 3 --expected-version 15` published v16, a copy of v3: `settings_notice` with the TestFlight 1.6.1 condition, as the battle test left it.
+
+No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.3` stays the release for 1.6.x.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc42/`.

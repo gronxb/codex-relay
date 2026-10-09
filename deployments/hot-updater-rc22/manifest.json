@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.0.0-rc.41",
-  "providerVersion": "1.0.0-rc.41",
-  "serverVersion": "1.0.0-rc.41",
+  "cliVersion": "1.0.0-rc.42",
+  "providerVersion": "1.0.0-rc.42",
+  "serverVersion": "1.0.0-rc.42",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.0.0-rc.41",
-    "@hot-updater/server": "1.0.0-rc.41",
-    "@hot-updater/react-native": "1.0.0-rc.41",
-    "@hot-updater/cloudflare": "1.0.0-rc.41",
-    "@hot-updater/expo": "1.0.0-rc.41"
+    "hot-updater": "1.0.0-rc.42",
+    "@hot-updater/server": "1.0.0-rc.42",
+    "@hot-updater/react-native": "1.0.0-rc.42",
+    "@hot-updater/cloudflare": "1.0.0-rc.42",
+    "@hot-updater/expo": "1.0.0-rc.42"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -50,9 +50,9 @@
     "upgrades/1.0.0-rc.29.md": "ebaec93656c25a3d0a776097ec48e04f1277cdd99097f7523f2092a58621c6ea",
     "upgrades/1.0.0.md": "aee3c3cc70d8407216d96d9b133fbb57c7b70b08221e83bf08dce468624a0338",
     "upgrades/README.md": "f99863721117703b27b43515f43a1a3efc7708012b9bd4acac116a93bab3d5f6",
-    "worker/dist/index.js": "ef6585389308003f466342c4d2df42397929d4b4f7016ed1f395e1e9e19bd6ba",
-    "worker/dist/index.js.map": "fe5841a0cd49adf7d2e98c0b03e1644184518513759a8eddabe7a734bdfc6f47",
-    "worker/dist/README.md": "64c400e87550cdae07d17a9fbb505b3d2f201a90a89ab1bcd057b71816a8be00",
+    "worker/dist/index.js": "7105660f10a223537c15c3664261226ba6104f011285e4d5579997222aff5f8a",
+    "worker/dist/index.js.map": "c71d3cf1b1b6ec09fbfbc47bdba261023ba0c5946cc936d13b174564c8df2c21",
+    "worker/dist/README.md": "a6736c3abea578218fc64450a62128845327de7245cffc727012e8c42f5ab298",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "ed96ee68fe1511d77fcec2cdd704389a68f13976814467b45a07fbfae4b3612f",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
     "worker/wrangler.json": "a1bdb28924c5c5f34dd4893ae39af5a86040e24c932496e12da5e9c4690d1f72"
