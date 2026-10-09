@@ -717,3 +717,32 @@ Release [#1495](https://github.com/gronxb/hot-updater/pull/1495) published offic
 No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.3` stays the release for 1.6.x.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc42/`.
+
+## Official RC43 upgrade (2026-10-09 KST)
+
+Release [#1498](https://github.com/gronxb/hot-updater/pull/1498) published official `1.0.0-rc.43` from `becff8b37`, carrying [#1497](https://github.com/gronxb/hot-updater/pull/1497):
+
+- **Release Catalog caching.** Catalog responses add `CDN-Cache-Control: public, max-age=5, stale-while-revalidate=5, stale-if-error=0`, so the edge serves a catalog at most a few seconds stale and never past an origin error. `Cache-Control` stays `public, max-age=0, s-maxage=5`.
+- The React Native SDK changes only in its version.
+
+**Infrastructure.** No schema, binding or marker changed.
+
+1. Time Travel bookmark `000008fd-0000000a-000050ff-51efa8b3a40cdfb970e9866a8c980e0d` was taken first.
+2. The RC43 Worker was uploaded as version `22ee5d12-41fd-4985-849f-bd4736879669` without traffic. Its preview URL reported `1.0.0-rc.43`, sent the new `CDN-Cache-Control` on authenticated catalogs for 1.6.0 and 1.6.1, and answered `/remote-config` with `200` with the API key and `401` without.
+3. At 08:13:58Z, 100% of traffic moved to it. The Ship console rolled to `ship/codex-relay:rc43-becff8b` two seconds later.
+
+`/version` reports `1.0.0-rc.43`.
+
+**Console.** Host sources are pinned to RC43 in the local console repository, and the sign-in icon patch moves to RC43. The pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks (iOS, production, app version 1.6.0); app passed.
+- Release catalogs: generation 28 for 1.6.0 and 1.6.1, `1.6.1-ship.3` first, with the new `CDN-Cache-Control`; anonymous 401.
+- Artifacts: anonymous 401, authenticated 200; the signed manifest returns 200 (27,309 bytes).
+- R2 bounded list: 200. Remote Config: `GET /remote-config` 200 with the API key, 401 without; production stays at v16.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.3` stays the release for 1.6.x.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc43/`.
