@@ -875,3 +875,36 @@ RC46's JavaScript drops only code that no v1 native module needs. The 1.6.0 bina
 - 1 on native 1.6.2, which also applied it on SDK rc.46.
 
 No update failed and none recovered.
+
+## Official RC47 upgrade (2026-10-11 KST)
+
+Release [#1510](https://github.com/gronxb/hot-updater/pull/1510) published official `1.0.0-rc.47` from `69b64393f`, carrying [#1512](https://github.com/gronxb/hot-updater/pull/1512) and [#1511](https://github.com/gronxb/hot-updater/pull/1511):
+
+- **Release-candidate cleanup.** The server, CLI and provider init no longer recognize data or files that earlier release candidates left. The refusals of v0 databases and deployments stay.
+- **SDK.** The React Native SDK calls its native module directly and requires `rollbackReleases` in every Release catalog, and the `EMBEDDED` Release kind is gone. The catalogs the server serves are unchanged, and every installed 1.6.x binary implements the native methods the SDK calls; the oldest, 1.6.0, carries the RC23 native module.
+
+This upgrade moves the server and the Console, and an OTA carries the RC47 JavaScript to 1.6.x.
+
+**Infrastructure.** No schema, marker, binding or secret changed. The Worker keeps `ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` from the RC46 version. The deployed `upgrades/` drops `1.0.0-rc.29.md`, `1.0.0.md` loses its release-candidate section, and `app/verify-server.mjs` bundles the stricter catalog parser.
+
+1. Time Travel bookmark `00000b4c-00000002-00005100-f6f4b1e3ce537bdeb61ad65bdab6e9b7` was taken first.
+2. The RC47 Worker was uploaded as version `a42627ee-b81a-45d7-b00c-d846e0132d84` without traffic. Its preview URL:
+   - reported `1.0.0-rc.47`;
+   - served catalog generation 32 for 1.6.0, 1.6.1 and 1.6.2, with `1.6.2-ship.1` first;
+   - presigned the full artifact and its patches on R2 for 3,600 seconds (206);
+   - answered `/remote-config` with 200 with the API key and 401 without.
+3. At 23:13:15Z, 100% of traffic moved to `a42627ee`. The Ship console rolled to `ship/codex-relay:rc47-69b6439` three seconds later.
+
+**Console.** The host pins the RC47 packages, and the sign-in icon patch moves to RC47. Tests (9), typechecking, the Node build and the smoke checks passed. The pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks for 1.6.0, 1.6.1 and 1.6.2 (iOS, production); app passed.
+- `/version` (cache-busted) reports `1.0.0-rc.47`, infrastructure generation 1.
+- Release catalogs: generation 32 for 1.6.0, 1.6.1 and 1.6.2, `1.6.2-ship.1` first; anonymous 401.
+- Artifacts: anonymous 401, authenticated 200 with `Cache-Control: private, no-store`. The presigned manifest returns 200 (27,309 bytes) from R2, and the asset, archive and manifest URLs answer a ranged GET with 206.
+- R2 bounded list: 200. Remote Config: 200 with the API key, 401 without.
+
+**Rollback.** `versions deploy a6f3df6b-2f2c-4e4d-91ba-f4ffc3e0d12b@100%` and the `ship/codex-relay:rc46-448f7f6` console image. The RC46 Worker serves the same protocol and catalogs, so devices on any SDK keep working.
+
+Private receipts are under `.codex/mobile-1.6/rc47/`.

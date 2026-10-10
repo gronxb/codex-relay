@@ -185,7 +185,7 @@ const isStringArray = (value) => Array.isArray(value) && value.every((entry) => 
 const isValidReleaseDescriptor = (value) => {
 	if (value === null || typeof value !== "object") return false;
 	const descriptor = value;
-	return isUUIDv7(descriptor.releaseId) && (descriptor.kind === "BUNDLE" || descriptor.kind === "EMBEDDED") && (descriptor.kind === "BUNDLE" && typeof descriptor.bundleId === "string" || descriptor.kind === "EMBEDDED" && descriptor.bundleId === null) && Number.isSafeInteger(descriptor.rolloutCohortCount) && descriptor.rolloutCohortCount >= 0 && descriptor.rolloutCohortCount <= 1e3 && isStringArray(descriptor.targetCohorts) && descriptor.targetCohorts.length <= 100 && typeof descriptor.shouldForceUpdate === "boolean" && (descriptor.message === null || typeof descriptor.message === "string");
+	return isUUIDv7(descriptor.releaseId) && descriptor.kind === "BUNDLE" && typeof descriptor.bundleId === "string" && Number.isSafeInteger(descriptor.rolloutCohortCount) && descriptor.rolloutCohortCount >= 0 && descriptor.rolloutCohortCount <= 1e3 && isStringArray(descriptor.targetCohorts) && descriptor.targetCohorts.length <= 100 && typeof descriptor.shouldForceUpdate === "boolean" && (descriptor.message === null || typeof descriptor.message === "string");
 };
 /** Whether the catalog is the expected scope's. */
 const hasExpectedReleaseCatalogScope = (catalog, expected) => {
@@ -206,9 +206,9 @@ const parseReleaseCatalog = (body, expectedScope) => {
 	if (getUtf8ByteLength(body) > 528384) return null;
 	try {
 		const catalog = JSON.parse(body);
-		if (catalog.schemaVersion !== 1 || typeof catalog.catalogId !== "string" || catalog.catalogId.length === 0 || typeof catalog.scopeKey !== "string" || !Number.isSafeInteger(catalog.generation) || (catalog.generation ?? 0) < 1 || typeof catalog.catalogHash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(catalog.catalogHash) || catalog.fallbackPolicy !== "BUILTIN_IF_ACTIVE_INELIGIBLE" || !Array.isArray(catalog.releases) || !catalog.releases.every(isValidReleaseDescriptor) || catalog.rollbackReleases !== void 0 && (!Array.isArray(catalog.rollbackReleases) || !catalog.rollbackReleases.every(isValidReleaseDescriptor))) return null;
+		if (catalog.schemaVersion !== 1 || typeof catalog.catalogId !== "string" || catalog.catalogId.length === 0 || typeof catalog.scopeKey !== "string" || !Number.isSafeInteger(catalog.generation) || (catalog.generation ?? 0) < 1 || typeof catalog.catalogHash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(catalog.catalogHash) || catalog.fallbackPolicy !== "BUILTIN_IF_ACTIVE_INELIGIBLE" || !Array.isArray(catalog.releases) || !catalog.releases.every(isValidReleaseDescriptor) || !Array.isArray(catalog.rollbackReleases) || !catalog.rollbackReleases.every(isValidReleaseDescriptor)) return null;
 		if (!hasExpectedReleaseCatalogScope(catalog, expectedScope)) return null;
-		if (new Set([...catalog.releases, ...catalog.rollbackReleases ?? []].flatMap((release) => release.targetCohorts)).size > 512) return null;
+		if (new Set([...catalog.releases, ...catalog.rollbackReleases].flatMap((release) => release.targetCohorts)).size > 512) return null;
 		return catalog;
 	} catch {
 		return null;
