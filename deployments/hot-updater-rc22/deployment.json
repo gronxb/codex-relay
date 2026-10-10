@@ -2922,6 +2922,48 @@
           "publicUrl": 200
         }
       }
+    },
+    {
+      "id": "rc47:ota-1.6.2-ship.2",
+      "action": "Ship Hot Updater rc47 JavaScript as 1.6.2-ship.2 through the release workflow and widen it to 1.6.x",
+      "target": {
+        "releasePullRequest": 121,
+        "mergeCommit": "86d661b",
+        "releaseId": "01a1281e-4d2e-74e5-9c7e-24d7f72b9090",
+        "bundleId": "01a1281a-d1fe-7092-99b0-d3166d1dd508",
+        "platform": "ios",
+        "channel": "production",
+        "targetAppVersion": "1.6.x"
+      },
+      "observation": {
+        "deployedAt": "2026-10-10T23:21:34Z",
+        "widenedAt": "2026-10-10T23:22:30Z",
+        "releaseRevision": 2,
+        "catalogGeneration": 34,
+        "firstReports": {
+          "window": "20 minutes",
+          "downloads": 12,
+          "downloadsByAppVersion": {
+            "1.6.1": 8,
+            "1.6.2": 4
+          },
+          "appliedOnSdk": {
+            "1.0.0-rc.47": 3
+          },
+          "appliedByAppVersion": {
+            "1.6.1": 2,
+            "1.6.2": 1
+          },
+          "updateFailures": {
+            "sdk": "1.0.0-rc.36",
+            "stage": "download",
+            "resource": "manifest",
+            "http": 200,
+            "count": 1
+          },
+          "recoveries": 0
+        }
+      }
     }
   ]
 }

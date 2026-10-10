@@ -908,3 +908,7 @@ This upgrade moves the server and the Console, and an OTA carries the RC47 JavaS
 **Rollback.** `versions deploy a6f3df6b-2f2c-4e4d-91ba-f4ffc3e0d12b@100%` and the `ship/codex-relay:rc46-448f7f6` console image. The RC46 Worker serves the same protocol and catalogs, so devices on any SDK keep working.
 
 Private receipts are under `.codex/mobile-1.6/rc47/`.
+
+**OTA `1.6.2-ship.2`.** Release PR [#121](https://github.com/gronxb/codex-relay/pull/121) (merge `86d661b`) had CI deploy `1.6.2-ship.2` at 23:21:34Z: release `01a1281e-4d2e-74e5-9c7e-24d7f72b9090`, bundle `01a1281a-d1fe-7092-99b0-d3166d1dd508`, 100% of production, targeting 1.6.2. After a dry run, `hot-updater bundle update 01a1281e-… --target-app-version 1.6.x --expected-revision 1 -y` widened it at 23:22:30Z: revision 2, and catalog generation 33 → 34, with `1.6.2-ship.2` first for 1.6.0, 1.6.1 and 1.6.2. To undo the widening, set the target back to `1.6.2`.
+
+In the first 20 minutes, 12 installations downloaded it (8 on 1.6.1, 4 on 1.6.2), and 3 applied it on SDK rc.47: two 1.6.1 binaries, which carry the RC36 native module, and one 1.6.2. No installation recovered. One download failed on SDK rc.36, which fetched the manifest with HTTP 200 and then failed the download.
