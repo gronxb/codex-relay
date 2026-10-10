@@ -2602,6 +2602,44 @@
         "catalogGeneration": 28,
         "console": 200
       }
+    },
+    {
+      "id": "rc44:ota-1.6.1-ship.4",
+      "action": "Ship the RC44 SDK as 1.6.1-ship.4 through the release workflow, widen it to 1.6.x, and battle-test presigned downloads",
+      "target": {
+        "releasePullRequest": 119,
+        "mergeCommit": "419f43d",
+        "releaseId": "01a12383-ff79-71fc-b322-1f0aecb59663",
+        "bundleId": "01a12381-803b-702e-bfe4-b830d0c6cea4",
+        "platform": "ios",
+        "channel": "production",
+        "targetAppVersion": "1.6.x"
+      },
+      "observation": {
+        "deployedAt": "2026-10-10T01:53:34Z",
+        "widenedAt": "2026-10-10T02:06:17Z",
+        "releaseRevision": 2,
+        "catalogGeneration": 30,
+        "presignedArtifacts": "full, and patches from 1.6.1-ship.3 and 1.6.1-ship.2: every URL on R2, ranged GET 206",
+        "simulator": {
+          "appVersion": "1.6.0",
+          "sdk": "1.0.0-rc.44",
+          "events": ["UNCHANGED", "UPDATE_DOWNLOADED", "UPDATE_APPLIED"],
+          "downloadSeconds": 4
+        },
+        "firstReportsAt40Minutes": {
+          "downloads": 20,
+          "downloadsByAppVersion": {
+            "1.6.0": 4,
+            "1.6.1": 16
+          },
+          "launchesOnSdk": {
+            "1.0.0-rc.44": 3
+          },
+          "failures": 0,
+          "crashRollbacks": 0
+        }
+      }
     }
   ]
 }

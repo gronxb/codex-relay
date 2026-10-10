@@ -780,3 +780,19 @@ Release [#1501](https://github.com/gronxb/hot-updater/pull/1501) published offic
 **Rollback.** `versions deploy 22ee5d12-41fd-4985-849f-bd4736879669@100%` and the `ship/codex-relay:rc43-becff8b` console image, but only before devices run the RC44 SDK: it rejects the relative `/storage/` URLs the RC43 Worker returns, so those devices would keep their bundle and fail every later download until the Worker is back on RC44.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc44/`.
+
+## OTA `1.6.1-ship.4` on 1.6.x (2026-10-10 KST)
+
+Release PR [#119](https://github.com/gronxb/codex-relay/pull/119) (merge `419f43d`) had CI deploy `1.6.1-ship.4` with the RC44 SDK: release `01a12383-ff79-71fc-b322-1f0aecb59663`, bundle `01a12381-803b-702e-bfe4-b830d0c6cea4`, 100% of production, targeting 1.6.1. Its JavaScript differs from `1.6.1-ship.3` only in the SDK, whose download step now takes only absolute URLs. The protocol, Insights and Remote Config clients are unchanged, and the native code is the same as rc.41's. Its full artifact and its patches from `1.6.1-ship.3` and `1.6.1-ship.2` are presigned on R2, and each URL downloads.
+
+After its first launch on SDK rc.44, with no crash, `hot-updater bundle update 01a12383-… --target-app-version 1.6.x --expected-revision 1 -y` widened it at 02:06:17Z: revision 2, and catalog generation 29 → 30 with `1.6.1-ship.4` first for 1.6.0, 1.6.1 and the versions between, as its dry run projected. To undo the widening, set the target back to `1.6.1`.
+
+**Battle test on a simulator.** A local Release build of the app (1.6.0, from the generated native project, with SDK rc.44 built in) ran on a fresh simulator against production:
+
+1. At launch it reported `UNCHANGED`: its built-in bundle is newer than `1.6.1-ship.3`.
+2. After the widening, a relaunch downloaded `1.6.1-ship.4` within 4 seconds, from the full artifact presigned on R2.
+3. The next launch ran it. Insights recorded `UPDATE_DOWNLOADED` and `UPDATE_APPLIED` on SDK rc.44, and Settings showed "Version 1.6.0 · current · bundle ecb59663", the release's suffix.
+
+The simulator was deleted afterwards.
+
+**First reports.** Forty minutes after the deploy, 20 installations had downloaded `1.6.1-ship.4` (16 on 1.6.1, 4 on 1.6.0) through presigned R2 URLs, on SDKs rc.23, rc.32, rc.36 and rc.41 and the simulator's rc.44. Three ran it on SDK rc.44, one of them the simulator. None crashed back. No update on any bundle failed in the hour after the Worker cutover; the 24 hours before it had 18 failures, mostly download timeouts.
