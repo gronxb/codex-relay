@@ -24,6 +24,7 @@
     }
   ],
   "vars": {
+    "ACCOUNT_ID": "e8488f1eee751a6aa2d4831c5de1c3dc",
     "BUCKET_NAME": "codex-relay-rc22-storage"
   },
   "account_id": "e8488f1eee751a6aa2d4831c5de1c3dc"

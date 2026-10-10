@@ -746,3 +746,37 @@ Release [#1498](https://github.com/gronxb/hot-updater/pull/1498) published offic
 No OTA: the app's JavaScript is unchanged apart from the SDK version, so `1.6.1-ship.3` stays the release for 1.6.x.
 
 Private receipts and backups are under `.codex/mobile-1.6/rc43/`.
+
+## Official RC44 upgrade (2026-10-10 KST)
+
+Release [#1501](https://github.com/gronxb/hot-updater/pull/1501) published official `1.0.0-rc.44` from `65d0a3167`, carrying [#1500](https://github.com/gronxb/hot-updater/pull/1500) and [#1502](https://github.com/gronxb/hot-updater/pull/1502):
+
+- **Presigned downloads.** The Worker presigns every download URL (manifest, archive, assets and patches) on R2's S3 endpoint for an hour, with R2 S3 credentials, as v0 did. Devices download straight from the private bucket. The `/storage/:token/:signature` route and its `STORAGE_DOWNLOAD_URL_SIGNING_KEY` are gone.
+- **One storage adapter, explicit plugins.** `createHotUpdater` takes a single `storage` adapter. Plugins are listed as `apiKeys()`, `insights()` and `remoteConfig()`, from `@hot-updater/server/plugins` in the server and from `hot-updater/plugins` in `hot-updater.config.ts`.
+- **The SDK takes only absolute download URLs.** Every SDK in the field (rc.23 to rc.43) already used absolute URLs as they are, and native downloads send no headers, so presigned URLs work on every installed version.
+
+**Infrastructure.** No schema or marker changed. The Worker gains the variable `ACCOUNT_ID` and the secrets `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`, the app's R2 S3 credentials. `STORAGE_DOWNLOAD_URL_SIGNING_KEY` stays on the Worker, unused; the RC43 version still reads it.
+
+1. Time Travel bookmark `000009fe-00000004-00005100-e82b1dc332d51468353e3a4c3e0f999e` was taken first.
+2. The RC44 Worker was uploaded as version `1be25c5e-b3ad-49b1-9519-fa93b62aedb7` without traffic. `wrangler versions secret put` then added `R2_ACCESS_KEY_ID` (version `12401184-1557-4401-920e-1c3bd903a210`) and `R2_SECRET_ACCESS_KEY` (version `5746f6d7-79ab-4ce9-94c7-2ea285390bda`), so code and secrets went live together. The preview URL of `5746f6d7` reported `1.0.0-rc.44`, presigned every manifest, archive, asset and patch URL (the `1.6.1-ship.2` → `1.6.1-ship.3` patch included) on `e8488f1eee751a6aa2d4831c5de1c3dc.r2.cloudflarestorage.com` for 3,600 seconds, each answering a ranged GET with 206, and answered `/remote-config` with 200 with the API key and 401 without.
+3. At 01:33:03Z, 100% of traffic moved to `5746f6d7`. The Ship console rolled to `ship/codex-relay:rc44-65d0a31` five seconds later.
+
+`/version` reports `1.0.0-rc.44`. One cache-busted read seconds after the deploy still reached an RC43 Worker.
+
+**App configuration.** `hot-updater.config.ts` lists `plugins: [apiKeys(), insights(), remoteConfig()]` from `hot-updater/plugins`, as the RC44 scaffold does, instead of the provider package's `plugins`. The scaffold's `app/hotUpdater.ts` takes one `r2Storage(...)`.
+
+**Console.** Host sources are pinned to RC44 in the local console repository, and the sign-in icon patch moves to RC44. The pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks for 1.6.0 and for 1.6.1 (iOS, production); app passed.
+- Release catalogs: generation 28 for 1.6.0 and 1.6.1, `1.6.1-ship.3` first; anonymous 401.
+- Artifacts: anonymous 401, authenticated 200 with `Cache-Control: private, no-store`, so no presigned URL outlives its hour in a cache; the presigned manifest returns 200 (27,309 bytes) from R2.
+- R2 bounded list: 200. Remote Config: 200 with the API key, 401 without.
+- Console: tests (9), typechecking, Node build, smoke checks and Docker build.
+
+**First reports.** In the 15 minutes after the cutover, three installations on SDK rc.36, the 1.6.1 built-in bundle's, downloaded `1.6.1-ship.3` through presigned R2 URLs, and one on SDK rc.41 applied it. No update failed.
+
+**Rollback.** `versions deploy 22ee5d12-41fd-4985-849f-bd4736879669@100%` and the `ship/codex-relay:rc43-becff8b` console image, but only before devices run the RC44 SDK: it rejects the relative `/storage/` URLs the RC43 Worker returns, so those devices would keep their bundle and fail every later download until the Worker is back on RC44.
+
+Private receipts and backups are under `.codex/mobile-1.6/rc44/`.

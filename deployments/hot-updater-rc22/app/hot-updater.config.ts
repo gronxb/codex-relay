@@ -1,6 +1,7 @@
-import { d1Database, plugins, r2Storage } from "@hot-updater/cloudflare";
+import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { defineConfig } from "hot-updater";
+import { apiKeys, insights, remoteConfig } from "hot-updater/plugins";
 import { existsSync } from "node:fs";
 
 if (existsSync(".env.hotupdater")) {
@@ -22,6 +23,6 @@ export default defineConfig({
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
     cloudflareApiToken: process.env.HOT_UPDATER_CLOUDFLARE_API_TOKEN!,
   }),
-  plugins,
+  plugins: [apiKeys(), insights(), remoteConfig()],
   updateStrategy: "appVersion", // or "fingerprint"
 });
