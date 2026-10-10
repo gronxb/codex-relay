@@ -10,7 +10,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.6.1",
+    version: "1.6.2",
     orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
