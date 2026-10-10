@@ -796,3 +796,27 @@ After its first launch on SDK rc.44, with no crash, `hot-updater bundle update 0
 The simulator was deleted afterwards.
 
 **First reports.** Forty minutes after the deploy, 20 installations had downloaded `1.6.1-ship.4` (16 on 1.6.1, 4 on 1.6.0) through presigned R2 URLs, on SDKs rc.23, rc.32, rc.36 and rc.41 and the simulator's rc.44. Three ran it on SDK rc.44, one of them the simulator. None crashed back. No update on any bundle failed in the hour after the Worker cutover; the 24 hours before it had 18 failures, mostly download timeouts.
+
+## Official RC45 upgrade (2026-10-10 KST)
+
+Release [#1504](https://github.com/gronxb/hot-updater/pull/1504) published official `1.0.0-rc.45` from `2703cd130`, carrying [#1503](https://github.com/gronxb/hot-updater/pull/1503): provider packages no longer export `plugins`, and each managed server lists `[insights(), apiKeys(), remoteConfig()]` in its own `createHotUpdater` call. The SDK changes only its version string, so this upgrade moves the server and the Console and ships no OTA.
+
+**Infrastructure.** No schema, marker, binding or secret changed. The Worker keeps `ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` from the RC44 version.
+
+1. Time Travel bookmark `00000a34-00000006-00005100-9bb8d2cd2911e0ae223e19c65d12ccbc` was taken first.
+2. The RC45 Worker was uploaded as version `dd9a9f73-d831-40d8-9aa7-74861553de44` without traffic. Its preview URL reported `1.0.0-rc.45`, served catalog generation 30 for 1.6.0 and 1.6.1 with `1.6.1-ship.4` first, presigned the full artifact and its patches on R2 for 3,600 seconds (206), and answered `/remote-config` with 200 with the API key and 401 without.
+3. At 05:29:36Z, 100% of traffic moved to `dd9a9f73`. The Ship console rolled to `ship/codex-relay:rc45-2703cd1` four seconds later.
+
+**Console.** `console.config.ts` lists the plugins with the `@hot-updater/server/plugins` factories, and the host pins `@hot-updater/server` with the other RC45 packages. Tests (9), typechecking, the Node build and smoke checks passed; the pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks for 1.6.0 and for 1.6.1 (iOS, production); app passed.
+- `/version` (cache-busted) reports `1.0.0-rc.45`, infrastructure generation 1.
+- Release catalogs: generation 30 for 1.6.0 and 1.6.1, `1.6.1-ship.4` first; anonymous 401.
+- Artifacts: anonymous 401, authenticated 200 with `Cache-Control: private, no-store`; the presigned manifest returns 200 (27,309 bytes) from R2, and the asset, archive and manifest URLs answer a ranged GET with 206.
+- R2 bounded list: 200. Remote Config: 200 with the API key, 401 without.
+
+**Rollback.** `versions deploy 5746f6d7-79ab-4ce9-94c7-2ea285390bda@100%` and the `ship/codex-relay:rc44-65d0a31` console image. The RC44 Worker presigns the same URLs, so devices on any SDK keep working.
+
+Private receipts are under `.codex/mobile-1.6/rc45/`.

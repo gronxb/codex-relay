@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.0-rc.44",
+  "deployedServerVersion": "1.0.0-rc.45",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -2638,6 +2638,84 @@
           },
           "failures": 0,
           "crashRollbacks": 0
+        }
+      }
+    },
+    {
+      "id": "rc45:worker-version",
+      "action": "Upload the official RC45 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.0.0-rc.45",
+        "variables": ["ACCOUNT_ID", "BUCKET_NAME"],
+        "secrets": ["R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY"]
+      },
+      "requestId": "dd9a9f73-d831-40d8-9aa7-74861553de44",
+      "observation": {
+        "uploadedVersionId": "dd9a9f73-d831-40d8-9aa7-74861553de44",
+        "secretsInheritedFrom": "5746f6d7-79ab-4ce9-94c7-2ea285390bda",
+        "timeTravelBookmark": "00000a34-00000006-00005100-9bb8d2cd2911e0ae223e19c65d12ccbc",
+        "previewServerVersion": "1.0.0-rc.45"
+      }
+    },
+    {
+      "id": "rc45:cutover",
+      "action": "Route 100% to RC45 version dd9a9f73, roll the Ship console to RC45",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "5746f6d7-79ab-4ce9-94c7-2ea285390bda",
+        "console": {
+          "context": "kind-ship",
+          "namespace": "ship-services",
+          "deployment": "codex-relay",
+          "previousImage": "ship/codex-relay:rc44-65d0a31",
+          "image": "ship/codex-relay:rc45-2703cd1"
+        }
+      },
+      "observation": {
+        "deployedAt": "2026-10-10T05:29:36Z",
+        "consoleRolledAt": "2026-10-10T05:29:40Z"
+      }
+    },
+    {
+      "id": "common.verify.rc45",
+      "action": "Verify RC45 infrastructure, local app configuration and the Console",
+      "target": {
+        "serverVersion": "1.0.0-rc.45",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersions": ["1.6.0", "1.6.1"]
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecksPassed": 7,
+        "appDoctorPassed": true,
+        "artifacts": {
+          "anonymous": 401,
+          "authenticated": 200,
+          "presignedManifest": 200,
+          "manifestBytes": 27309,
+          "downloadOrigin": "https://e8488f1eee751a6aa2d4831c5de1c3dc.r2.cloudflarestorage.com",
+          "expiresSeconds": 3600,
+          "cacheControl": "private, no-store"
+        },
+        "releaseCatalogs": {
+          "generation": 30,
+          "first": "1.6.1-ship.4",
+          "anonymous": 401
+        },
+        "r2BoundedList": 200,
+        "remoteConfig": {
+          "anonymous": 401,
+          "authenticated": 200
+        },
+        "console": {
+          "image": "ship/codex-relay:rc45-2703cd1",
+          "readyReplicas": 1,
+          "publicUrl": 200
         }
       }
     }
