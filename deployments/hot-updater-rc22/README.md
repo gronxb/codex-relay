@@ -820,3 +820,36 @@ Release [#1504](https://github.com/gronxb/hot-updater/pull/1504) published offic
 **Rollback.** `versions deploy 5746f6d7-79ab-4ce9-94c7-2ea285390bda@100%` and the `ship/codex-relay:rc44-65d0a31` console image. The RC44 Worker presigns the same URLs, so devices on any SDK keep working.
 
 Private receipts are under `.codex/mobile-1.6/rc45/`.
+
+## Official RC46 upgrade (2026-10-10 KST)
+
+Release [#1508](https://github.com/gronxb/hot-updater/pull/1508) published official `1.0.0-rc.46` from `448f7f6e5`, carrying [#1506](https://github.com/gronxb/hot-updater/pull/1506), [#1507](https://github.com/gronxb/hot-updater/pull/1507) and [#1505](https://github.com/gronxb/hot-updater/pull/1505):
+
+- **v0 cleanup.** Code that only served v0 is gone, along with v0 options that type-checked and did nothing. Runtime messages no longer name v0 or a version.
+- **The native SDK reads only its own metadata schema.** A store left in another schema isn't loaded, so a device launches its build's built-in bundle. This needs a native build; the installed 1.6.x binaries are unchanged.
+
+This upgrade moves the server and the Console and ships no OTA: the SDK's JavaScript changes only drop dead code.
+
+**Infrastructure.** No schema, marker, binding or secret changed. The Worker keeps `ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` from the RC45 version.
+
+1. Time Travel bookmark `00000aaf-00000008-00005100-ce23c34fa0cc68c9c3965b1a7deb2cf1` was taken first.
+2. The RC46 Worker was uploaded as version `a6f3df6b-2f2c-4e4d-91ba-f4ffc3e0d12b` without traffic. Its preview URL:
+   - reported `1.0.0-rc.46`;
+   - served catalog generation 30 for 1.6.0 and 1.6.1, with `1.6.1-ship.4` first;
+   - presigned the full artifact and its patches on R2 for 3,600 seconds (206);
+   - answered `/remote-config` with 200 with the API key and 401 without.
+3. At 12:57:30Z, 100% of traffic moved to `a6f3df6b`. The Ship console rolled to `ship/codex-relay:rc46-448f7f6` a second later.
+
+**Console.** The host pins the RC46 packages, and the sign-in icon patch moves to RC46. Tests (9), typechecking, the Node build and the smoke checks passed. The pod is running and the public URL answers 200.
+
+**Validation.**
+
+- Doctors: scaffold passed; infrastructure passed all 7 checks for 1.6.0 and for 1.6.1 (iOS, production); app passed.
+- `/version` (cache-busted) reports `1.0.0-rc.46`, infrastructure generation 1.
+- Release catalogs: generation 30 for 1.6.0 and 1.6.1, `1.6.1-ship.4` first; anonymous 401.
+- Artifacts: anonymous 401, authenticated 200 with `Cache-Control: private, no-store`. The presigned manifest returns 200 (27,309 bytes) from R2, and the asset, archive and manifest URLs answer a ranged GET with 206.
+- R2 bounded list: 200. Remote Config: 200 with the API key, 401 without.
+
+**Rollback.** `versions deploy dd9a9f73-d831-40d8-9aa7-74861553de44@100%` and the `ship/codex-relay:rc45-2703cd1` console image. The RC45 Worker serves the same protocol, so devices on any SDK keep working.
+
+Private receipts are under `.codex/mobile-1.6/rc46/`.
