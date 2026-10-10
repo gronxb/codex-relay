@@ -154,6 +154,15 @@ export default function SettingsScreen() {
 
         const didDownload = await updateInfo.updateBundle();
 
+        // A force update runs right away instead of waiting for Restart.
+        if (didDownload && updateInfo.shouldForceUpdate) {
+          if (isActive) {
+            setAppUpdate({ status: "updating", updateInfo });
+          }
+          await hotUpdater.reload();
+          return;
+        }
+
         if (!isActive) {
           return;
         }

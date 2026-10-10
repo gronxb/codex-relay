@@ -118,9 +118,12 @@ async function checkForLaunchUpdate() {
   addHotUpdaterLog(
     "info",
     "OTA launch check found update",
-    [`ID: ${updateInfo.id}`, `Status: ${updateInfo.status}`, `Message: ${updateInfo.message}`].join(
-      "\n",
-    ),
+    [
+      `ID: ${updateInfo.id}`,
+      `Status: ${updateInfo.status}`,
+      `Force update: ${updateInfo.shouldForceUpdate ? "yes" : "no"}`,
+      `Message: ${updateInfo.message}`,
+    ].join("\n"),
   );
 
   const didDownload = await updateInfo.updateBundle();
@@ -129,6 +132,12 @@ async function checkForLaunchUpdate() {
     "OTA launch update bundle finished",
     `Downloaded: ${didDownload ? "yes" : "no"}`,
   );
+
+  // A force update runs right away instead of waiting for the next launch.
+  if (didDownload && updateInfo.shouldForceUpdate) {
+    addHotUpdaterLog("info", "OTA force update reloading", `ID: ${updateInfo.id}`);
+    await hotUpdater.reload();
+  }
 }
 
 function TabLayout() {
