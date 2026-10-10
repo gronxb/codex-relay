@@ -2796,6 +2796,54 @@
           "publicUrl": 200
         }
       }
+    },
+    {
+      "id": "native-1.6.2",
+      "action": "Build native 1.6.2 with Hot Updater rc46 and the force-update reload, and upload it to App Store Connect",
+      "target": {
+        "commit": "7f9456f",
+        "easBuildId": "a438cc8c-746d-45e0-97de-5dbfc5185abf",
+        "appVersion": "1.6.2",
+        "buildNumber": "62",
+        "profile": "production"
+      },
+      "observation": {
+        "buildFinishedAt": "2026-10-10T14:01:45Z",
+        "submission": "c9b9ee48-a83a-48f5-a3fa-cbec61af8b2a",
+        "uploadedTo": "App Store Connect (TestFlight)",
+        "canceledBuild": "c80b4949-eb72-40b7-84aa-b4db420d3d53 (61, before the reload commit)"
+      }
+    },
+    {
+      "id": "rc46:ota-1.6.2-ship.1",
+      "action": "Ship the force-update reload with the RC46 SDK as 1.6.2-ship.1 through the release workflow and widen it to 1.6.x",
+      "target": {
+        "releasePullRequest": 120,
+        "mergeCommit": "45bfd0b",
+        "releaseId": "01a12623-a320-7874-95c8-1da0efdc5f09",
+        "bundleId": "01a12620-09bb-72d1-a52a-dd06e83e30e8",
+        "platform": "ios",
+        "channel": "production",
+        "targetAppVersion": "1.6.x"
+      },
+      "observation": {
+        "deployedAt": "2026-10-10T14:08:19Z",
+        "widenedAt": "2026-10-10T14:34:21Z",
+        "releaseRevision": 2,
+        "catalogGeneration": 32,
+        "firstReports": {
+          "downloads": 13,
+          "downloadsByAppVersion": {
+            "1.6.1": 12,
+            "1.6.2": 1
+          },
+          "appliedOnSdk": {
+            "1.0.0-rc.46": 1
+          },
+          "updateFailures": 0,
+          "recoveries": 0
+        }
+      }
     }
   ]
 }

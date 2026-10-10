@@ -853,3 +853,25 @@ This upgrade moves the server and the Console and ships no OTA: the SDK's JavaSc
 **Rollback.** `versions deploy dd9a9f73-d831-40d8-9aa7-74861553de44@100%` and the `ship/codex-relay:rc45-2703cd1` console image. The RC45 Worker serves the same protocol, so devices on any SDK keep working.
 
 Private receipts are under `.codex/mobile-1.6/rc46/`.
+
+## Native 1.6.2 and OTA `1.6.2-ship.1` on 1.6.x (2026-10-10 KST)
+
+The app reloads right after it downloads a force update, both from the launch check and in Settings, instead of waiting for the next launch or for Restart (`7f9456f`).
+
+**Native 1.6.2.** RC46 changes the native SDK:
+
+- the bundle store reads only metadata in its own schema;
+- on iOS, a changed isolation key removes the old bundles.
+
+EAS build `a438cc8c-746d-45e0-97de-5dbfc5185abf` (1.6.2, build 62) was built from `7f9456f` and uploaded to App Store Connect for TestFlight and review. An earlier build 61 from `8bf745a` lacked the reload and was canceled.
+
+**OTA.** Release PR [#120](https://github.com/gronxb/codex-relay/pull/120) (merge `45bfd0b`) had CI deploy `1.6.2-ship.1` at 14:08:19Z: release `01a12623-a320-7874-95c8-1da0efdc5f09`, bundle `01a12620-09bb-72d1-a52a-dd06e83e30e8`, 100% of production, targeting 1.6.2.
+
+RC46's JavaScript drops only code that no v1 native module needs. The 1.6.0 binary (RC23 native) emits neither `PROMOTED` nor `crashedBundleId`. So `hot-updater bundle update 01a12623-… --target-app-version 1.6.x --expected-revision 1 -y` widened it at 14:34:21Z, after a dry run: revision 2, and catalog generation 31 → 32, with `1.6.2-ship.1` first for 1.6.0, 1.6.1 and 1.6.2. To undo the widening, set the target back to `1.6.2`.
+
+**First reports.** In the first 30 minutes after the deploy, 13 installations downloaded `1.6.2-ship.1`:
+
+- 12 on 1.6.1, running SDK rc.36 and rc.44;
+- 1 on native 1.6.2, which also applied it on SDK rc.46.
+
+No update failed and none recovered.
