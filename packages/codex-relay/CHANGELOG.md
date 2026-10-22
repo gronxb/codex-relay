@@ -1,5 +1,11 @@
 # codex-relay
 
+## 1.6.3
+
+### Patch Changes
+
+- e746cbb: Update `@openai/codex-sdk` to `0.163.0` and pin its Codex CLI `0.163.0` for app-server compatibility.
+
 ## 1.6.2
 
 ### Patch Changes
