@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.0.7",
-  "providerVersion": "1.0.7",
-  "serverVersion": "1.0.7",
+  "cliVersion": "1.1.2",
+  "providerVersion": "1.1.2",
+  "serverVersion": "1.1.2",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.0.7",
-    "@hot-updater/server": "1.0.7",
-    "@hot-updater/react-native": "1.0.7",
-    "@hot-updater/cloudflare": "1.0.7",
-    "@hot-updater/expo": "1.0.7"
+    "hot-updater": "1.1.2",
+    "@hot-updater/server": "1.1.2",
+    "@hot-updater/react-native": "1.1.2",
+    "@hot-updater/cloudflare": "1.1.2",
+    "@hot-updater/expo": "1.1.2"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -34,7 +34,7 @@
     "d1DatabaseName": "codex-relay-rc22",
     "bucketName": "codex-relay-rc22-storage"
   },
-  "upgradeRequirements": ["1.0.0"],
+  "upgradeRequirements": ["1.0.0", "1.2.0"],
   "operation": "upgrade",
   "build": "expo",
   "files": {
@@ -43,16 +43,18 @@
     "app/hotUpdater.ts": "148142e897b9bd9ebdda2af8834b5b201e9c4a9e952f7de3da889c0cc6e12d24",
     "app/provision-client-credential.mjs": "6495d18eabff3688a9ca289dfc13b09458cb9f1bf51d35b5159ae2983747a507",
     "app/verify-server.mjs": "c04a66de29ad82d05579aa31eebaa28d41a1bcd8c822f2dc1a2391996e124f46",
-    "COMMON.md": "0f05beb1406b45bd0f2f8a95c391a02aa1f6ec2b7cfe192fbfcfdc071988eb8b",
+    "COMMON.md": "24a109dab1a8add307edca723ce76decae3b3f46a51ca2142f344062fddf1351",
     "env.example": "8a57475d82a6513e4c7f53591c96a5fdc86203784d944fa1ab670ad3ad048ee3",
     "ENVIRONMENT.md": "6452e12ad10cf3e3c0351cf2a36d0982b544675fa8b50461bfefb96f022a306a",
     "SETUP.md": "c30d729a7cfa62dc5a8e35832a5dd48d708a3685a089936562f607f87981aafe",
     "upgrades/1.0.0.md": "42c3424ffb0a286fdc0253afad2b31e8abc34d2fb7a060fc5818b5be2d6a76d5",
-    "upgrades/README.md": "341e428565e35666b427f53e27ad97428183729f1aba21825b5bcfaa00bef770",
-    "worker/dist/index.js": "9dbe9bbd7f25a0ddf2c64764dd24927ecc0cd05f956c07d8023f433008e0caab",
-    "worker/dist/index.js.map": "ee3a807e8c461687e1a77b0e50cf7b80c8ce2999319d66293062a6e8a4b8d267",
-    "worker/dist/README.md": "03824cf99b64e98adac91a09af4dda942864b43ccde3b78f69c3633ed9a4e7e4",
+    "upgrades/1.2.0.md": "f9339a9b1c8aa4570a9784f904fb5ab10b01a605b0917c4ae0cb7893de93aa12",
+    "upgrades/README.md": "e4368e90bd7bb5bf5e7df263dd004a30f96181e405d04d6f5f27cf3cec15ac1a",
+    "worker/dist/index.js": "967406035794cf67db1056fb035c052ab52961c3021b8b361f42aa14737b5361",
+    "worker/dist/index.js.map": "a18ae9a7bc8f3d2df10820e61b4db3cd4fe0edd33c48e48da8f00ebb72e881e4",
+    "worker/dist/README.md": "86569821e8550aa1bb4ec499f9cb3b4178d26ea2285de31c8352820b3ff25b15",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "ed96ee68fe1511d77fcec2cdd704389a68f13976814467b45a07fbfae4b3612f",
+    "worker/migrations/0002_hot-updater_1.2.0.sql": "ab67f9563bced8c0a9830c543474af745b2207bf800dc60250da0a2cffe3b543",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
     "worker/wrangler.json": "fc08283babe060a4e307c8d3cbcb53742f6c4301fdd3ae228939ecf068b4fbd9"
   }
