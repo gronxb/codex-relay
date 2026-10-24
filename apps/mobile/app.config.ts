@@ -10,7 +10,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.6.2",
+    version: "1.7.0",
     orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
@@ -18,6 +18,8 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      // Hot Updater builds this TestFlight build locally; EAS keeps its own remote counter (62 at 1.6.2).
+      buildNumber: "63",
       deploymentTarget: "16.4",
       supportsTablet: true,
       infoPlist: {
