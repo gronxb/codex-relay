@@ -5,6 +5,9 @@ import { hotUpdater } from "@/lib/hot-updater";
 /** v1.2 QA: the QA preview build's default channel, the only build that opens channel links. */
 const QA_PREVIEW_CHANNEL = "qa-v12-preview";
 
+/** v1.2 QA: marks the JavaScript of the QA OTA bundles, so they differ from the built-in bundle. */
+export const QA_OTA_MARK = "qa-v12-ota-1";
+
 const openLink = async (url: string | null | undefined, initial: boolean) => {
   if (!url || hotUpdater === null) return;
   try {
@@ -13,7 +16,7 @@ const openLink = async (url: string | null | undefined, initial: boolean) => {
       defaultChannels: [QA_PREVIEW_CHANNEL],
       initial,
     });
-    console.log("[hot-updater-qa] openChannelLink", url, result.status);
+    console.log("[hot-updater-qa] openChannelLink", QA_OTA_MARK, url, result.status);
   } catch (error) {
     console.warn("[hot-updater-qa] Couldn't open the channel", error);
   }
