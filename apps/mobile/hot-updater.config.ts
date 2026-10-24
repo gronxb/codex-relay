@@ -2,6 +2,7 @@ import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { config } from "dotenv";
 import { defineConfig } from "hot-updater";
+import { remoteSigning } from "hot-updater/signing";
 import { apiKeys, insights, remoteConfig, vault } from "hot-updater/plugins";
 
 config({ path: ".env.hotupdater.rc22", quiet: true });
@@ -28,7 +29,23 @@ export default defineConfig({
     cloudflareApiToken: process.env.HOT_UPDATER_CLOUDFLARE_API_TOKEN!,
   }),
   updateStrategy: "appVersion", // or "fingerprint"
-  signing: { enabled: true, privateKeyPath: "./keys/private-key.pem" },
+  // v1.2 QA: HU_QA_SIGNING=vault signs through the Console's vault, for the
+  // new-native build that embeds the vault key; unset, the local key signs.
+  signing:
+    process.env.HU_QA_SIGNING === "vault"
+      ? remoteSigning({ endpoint: process.env.HOT_UPDATER_CONSOLE_URL! })
+      : { enabled: true, privateKeyPath: "./keys/private-key.pem" },
+  console: { channelLinkPrefix: "codex-relay://" },
+  nativeBuild: {
+    ios: {
+      simulator: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        installPods: true,
+        simulator: true,
+      },
+    },
+  },
   patch: {
     enabled: true,
     maxBaseBundles: 2,

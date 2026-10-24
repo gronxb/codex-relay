@@ -96,8 +96,10 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       [
         "@hot-updater/expo",
         {
-          channel: "production",
-          publicKeyPath: "./keys/public-key.pem",
+          // v1.2 QA: the new-native simulator build embeds a QA channel and the
+          // vault's public key; unset, both stay the production values.
+          channel: process.env.HU_QA_CHANNEL?.trim() || "production",
+          publicKeyPath: process.env.HU_QA_PUBLIC_KEY_PATH?.trim() || "./keys/public-key.pem",
         },
       ],
       [
