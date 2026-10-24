@@ -1,11 +1,18 @@
 import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { config } from "dotenv";
-import { defineConfig } from "hot-updater";
+import { defineConfig, vaultEnv } from "hot-updater";
 import { remoteSigning } from "hot-updater/signing";
 import { apiKeys, insights, remoteConfig, vault } from "hot-updater/plugins";
 
-config({ path: ".env.hotupdater.rc22", quiet: true });
+// v1.2 QA: HU_QA_VAULT_ONLY=1 reads no local credentials file. The CLI then sets the
+// vault's deploy-credentials before this file loads, and the R2 keys come from a generic
+// secret through vaultEnv, with only HOT_UPDATER_CONSOLE_URL and HOT_UPDATER_VAULT_TOKEN set.
+const vaultOnly = process.env.HU_QA_VAULT_ONLY === "1";
+if (!vaultOnly) {
+  config({ path: ".env.hotupdater.rc22", quiet: true });
+}
+const qaR2 = vaultEnv(["QA_R2_ACCESS_KEY_ID", "QA_R2_SECRET_ACCESS_KEY"]);
 
 if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-8492-f4760c40a834") {
   throw new Error("The rc14 database is reserved for app 1.5.0. Configure the rc22 database.");
@@ -18,10 +25,18 @@ export default defineConfig({
   storage: r2Storage({
     bucketName: process.env.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME!,
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
-    credentials: {
-      accessKeyId: process.env.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
-    },
+    credentials: vaultOnly
+      ? async () => {
+          const env = await qaR2();
+          return {
+            accessKeyId: env.QA_R2_ACCESS_KEY_ID!,
+            secretAccessKey: env.QA_R2_SECRET_ACCESS_KEY!,
+          };
+        }
+      : {
+          accessKeyId: process.env.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
+        },
   }),
   database: d1Database({
     databaseId: process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID!,
