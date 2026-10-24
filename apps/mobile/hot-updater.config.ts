@@ -2,7 +2,7 @@ import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { config } from "dotenv";
 import { defineConfig } from "hot-updater";
-import { apiKeys, insights, remoteConfig } from "hot-updater/plugins";
+import { apiKeys, insights, remoteConfig, vault } from "hot-updater/plugins";
 
 config({ path: ".env.hotupdater.rc22", quiet: true });
 
@@ -11,7 +11,8 @@ if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-84
 }
 
 export default defineConfig({
-  plugins: [apiKeys(), insights(), remoteConfig()],
+  // vault() runs in the Console and the CLI only, never in the managed Worker.
+  plugins: [apiKeys(), insights(), remoteConfig(), vault()],
   build: expo(),
   storage: r2Storage({
     bucketName: process.env.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME!,
