@@ -2,18 +2,17 @@ import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { execFileSync } from "node:child_process";
 import { config } from "dotenv";
-import { defineConfig, vaultEnv } from "hot-updater";
+import { defineConfig } from "hot-updater";
 import { remoteSigning } from "hot-updater/signing";
 import { apiKeys, insights, remoteConfig, vault } from "hot-updater/plugins";
 
-// v1.2 QA: HU_QA_VAULT_ONLY=1 reads no local credentials file. The CLI then sets the
-// vault's deploy-credentials before this file loads, and the R2 keys come from a generic
-// secret through vaultEnv, with only HOT_UPDATER_CONSOLE_URL and HOT_UPDATER_VAULT_TOKEN set.
+// HU_QA_VAULT_ONLY=1 reads no local credentials file: with only
+// HOT_UPDATER_CONSOLE_URL and HOT_UPDATER_VAULT_TOKEN set, the CLI sets the vault's
+// deploy-credentials in process.env before this file loads.
 const vaultOnly = process.env.HU_QA_VAULT_ONLY === "1";
 if (!vaultOnly) {
   config({ path: ".env.hotupdater.rc22", quiet: true });
 }
-const qaR2 = vaultEnv(["QA_R2_ACCESS_KEY_ID", "QA_R2_SECRET_ACCESS_KEY"]);
 
 if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-8492-f4760c40a834") {
   throw new Error("The rc14 database is reserved for app 1.5.0. Configure the rc22 database.");
@@ -51,18 +50,10 @@ export default defineConfig({
   storage: r2Storage({
     bucketName: process.env.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME!,
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
-    credentials: vaultOnly
-      ? async () => {
-          const env = await qaR2();
-          return {
-            accessKeyId: env.QA_R2_ACCESS_KEY_ID!,
-            secretAccessKey: env.QA_R2_SECRET_ACCESS_KEY!,
-          };
-        }
-      : {
-          accessKeyId: process.env.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
-        },
+    credentials: {
+      accessKeyId: process.env.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
+    },
   }),
   database: d1Database({
     databaseId: process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID!,
@@ -79,6 +70,16 @@ export default defineConfig({
   console: { channelLinkPrefix: "codex-relay://" },
   nativeBuild: {
     ios: {
+      // The TestFlight build: a device archive on the production channel, signed
+      // with automatic signing through the vault's App Store Connect API key
+      // (team Q3QT4ZF343 from app.config.ts's appleTeamId), exported for App Store
+      // Connect. OTA bundle signing stays the production key in keys/.
+      release: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        installPods: process.env.HU_QA_CODEGEN !== "1",
+        signing: { ascApiKey: "vault:asc-api-key" },
+      },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",

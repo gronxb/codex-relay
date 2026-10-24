@@ -18,6 +18,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      appleTeamId: "Q3QT4ZF343",
       // Hot Updater builds this TestFlight build locally; EAS keeps its own remote counter (62 at 1.6.2).
       buildNumber: "63",
       deploymentTarget: "16.4",
