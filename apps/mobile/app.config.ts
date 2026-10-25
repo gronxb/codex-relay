@@ -47,6 +47,8 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       },
       predictiveBackGestureEnabled: false,
       package: "com.gronstudio.codexrelay",
+      // Hot Updater builds this Play internal build locally; EAS has built no Android binary.
+      versionCode: 63,
       permissions: ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
     },
     web: {

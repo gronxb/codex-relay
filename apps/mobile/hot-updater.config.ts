@@ -43,6 +43,15 @@ export default defineConfig({
       : { enabled: true, privateKeyPath: "./keys/private-key.pem" },
   console: { channelLinkPrefix: "codex-relay://" },
   nativeBuild: {
+    android: {
+      // The Play internal testing build: a release .aab on the production channel,
+      // signed with the upload keystore from the vault (EAS's keystore, stored as
+      // android-keystore). OTA bundle signing stays the production key in keys/.
+      release: {
+        packageName: "com.gronstudio.codexrelay",
+        signing: { keystore: "vault:android-keystore" },
+      },
+    },
     ios: {
       // The TestFlight build: a device archive on the production channel, signed
       // with automatic signing through the vault's App Store Connect API key
