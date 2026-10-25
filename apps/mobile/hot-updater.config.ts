@@ -54,6 +54,15 @@ export default defineConfig({
         installPods: true,
         signing: { ascApiKey: "vault:asc-api-key" },
       },
+      // v1.2 QA: an unsigned device Release archive, to prove the project compiles
+      // for devices before an App Store Connect key exists. Its export fails by design.
+      deviceUnsigned: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        installPods: true,
+        extraParams: ["CODE_SIGNING_ALLOWED=NO", "CODE_SIGNING_REQUIRED=NO"],
+        exportOptionsPlist: "/Volumes/SSD_2TB/workspace/modex/.codex/mobile-1.6/v1.2-qa/export-options-development.plist",
+      },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
