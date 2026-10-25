@@ -331,6 +331,9 @@ importers:
       react-native:
         specifier: 0.88.0-rc.3
         version: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
+      react-native-arrangement-view:
+        specifier: 0.5.0
+        version: 0.5.0(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
       react-native-direct-fetch:
         specifier: workspace:*
         version: link:../../packages/react-native-direct-fetch
@@ -8310,6 +8313,12 @@ packages:
   react-is@19.2.5:
     resolution: {integrity: sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==}
 
+  react-native-arrangement-view@0.5.0:
+    resolution: {integrity: sha512-5rWX7A3gt15NKh2KqQhWCmi+09Y35EKy108QWnmHzaAtbewOqsea+8JEqKpEF1WCp5LfOdGaB7u2HxdMdO9K+Q==}
+    peerDependencies:
+      react: '>=19.0.0'
+      react-native: '>=0.83.0'
+
   react-native-builder-bob@0.40.18:
     resolution: {integrity: sha512-vGd6l/iaMirnVucQlm2OJWTDQjxbYxHNmqXtDRWXMRubwotKKycx1ARj/aJYbzbCdzHBB00bGzYEhUcq4sbGog==}
     engines: {node: ^20.19.0 || ^22.12.0 || >= 23.4.0}
@@ -12155,7 +12164,7 @@ snapshots:
     dependencies:
       '@expo/config-plugins': 57.0.9(supports-color@8.1.1)(typescript@6.0.3)
       '@expo/config-types': 57.0.2
-      '@expo/json-file': 11.0.1
+      '@expo/json-file': 11.2.1
       '@expo/require-utils': 57.0.5(supports-color@8.1.1)(typescript@6.0.3)
       deepmerge: 4.3.1
       getenv: 2.0.0
@@ -12257,7 +12266,7 @@ snapshots:
 
   '@expo/fingerprint@0.20.12(supports-color@8.1.1)':
     dependencies:
-      '@expo/env': 2.4.3(supports-color@8.1.1)
+      '@expo/env': 2.5.1(supports-color@8.1.1)
       '@expo/spawn-async': 1.8.0
       arg: 5.0.2
       chalk: 4.1.2
@@ -19489,6 +19498,11 @@ snapshots:
   react-is@18.3.1: {}
 
   react-is@19.2.5: {}
+
+  react-native-arrangement-view@0.5.0(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+      react-native: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
 
   react-native-builder-bob@0.40.18(supports-color@10.2.2):
     dependencies:

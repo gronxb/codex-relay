@@ -52,6 +52,8 @@ import { StyleSheet } from "react-native-unistyles";
 
 import { ThemedText } from "@/components/themed-text";
 import { AdaptivePanes } from "@/components/ui/adaptive-panes";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { PaneArrangementLayout } from "@/components/ui/pane-arrangement-layout";
 import { CopyableCommand } from "@/components/ui/copyable-command";
 import { AppToast } from "@/components/ui/toast";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
@@ -220,6 +222,7 @@ export function ChatScreen({ initialPairingUrl, onPairingComplete }: ChatScreenP
   const [activePagerPage, setActivePagerPage] = useState(0);
   const [isWidePreviewVisible, setWidePreviewVisible] = useState(true);
   const [wideLayoutWidth, setWideLayoutWidth] = useState(0);
+  const [isHingeSplit, setHingeSplit] = useState(false);
   const [previewPaneWidth, setPreviewPaneWidth] = useState(DEFAULT_PREVIEW_PANE_WIDTH);
   const [scannerMessage, setScannerMessage] = useState("Point the camera at the connection QR.");
   const copyToastIdRef = useRef(0);
@@ -227,7 +230,9 @@ export function ChatScreen({ initialPairingUrl, onPairingComplete }: ChatScreenP
   const [copyToast, setCopyToast] = useState<{ id: number } | undefined>(undefined);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const usesExpandedSidebar = width >= EXPANDED_DRAWER_BREAKPOINT;
+  // A half-open hinge gives each pane its own half, so the panes are side by side at any width.
   const usesWideLayout =
+    isHingeSplit ||
     wideLayoutWidth >= MIN_CHAT_PANE_WIDTH + MIN_PREVIEW_PANE_WIDTH + PREVIEW_RESIZE_HANDLE_WIDTH;
   const drawerNavigation = useNavigation<{
     openDrawer?: () => void;
@@ -2165,6 +2170,9 @@ export function ChatScreen({ initialPairingUrl, onPairingComplete }: ChatScreenP
     const nextWidth = Math.round(event.nativeEvent.layout.width);
     setWideLayoutWidth((current) => (current === nextWidth ? current : nextWidth));
   }, []);
+  const onPaneArrangementChange = useCallback((layout: PaneArrangementLayout) => {
+    setHingeSplit(layout.hingeSplit);
+  }, []);
 
   const clampedPreviewPaneWidth = clampPreviewPaneWidth(previewPaneWidth, wideLayoutWidth);
   const showsWidePreviewPane = hasPairedSession && usesWideLayout && isWidePreviewVisible;
@@ -2347,14 +2355,32 @@ export function ChatScreen({ initialPairingUrl, onPairingComplete }: ChatScreenP
             </Animated.View>
           </GestureDetector>
         }
-        width={wideLayoutWidth}
+        secondaryPlaceholder={
+          hasPairedSession ? (
+            <EmptyState
+              icon="preview"
+              systemImage="sidebar.trailing"
+              title="Workspace preview hidden"
+              description="This half of the screen shows the workspace preview while the device is half open."
+              action={{ label: "Show preview", onPress: toggleWorkspacePreview }}
+            />
+          ) : (
+            <EmptyState
+              icon="preview"
+              systemImage="sidebar.trailing"
+              title="Workspace preview"
+              description="Pair this device with your computer to use the workspace preview here."
+            />
+          )
+        }
         secondaryWidth={clampedPreviewPaneWidth}
         dividerWidth={PREVIEW_RESIZE_HANDLE_WIDTH}
         sideBySide={usesWideLayout}
-        secondaryVisible={hasPairedSession && (!usesWideLayout || isWidePreviewVisible)}
+        previewShown={hasPairedSession && (!usesWideLayout || isWidePreviewVisible)}
         selectedPane={activePagerPage}
         onSelectPane={setActivePagerPage}
         onLayout={onWideLayout}
+        onArrangementChange={onPaneArrangementChange}
       />
       {copyToast ? (
         <AppToast
