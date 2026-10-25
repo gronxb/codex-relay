@@ -18,23 +18,23 @@ minimumReleaseAge: 0
 
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
-  # v1.2 QA overrides start: pkg.pr.new of gronxb/hot-updater#1628 at 310d25257 (= final next)
-  "hot-updater": https://pkg.pr.new/gronxb/hot-updater/hot-updater@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/android-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/apple-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/bsdiff": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/cli-tools": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/console": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/protocol": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/react-native": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/server": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/plugin-api-keys": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/bare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/cloudflare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/expo": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/plugin-insights": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/plugin-core": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/plugin-remote-config": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/plugin-vault": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-vault@310d252572a741a6b26653c23b8c9e53771ffcfa
-  "@hot-updater/standalone": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/standalone@310d252572a741a6b26653c23b8c9e53771ffcfa
+  # v1.2 QA overrides start: pkg.pr.new of gronxb/hot-updater#1630 at a050a8eed (B1 fix)
+  "hot-updater": https://pkg.pr.new/gronxb/hot-updater/hot-updater@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/android-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/apple-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/bsdiff": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/cli-tools": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/console": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/protocol": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/react-native": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/server": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/plugin-api-keys": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/bare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/cloudflare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/expo": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/plugin-insights": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/plugin-core": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/plugin-remote-config": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/plugin-vault": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-vault@a050a8eed2a121514f055797a499a33b608b7e7f
+  "@hot-updater/standalone": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/standalone@a050a8eed2a121514f055797a499a33b608b7e7f
   # v1.2 QA overrides end

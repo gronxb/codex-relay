@@ -1,6 +1,5 @@
 import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
-import { execFileSync } from "node:child_process";
 import { config } from "dotenv";
 import { defineConfig } from "hot-updater";
 import { remoteSigning } from "hot-updater/signing";
@@ -21,32 +20,7 @@ if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-84
 export default defineConfig({
   // vault() runs in the Console and the CLI only, never in the managed Worker.
   plugins: [apiKeys(), insights(), remoteConfig(), vault()],
-  // v1.2 QA workaround (HU_QA_CODEGEN=1): build:ios's own pod install sets
-  // RCT_IGNORE_PODS_DEPRECATION=1, which React Native >= 0.85 reads as
-  // RCT_SKIP_CODEGEN, and expo prebuild removes ios/build/generated, so the pods
-  // miss ReactAppDependencyProvider. Install the pods with codegen after prebuild.
-  build:
-    process.env.HU_QA_CODEGEN === "1"
-      ? (args) => {
-          const adapter = expo()(args);
-          return {
-            ...adapter,
-            nativeBuild: {
-              ...adapter.nativeBuild,
-              prebuild: async (options) => {
-                await adapter.nativeBuild?.prebuild?.(options);
-                if (options.platform === "ios") {
-                  execFileSync("bundle", ["exec", "pod", "install"], {
-                    cwd: `${args.cwd}/ios`,
-                    env: { ...process.env, BUNDLE_GEMFILE: `${args.cwd}/Gemfile` },
-                    stdio: "inherit",
-                  });
-                }
-              },
-            },
-          };
-        }
-      : expo(),
+  build: expo(),
   storage: r2Storage({
     bucketName: process.env.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME!,
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
@@ -77,13 +51,13 @@ export default defineConfig({
       release: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
-        installPods: process.env.HU_QA_CODEGEN !== "1",
+        installPods: true,
         signing: { ascApiKey: "vault:asc-api-key" },
       },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
-        installPods: process.env.HU_QA_CODEGEN !== "1",
+        installPods: true,
         simulator: true,
       },
     },
