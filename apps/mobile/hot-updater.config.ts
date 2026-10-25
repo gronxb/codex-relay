@@ -47,6 +47,11 @@ export default defineConfig({
       // The Play internal testing build: a release .aab on the production channel,
       // signed with the upload keystore from the vault (EAS's keystore, stored as
       // android-keystore). OTA bundle signing stays the production key in keys/.
+      // v1.2 QA: proves the Android release compiles before the keystore and Play key
+      // exist; the project's own (debug) signing, never uploaded.
+      compileCheck: {
+        packageName: "com.gronstudio.codexrelay",
+      },
       release: {
         packageName: "com.gronstudio.codexrelay",
         signing: { keystore: "vault:android-keystore" },
