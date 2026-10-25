@@ -20,7 +20,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       bundleIdentifier: "com.gronstudio.codexrelay",
       appleTeamId: "Q3QT4ZF343",
       // Hot Updater builds this TestFlight build locally; EAS keeps its own remote counter (62 at 1.6.2).
-      buildNumber: "63",
+      buildNumber: process.env.HU_IOS_BUILD_NUMBER?.trim() || "63",
       deploymentTarget: "16.4",
       supportsTablet: true,
       infoPlist: {
@@ -48,7 +48,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       predictiveBackGestureEnabled: false,
       package: "com.gronstudio.codexrelay",
       // Hot Updater builds this Play internal build locally; EAS has built no Android binary.
-      versionCode: 63,
+      versionCode: Number(process.env.HU_ANDROID_VERSION_CODE?.trim() || 63),
       permissions: ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
     },
     web: {
