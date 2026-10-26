@@ -60,7 +60,7 @@ jobs:
           printf '%s' "$MOBILE_ENV" > .env
           mkdir -p keys
           printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
-      - uses: gronxb/hot-updater/actions/preview@2d3e9ff39225c18964ab6ed1e3ee80296d2303be
+      - uses: gronxb/hot-updater/actions/preview@79c81f68d2ea0cf01c096c52ae77e9550c9c2494
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
