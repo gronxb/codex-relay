@@ -1,0 +1,70 @@
+# v1.2 QA: Hot Updater's pull request previews on codex-relay (actions/preview).
+# The first run builds and registers an iOS Simulator preview build of 1.7.0 on the qa-v12-preview
+# channel, unless one is registered already; every run deploys this pull request's bundle to its
+# pr-<number> channel and comments the Console install link and the channel link's QR code. Closing
+# the pull request deletes the channel and its bundles. Production's channel is never touched.
+name: Hot Updater preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: hot-updater-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: macos-latest
+    timeout-minutes: 120
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+      # The @hot-updater/expo config plugin embeds this channel at prebuild (app.config.ts).
+      HU_QA_CHANNEL: qa-v12-preview
+      # Deploy credentials, read by hot-updater.config.ts through the env() secrets adapter.
+      HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID }}
+      HOT_UPDATER_CLOUDFLARE_API_TOKEN: ${{ secrets.HOT_UPDATER_CLOUDFLARE_API_TOKEN }}
+      HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID }}
+      HOT_UPDATER_CLOUDFLARE_D1_DATABASE_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_NAME }}
+      HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME }}
+      HOT_UPDATER_CLOUDFLARE_R2_PRIVATE: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_PRIVATE }}
+      HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      HOT_UPDATER_CLOUDFLARE_WORKER_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_WORKER_NAME }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      # apps/mobile's Gemfile runs CocoaPods through bundler (Ruby 3.3: 3.2 crashes pod install).
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: apps/mobile
+      - run: pnpm install --frozen-lockfile
+      # The app's EXPO_PUBLIC_* values and the bundle signing key the production builds trust.
+      - name: Restore the app environment and the bundle signing key
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+          HOT_UPDATER_PRIVATE_KEY: ${{ secrets.HOT_UPDATER_PRIVATE_KEY }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+          mkdir -p keys
+          printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
+      - uses: gronxb/hot-updater/actions/preview@e4325a99d62e732f7af9e160d7d9e7ce780e954d
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          platforms: ios
+          ios-scheme: simulator
+          preview-channel: qa-v12-preview
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
