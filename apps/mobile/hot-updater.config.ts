@@ -35,13 +35,8 @@ export default defineConfig({
   nativeBuild: {
     android: {
       // The Play internal testing build: a release .aab on the production channel,
-      // signed with the upload keystore the secrets adapter reads (env(): EAS's keystore
-      // as HOT_UPDATER_ANDROID_KEYSTORE JSON). OTA bundle signing stays the production key in keys/.
-      // v1.2 QA: proves the Android release compiles before the keystore and Play key
-      // exist; the project's own (debug) signing, never uploaded.
-      compileCheck: {
-        packageName: "com.gronstudio.codexrelay",
-      },
+      // signed with the upload keystore localSecrets() reads (EAS's keystore as
+      // android-keystore). OTA bundle signing stays the production key in keys/.
       release: {
         packageName: "com.gronstudio.codexrelay",
         signing: { keystore: "secret:android-keystore" },
@@ -50,7 +45,7 @@ export default defineConfig({
     ios: {
       // The TestFlight build: a device archive on the production channel, signed
       // with automatic signing through the App Store Connect API key the Apple sign-in
-      // issues (env(): HOT_UPDATER_ASC_API_KEY)
+      // issues (localSecrets() locally, the HOT_UPDATER_ASC_API_KEY GitHub secret in CI)
       // (team Q3QT4ZF343 from app.config.ts's appleTeamId), exported for App Store
       // Connect. OTA bundle signing stays the production key in keys/.
       release: {
@@ -58,15 +53,6 @@ export default defineConfig({
         scheme: "CodexRelay",
         installPods: true,
         signing: { ascApiKey: "secret:asc-api-key" },
-      },
-      // v1.2 QA: an unsigned device Release archive, to prove the project compiles
-      // for devices before an App Store Connect key exists. Its export fails by design.
-      deviceUnsigned: {
-        bundleIdentifier: "com.gronstudio.codexrelay",
-        scheme: "CodexRelay",
-        installPods: true,
-        extraParams: ["CODE_SIGNING_ALLOWED=NO", "CODE_SIGNING_REQUIRED=NO"],
-        exportOptionsPlist: "/Volumes/SSD_2TB/workspace/modex/.codex/mobile-1.6/v1.2-qa/export-options-development.plist",
       },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
