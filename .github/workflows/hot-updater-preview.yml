@@ -68,3 +68,10 @@ jobs:
           preview-channel: qa-v12-preview
           working-directory: apps/mobile
           cli: pnpm exec hot-updater
+      # QA: keep the CLI's build log when the preview fails, to read xcodebuild's own error.
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hot-updater-build-log
+          path: apps/mobile/.hot-updater/log/
+          if-no-files-found: warn

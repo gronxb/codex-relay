@@ -65,7 +65,8 @@ export default defineConfig({
         scheme: "CodexRelay",
         installPods: true,
         extraParams: ["CODE_SIGNING_ALLOWED=NO", "CODE_SIGNING_REQUIRED=NO"],
-        exportOptionsPlist: "/Volumes/SSD_2TB/workspace/modex/.codex/mobile-1.6/v1.2-qa/export-options-development.plist",
+        exportOptionsPlist:
+          "/Volumes/SSD_2TB/workspace/modex/.codex/mobile-1.6/v1.2-qa/export-options-development.plist",
       },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
