@@ -49,15 +49,6 @@ jobs:
           bundler-cache: true
           working-directory: apps/mobile
       - run: pnpm install --frozen-lockfile
-      # QA diagnostics: the project builds with Xcode 27 locally; use the newest Xcode on the runner,
-      # and hide xcbeautify so the CLI's build log keeps xcodebuild's raw output (its error lines).
-      - name: Select Xcode and keep raw xcodebuild output
-        run: |
-          ls -d /Applications/Xcode*.app
-          newest=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
-          sudo xcode-select -s "$newest"
-          xcodebuild -version
-          if command -v xcbeautify >/dev/null; then sudo mv "$(command -v xcbeautify)" "$(command -v xcbeautify).off"; fi
       # The app's EXPO_PUBLIC_* values and the bundle signing key the production builds trust.
       - name: Restore the app environment and the bundle signing key
         working-directory: apps/mobile
@@ -69,7 +60,7 @@ jobs:
           printf '%s' "$MOBILE_ENV" > .env
           mkdir -p keys
           printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
-      - uses: gronxb/hot-updater/actions/preview@e4325a99d62e732f7af9e160d7d9e7ce780e954d
+      - uses: gronxb/hot-updater/actions/preview@2d3e9ff39225c18964ab6ed1e3ee80296d2303be
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
@@ -77,10 +68,3 @@ jobs:
           preview-channel: qa-v12-preview
           working-directory: apps/mobile
           cli: pnpm exec hot-updater
-      # QA: keep the CLI's build log when the preview fails, to read xcodebuild's own error.
-      - if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: hot-updater-build-log
-          path: apps/mobile/.hot-updater/log/
-          if-no-files-found: warn
