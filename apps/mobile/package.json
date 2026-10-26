@@ -22,7 +22,7 @@
     "@expo/metro-runtime": "58.0.10",
     "@expo/ui": "58.0.11",
     "@gorhom/bottom-sheet": "^5.2.14",
-    "@hot-updater/react-native": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@dcb51f1b2869ed754738b44435e6ab15f985e66a",
+    "@hot-updater/react-native": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@721a959bcd3d00dd1d4822c5456348e4068f6c36",
     "@legendapp/list": "3.3.10",
     "@legendapp/state": "^2.1.15",
     "@noble/ciphers": "2.4.0",
@@ -90,8 +90,8 @@
     "uniwind": "^1.11.0"
   },
   "devDependencies": {
-    "@hot-updater/cloudflare": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@dcb51f1b2869ed754738b44435e6ab15f985e66a",
-    "@hot-updater/expo": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@dcb51f1b2869ed754738b44435e6ab15f985e66a",
+    "@hot-updater/cloudflare": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@721a959bcd3d00dd1d4822c5456348e4068f6c36",
+    "@hot-updater/expo": "https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@721a959bcd3d00dd1d4822c5456348e4068f6c36",
     "@react-native/metro-config": "0.88.0-rc.3",
     "@shikijs/monaco": "4.4.3",
     "@types/react": "~19.3.0",
@@ -99,7 +99,7 @@
     "dotenv": "^17.4.2",
     "eas-cli": "24.8.0",
     "happy-dom": "20.14.5",
-    "hot-updater": "https://pkg.pr.new/gronxb/hot-updater/hot-updater@dcb51f1b2869ed754738b44435e6ab15f985e66a",
+    "hot-updater": "https://pkg.pr.new/gronxb/hot-updater/hot-updater@721a959bcd3d00dd1d4822c5456348e4068f6c36",
     "monaco-editor-core": "0.56.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",
