@@ -49,6 +49,15 @@ jobs:
           bundler-cache: true
           working-directory: apps/mobile
       - run: pnpm install --frozen-lockfile
+      # QA diagnostics: the project builds with Xcode 27 locally; use the newest Xcode on the runner,
+      # and hide xcbeautify so the CLI's build log keeps xcodebuild's raw output (its error lines).
+      - name: Select Xcode and keep raw xcodebuild output
+        run: |
+          ls -d /Applications/Xcode*.app
+          newest=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+          if command -v xcbeautify >/dev/null; then sudo mv "$(command -v xcbeautify)" "$(command -v xcbeautify).off"; fi
       # The app's EXPO_PUBLIC_* values and the bundle signing key the production builds trust.
       - name: Restore the app environment and the bundle signing key
         working-directory: apps/mobile
