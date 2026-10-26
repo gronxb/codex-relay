@@ -1,7 +1,7 @@
 import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { config } from "dotenv";
-import { defineConfig } from "hot-updater";
+import { defineConfig, localSecrets } from "hot-updater";
 import { apiKeys, insights, remoteConfig } from "hot-updater/plugins";
 
 // Deploy credentials: this machine keeps them in .env.hotupdater.rc22 (gitignored);
@@ -29,6 +29,7 @@ export default defineConfig({
     cloudflareApiToken: process.env.HOT_UPDATER_CLOUDFLARE_API_TOKEN!,
   }),
   updateStrategy: "appVersion", // or "fingerprint"
+  secrets: localSecrets(),
   signing: { enabled: true, privateKeyPath: "./keys/private-key.pem" },
   console: { channelLinkPrefix: "codex-relay://" },
   nativeBuild: {

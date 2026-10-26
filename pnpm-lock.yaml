@@ -164,23 +164,23 @@ settings:
 
 overrides:
   '@libsql/isomorphic-ws>ws': 8.21.0
-  hot-updater: https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/android-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/apple-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/console': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/react-native': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/plugin-api-keys': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/bare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/cloudflare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/expo': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892
-  '@hot-updater/standalone': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/standalone@f24b2360f8592bda8535eb97161f7565b1189892
+  hot-updater: https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/android-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/apple-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/console': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/react-native': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/plugin-api-keys': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/bare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/cloudflare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/expo': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+  '@hot-updater/standalone': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/standalone@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
 
 importers:
 
@@ -220,8 +220,8 @@ importers:
         specifier: ^5.2.14
         version: 5.2.14(d8aadd757832538287612c5b8bfdda5e)
       '@hot-updater/react-native':
-        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892
-        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
       '@legendapp/list':
         specifier: 3.3.10
         version: 3.3.10(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
@@ -422,11 +422,11 @@ importers:
         version: 1.12.0(@expo/metro-config@57.0.12(expo@58.0.2)(supports-color@8.1.1)(typescript@6.0.3))(metro-cache@0.87.1(supports-color@8.1.1))(metro-transform-worker@0.84.5(supports-color@8.1.1))(metro@0.87.1(supports-color@8.1.1))(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)(tailwindcss@4.3.3)
     devDependencies:
       '@hot-updater/cloudflare':
-        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892
-        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892
+        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       '@hot-updater/expo':
-        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892
-        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892(expo@58.0.2)(hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
+        specifier: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+        version: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(expo@58.0.2)(hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)
       '@react-native/metro-config':
         specifier: 0.88.0-rc.3
         version: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -449,8 +449,8 @@ importers:
         specifier: 20.14.5
         version: 20.14.5
       hot-updater:
-        specifier: https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892
-        version: https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+        specifier: https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+        version: https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
       monaco-editor-core:
         specifier: 0.56.0
         version: 0.56.0
@@ -2250,33 +2250,33 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-gNWHW7GpG8TyRfzR1zpTrWtVVfyl+4EbFH9C+NV7+1FC5yacQVQeQ+N4RxCO3i0ZdFBQDSs/9cRp366L4VMIJA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-JDG0XvceOHXLJK9j5h9sTu6IsRHOgXkP0FR3wFg+PGJEk2B9U65OT2xqkvRBkeJCpJrqYXQHwPogz5UOGFlWmA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-SyXJ6AR/jdx5rfSRI4TJ9UNk9mQRZD56nA39Ty+3BbXbw+3Q8DyS0uqbrfIGzON4KgEQgYZt9BHIkopeZAJlVQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-ykhCO0HqW9mDaZwqGBieOgjxnD0S8bNj2vC9SZX+Vu2teFQRkUQPmVqP9PhHoykNVuQnULsTiqGVH3Majpa7BQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/bare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-oEi9C6GFPYOjMTGzreQpTLZpaBA7JvtA5Af3REZ8d+y4nzCrJtB2DsavEdua8pqO6DWR1LdA52pu7qcPM72CQA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/bare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-AbVl8RP+RT0YHHfXlUND2CuQBDujTV7e4Dy6WPIt3/tHEPJHmwEqnxpCywPP4lJihhddjHGd4EmB4hSjdP7u4A==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-85r+JT1mBoMcKbKu3N0mBehOBvxcty52wUIiferGDmbYvPb46jYPJVyXdEQXZf6Ibb9/sW0eYQKKv1B+wM5qkw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-85r+JT1mBoMcKbKu3N0mBehOBvxcty52wUIiferGDmbYvPb46jYPJVyXdEQXZf6Ibb9/sW0eYQKKv1B+wM5qkw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-L5iRWMRKn4foQGRuN29smQjVNVr8+JLqnQj/edHVRj/kfaTAloJ2DeTtInE7nVNfzRHQy7BAoItFTcX1EfnBvw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-J3j5KUPuaNMv0HkScKZaX8DXd93lgXWegI+yO5maBempHEQKha+hfTSkRUKNCxTCz6RfThcTsUggaoxsQs7Edw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     engines: {node: ^22.23.4 || ^24.22.1 || >=26.12.1}
 
-  '@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-gyW3rCBeSavDj0xAOD3hQl6yp0iTTdBIrp2lW0ZVodwokJ22IaK75tvWBV0f1LON+fE54Kq+SyggNaZ8Hw6Tzg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-bcRJvO1VGhhzjtZQWN7HHoolHVgxq7GXD+MCJVrzDLojToHfSzUQ3JJmZGLQyV6CaAr+/p4AcMaE7CDmNGJs3A==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-NnaHJKzDwInpDkVzWUBG3pcBjUwevI/LIm2yn3xv1Rbx16rN7qSI++2SVLzXJyJvvfYA96NKQSiXmFB0hqbNzQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-1voK5MkdVjvKVIXeCwVQMfM4MSBNNmNnf/73IQex0FewzVpWKiK5e4gJUAD60TOaqtavkDWfX+sGiRRKgICsdA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       '@hot-updater/cli-tools': '*'
@@ -2287,8 +2287,8 @@ packages:
       '@hot-updater/cli-tools':
         optional: true
 
-  '@hot-updater/expo@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-FKChJpYXeoQYFdgNgYlnbuVrav4FfOOX5bkzppX398LxiAKqQ20rQxsiBnH/NW+zvDBhJiePW0vCWn6gubdCFA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/expo@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-HLODU/de8OgYlaXgo0uQ677CY5oD5I+O1/dActqyznRMAtnnP5ecJro/cd2gKbOfNW9NnxX+1eZjZdvci4KQGg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       expo: '>=50.0.0'
@@ -2299,27 +2299,18 @@ packages:
       hot-updater:
         optional: true
 
-  '@hot-updater/plugin-api-keys@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-B2l0UDxrUnuJZbRi/Q8JHG2J8BgTXcXnCCMuofnCa7acF/zfALH7bBWWojK/22pAc2eZJ9Mvw6N0H3ihLrrRjw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/plugin-api-keys@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-ddTd+kJkhixs/3R2q/Yc+QDHLylOkEbm2jwYOZ6C+iI9F08XBuPzmIaPgLJ1lbg+oL4bBt9DnnzLmmDGj06qJw==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       '@hot-updater/plugin-core': ^1.1.2
 
-  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-FTHnUn5ScQJQ/IKU6pduZNgDmJRL0zLQ6+qNdso7V3wEtc/E7Jxshr83l5ktXavosbX4EfUOsNMULCqzPdXrvQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-Vp7hkFSG5NgcXVL8l6M5giizdW63aJx9U1n+3+xhTk+fDZV5Jo2/712tFWml8DkzUDxJjG8EmKq1VhWETvzk4w==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/plugin-insights@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-Ouh8k51IKy0X7/Usw1ZA945HRJU29glcM63+wWi0FLD+3NayzJdwSDZURbzKg3ycrHUf1eRIOcvE0X2V01Fjxg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892}
-    version: 1.1.2
-    peerDependencies:
-      '@hot-updater/plugin-core': ^1.1.2
-    peerDependenciesMeta:
-      '@hot-updater/plugin-core':
-        optional: true
-
-  '@hot-updater/plugin-remote-config@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-kojF4WDc1cgJAb1M0MusXy1GmYnRibsh3eL6OOLVR8Mw6277oZu64n+rqKt5YQWJmBeMqX1HL2/smH/64Nh5rA==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/plugin-insights@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-AkUuPOLIqu2V0DY7E2MIm/YAblncvNVF7jFfEigD6sKkC9L3kPgprlUiWPJolYx2s74jv2C8mUKmDBv1Xr8VOg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       '@hot-updater/plugin-core': ^1.1.2
@@ -2327,19 +2318,28 @@ packages:
       '@hot-updater/plugin-core':
         optional: true
 
-  '@hot-updater/protocol@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-pASB9nCjxd2Zc0FudYso2bJyHbr5VZxl/XqBg1gzkrUb738Qi7RaCOe8/2+sfRWGW8xtK7lA9bmWXiPX9RgUHg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/plugin-remote-config@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-zF0ai4tGy5XOC3GHSid9VLy851WMh0RCiuyyFmsd9cdy9wQd91GuUNHcVCHKmC1jVcrlEE1r3Tmgc2ToQMbtVQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
+    version: 1.1.2
+    peerDependencies:
+      '@hot-updater/plugin-core': ^1.1.2
+    peerDependenciesMeta:
+      '@hot-updater/plugin-core':
+        optional: true
+
+  '@hot-updater/protocol@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-pASB9nCjxd2Zc0FudYso2bJyHbr5VZxl/XqBg1gzkrUb738Qi7RaCOe8/2+sfRWGW8xtK7lA9bmWXiPX9RgUHg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
 
-  '@hot-updater/react-native@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-OxeZk80UEh24UUlPODNSNgky7rpQnCbNA3jSx974A9x3XxMPiWanO96ns9jmKHfqI2gQpMct8cLxTse9V3Uchg==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/react-native@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-v1nbMe8+8z62P2udSY05tFzLDmfsgx4/Uos6q8jsLdxyR1/t0zNXFHGyQ1H8lbrV1afBDu+Yqv8sGkS825PAug==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       react: '*'
       react-native: '*'
 
-  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892':
-    resolution: {integrity: sha512-045gbyr+L2sCkwtw4a1XEnlzVAQwzkVey2Yw4WA04pHNHfvOG9v+IA0GXV6wEJCv5TsD8hW6u42aIEHbaa672g==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892}
+  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
+    resolution: {integrity: sha512-LXLipWFmnUWPWc8AwcsfZMX49etm9qWpx6U+y7XiVdbDDnhfa6WuE4g84gFlnC/VV4cnVE7lXL9q8ttYuO/+bQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     peerDependencies:
       '@prisma/client': '*'
@@ -6686,14 +6686,13 @@ packages:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892:
-    resolution: {integrity: sha512-X4NAMedlv5oJgXv+1KHJaFPTLgUKoFGBjj3ziLM6wWe9jSch8GJccsBKtu4FmXJUzlOTSaqxlhBAWX2W726wZQ==, tarball: https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892}
+  hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06:
+    resolution: {integrity: sha512-vzAv8Y9t88qpU7ges5zcE8o3KOm8gPNfyZg5CymKIubSiK++CaRpkdQGA5k55ajxggCGb/6cXRsPR4y69VtbQw==, tarball: https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06}
     version: 1.1.2
     engines: {node: ^22.23.4 || ^24.22.1 || >=26.12.1}
     hasBin: true
     peerDependencies:
       '@aws-sdk/client-kms': ^3.1066.0
-      '@aws-sdk/credential-providers': ^3.1066.0
       '@google-cloud/kms': ^6.0.0
       '@hot-updater/aws': ^1.1.2
       '@hot-updater/azure': ^1.1.2
@@ -6701,11 +6700,8 @@ packages:
       '@hot-updater/firebase': ^1.1.2
       '@hot-updater/supabase': ^1.1.2
       '@hot-updater/vercel': ^1.1.2
-      google-auth-library: ^10.0.0 || ^11.0.0
     peerDependenciesMeta:
       '@aws-sdk/client-kms':
-        optional: true
-      '@aws-sdk/credential-providers':
         optional: true
       '@google-cloud/kms':
         optional: true
@@ -6720,8 +6716,6 @@ packages:
       '@hot-updater/supabase':
         optional: true
       '@hot-updater/vercel':
-        optional: true
-      google-auth-library:
         optional: true
 
   html-void-elements@3.0.0:
@@ -12855,11 +12849,11 @@ snapshots:
     dependencies:
       hono: 4.12.34
 
-  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/android-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       execa: 9.5.2
       jszip: 3.10.2
     transitivePeerDependencies:
@@ -12868,10 +12862,10 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/apple-helper@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       execa: 9.5.2
       fast-xml-parser: 5.8.0
     transitivePeerDependencies:
@@ -12880,10 +12874,10 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/bare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/bare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       uuidv7: 1.2.1
     transitivePeerDependencies:
       - '@prisma/client'
@@ -12891,13 +12885,13 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892': {}
+  '@hot-updater/bsdiff@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06': {}
 
-  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       oxc-parser: 0.141.0
       oxc-transform: 0.141.0
       unconfig: 7.5.0
@@ -12907,15 +12901,15 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
       '@aws-sdk/client-s3': 3.1066.0
       '@aws-sdk/lib-storage': 3.1008.0(@aws-sdk/client-s3@3.1066.0)
       '@aws-sdk/s3-request-presigner': 3.1066.0
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       cloudflare: 4.2.0
       hono: 4.12.34
       uuidv7: 1.2.1
@@ -12926,14 +12920,14 @@ snapshots:
       - kysely
       - mongodb
 
-  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)':
+  '@hot-updater/console@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fontsource-variable/inter': 5.3.0
-      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       '@tailwindcss/vite': 4.3.3(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
       '@tanstack/react-devtools': 0.10.12(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(csstype@3.2.3)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(solid-js@1.9.15)
       '@tanstack/react-query': 5.104.0(react@19.3.0)
@@ -12961,7 +12955,7 @@ snapshots:
       verkit: 0.4.0
       vite: 8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
     optionalDependencies:
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -13033,17 +13027,17 @@ snapshots:
       - xml2js
       - zephyr-agent
 
-  '@hot-updater/expo@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@f24b2360f8592bda8535eb97161f7565b1189892(expo@58.0.2)(hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
+  '@hot-updater/expo@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(expo@58.0.2)(hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0))(supports-color@8.1.1)':
     dependencies:
       '@babel/core': 7.26.0(supports-color@8.1.1)
       '@babel/types': 7.26.0
-      '@hot-updater/bare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/bare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       uuidv7: 1.2.1
     optionalDependencies:
       expo: 58.0.2(c3a13f6443b9d259c1744bffa67788ba)
-      hot-updater: https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+      hot-updater: https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
     transitivePeerDependencies:
       - '@prisma/client'
       - drizzle-orm
@@ -13051,50 +13045,50 @@ snapshots:
       - mongodb
       - supports-color
 
-  '@hot-updater/plugin-api-keys@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)':
+  '@hot-updater/plugin-api-keys@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)':
     dependencies:
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
 
-  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       es-toolkit: 1.46.1
       mime: 4.1.0
       verkit: 0.4.0
 
-  '@hot-updater/plugin-insights@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)':
+  '@hot-updater/plugin-insights@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)':
     dependencies:
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
     optionalDependencies:
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
 
-  '@hot-updater/plugin-remote-config@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)':
+  '@hot-updater/plugin-remote-config@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)':
     dependencies:
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       verkit: 0.4.0
     optionalDependencies:
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
 
-  '@hot-updater/protocol@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892': {}
+  '@hot-updater/protocol@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06': {}
 
-  '@hot-updater/react-native@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
+  '@hot-updater/react-native@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
     dependencies:
-      '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)
-      '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)
+      '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       react: 19.3.0
       react-native: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
       use-sync-external-store: 1.5.0(react@19.3.0)
     transitivePeerDependencies:
       - '@hot-updater/plugin-core'
 
-  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892':
+  '@hot-updater/server@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06':
     dependencies:
-      '@hot-updater/plugin-api-keys': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)
-      '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892)
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/plugin-api-keys': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/plugin-insights': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)
+      '@hot-updater/plugin-remote-config': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/plugin-core@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       rou3: 0.7.9
       verkit: 0.4.0
 
@@ -17603,20 +17597,20 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
 
-  hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0):
+  hot-updater@https://pkg.pr.new/gronxb/hot-updater/hot-updater@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cloudflare@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0):
     dependencies:
-      '@hot-updater/android-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/apple-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/console': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@f24b2360f8592bda8535eb97161f7565b1189892(@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@f24b2360f8592bda8535eb97161f7565b1189892)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
-      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@f24b2360f8592bda8535eb97161f7565b1189892
-      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/android-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/apple-helper': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/bsdiff': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/cli-tools': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/console': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06(@hot-updater/cli-tools@https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06)(@libsql/client@0.17.4)(@tanstack/query-core@5.104.0)(@tanstack/router-core@1.171.37)(@types/react-dom@19.2.7(@types/react@19.3.0))(@types/react@19.3.0)(babel-plugin-react-compiler@1.0.0)(chokidar@5.0.0)(csstype@3.2.3)(dotenv@17.4.2)(esbuild@0.28.1)(jiti@2.6.1)(lru-cache@11.3.5)(react-dom@19.3.0(react@19.3.0))(react-is@19.2.5)(react@19.3.0)(redux@5.0.1)(rolldown@1.2.7)(solid-js@1.9.15)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.2(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))(wrangler@4.129.0)
+      '@hot-updater/plugin-core': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/protocol': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
+      '@hot-updater/server': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
       '@iarna/toml': 2.2.5
       jiti: 2.6.1
     optionalDependencies:
-      '@hot-updater/cloudflare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@f24b2360f8592bda8535eb97161f7565b1189892
+      '@hot-updater/cloudflare': https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@fcdf2c2d8692d205a46ee7d5ef0875e266be1c06
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
