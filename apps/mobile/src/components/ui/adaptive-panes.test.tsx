@@ -1,33 +1,72 @@
 // @vitest-environment happy-dom
-import { act, useEffect, useState, type ReactNode, type Ref } from "react";
+import { act, useEffect, useState, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const native = vi.hoisted(() => ({
-  scrollTo: vi.fn<(options: { x: number; animated: boolean }) => void>(),
   windowWidth: 1600,
+  arrangementLayout: null as null | ((layout: unknown) => void),
 }));
 
-vi.mock("react-native", async () => {
-  const { useImperativeHandle } = await import("react");
-  return {
-    useWindowDimensions: () => ({ width: native.windowWidth }),
-    View: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    ScrollView: ({
-      children,
-      ref,
-    }: {
-      children: ReactNode;
-      ref: Ref<{ scrollTo: typeof native.scrollTo }>;
-    }) => {
-      useImperativeHandle(ref, () => ({ scrollTo: native.scrollTo }));
-      return <div>{children}</div>;
-    },
-  };
-});
+vi.mock("react-native", () => ({
+  StyleSheet: {
+    create: (styles: object) => styles,
+    absoluteFillObject: {},
+    flatten: (style: unknown) => style,
+  },
+  useWindowDimensions: () => ({ width: native.windowWidth }),
+  View: ({ children, onLayout }: { children: ReactNode; onLayout?: (event: unknown) => void }) => {
+    useEffect(() => {
+      onLayout?.({ nativeEvent: { layout: { width: native.windowWidth } } });
+    }, [onLayout]);
+    return <div>{children}</div>;
+  },
+}));
 vi.mock("react-native-unistyles", () => ({ StyleSheet: { create: (styles: object) => styles } }));
 vi.mock("react-native-safe-area-context", () => ({
   SafeAreaView: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+vi.mock("react-native-gesture-handler", () => {
+  const gesture: Record<string, unknown> = {};
+  for (const key of [
+    "runOnJS",
+    "enabled",
+    "activeOffsetX",
+    "failOffsetY",
+    "onStart",
+    "onUpdate",
+    "onEnd",
+  ]) {
+    gesture[key] = () => gesture;
+  }
+  return {
+    Gesture: { Pan: () => gesture },
+    GestureDetector: ({ children }: { children: ReactNode }) => <>{children}</>,
+  };
+});
+vi.mock("react-native-reanimated", () => ({
+  default: { View: ({ children }: { children: ReactNode }) => <div>{children}</div> },
+  useSharedValue: (value: number) => ({ value }),
+  useAnimatedStyle: () => ({}),
+  withTiming: (value: number) => value,
+}));
+vi.mock("react-native-arrangement-view", () => ({
+  ArrangementView: Object.assign(
+    ({
+      children,
+      onArrangementLayoutChange,
+    }: {
+      children: ReactNode;
+      onArrangementLayoutChange: (layout: unknown) => void;
+    }) => {
+      native.arrangementLayout = onArrangementLayoutChange;
+      return <div>{children}</div>;
+    },
+    {
+      Primary: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+      Secondary: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    },
+  ),
 }));
 
 import { AdaptivePanes } from "./adaptive-panes";
@@ -38,6 +77,7 @@ describe("adaptive workspace panes", () => {
   let root: Root;
   const mounted = vi.fn<(name: string) => void>();
   const unmounted = vi.fn<(name: string) => void>();
+  const onArrangementChange = vi.fn<(layout: { hingeSplit: boolean }) => void>();
 
   function StatefulPane({ name }: { name: string }) {
     const [draft, setDraft] = useState("");
@@ -64,23 +104,35 @@ describe("adaptive workspace panes", () => {
     container.remove();
   });
 
-  function render(width: number, sideBySide: boolean, selectedPane = 0, secondaryVisible = true) {
+  function render(width: number, sideBySide: boolean, selectedPane = 0, previewShown = true) {
+    native.windowWidth = width;
     act(() =>
       root.render(
         <AdaptivePanes
           primary={<StatefulPane name="chat" />}
           secondary={<StatefulPane name="terminal" />}
+          secondaryPlaceholder={<span>preview hidden</span>}
           divider={<div />}
-          width={width}
           secondaryWidth={360}
           dividerWidth={14}
           sideBySide={sideBySide}
           selectedPane={selectedPane}
-          secondaryVisible={secondaryVisible}
+          previewShown={previewShown}
           onSelectPane={vi.fn<(pane: number) => void>()}
           onLayout={vi.fn<() => void>()}
+          onArrangementChange={onArrangementChange}
         />,
       ),
+    );
+  }
+
+  function foldTo(hingeSplit: boolean) {
+    act(() =>
+      native.arrangementLayout?.({
+        secondaryVisible: true,
+        axis: hingeSplit ? "horizontal" : null,
+        isOverlapping: !hingeSplit,
+      }),
     );
   }
 
@@ -98,21 +150,26 @@ describe("adaptive workspace panes", () => {
     expect(container.textContent).toBe("chat:unsent draftterminal:unsent draft");
   });
 
-  it("keeps the selected compact page after a width change and resets the offset when unfolded", () => {
+  it("reports a hinge split and keeps both panes mounted either side of the crease", () => {
     render(390, false, 1);
-    expect(native.scrollTo).toHaveBeenLastCalledWith({ x: 390, animated: false });
-    render(430, false, 1);
-    expect(native.scrollTo).toHaveBeenLastCalledWith({ x: 430, animated: false });
-    render(960, true, 1);
-    expect(native.scrollTo).toHaveBeenLastCalledWith({ x: 0, animated: false });
-    render(390, false, 1);
-    expect(native.scrollTo).toHaveBeenLastCalledWith({ x: 390, animated: false });
+    act(() => container.querySelectorAll("button").forEach((button) => button.click()));
+    foldTo(true);
+    expect(onArrangementChange).toHaveBeenLastCalledWith({ hingeSplit: true, axis: "horizontal" });
+    render(390, true, 1);
+    foldTo(false);
+    expect(onArrangementChange).toHaveBeenLastCalledWith({ hingeSplit: false, axis: null });
+
+    expect(unmounted).not.toHaveBeenCalled();
+    expect(container.textContent).toBe("chat:unsent draftterminal:unsent draft");
   });
 
-  it("returns to the chat when the secondary pane is unavailable", () => {
-    render(390, false, 1);
-    render(390, false, 1, false);
-    expect(native.scrollTo).toHaveBeenLastCalledWith({ x: 0, animated: false });
+  it("offers to show the preview in the empty half only while hinge-split", () => {
+    render(844, true, 0, false);
+    expect(container.textContent).not.toContain("preview hidden");
+    foldTo(true);
+    expect(container.textContent).toContain("preview hidden");
+    render(844, true, 0, true);
+    expect(container.textContent).not.toContain("preview hidden");
   });
 
   it("restores the resized sidebar width after folding into the compact drawer", () => {
