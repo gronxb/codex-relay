@@ -18,22 +18,3 @@ minimumReleaseAge: 0
 
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
-  # v1.2 QA overrides start: pkg.pr.new of gronxb/hot-updater#1655 at dcb51f1b2 (final next, secrets adapters)
-  "hot-updater": https://pkg.pr.new/gronxb/hot-updater/hot-updater@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/android-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/android-helper@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/apple-helper": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/apple-helper@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/bsdiff": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bsdiff@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/cli-tools": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cli-tools@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/console": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/console@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/protocol": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/protocol@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/react-native": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/react-native@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/server": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/server@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/plugin-api-keys": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-api-keys@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/bare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/bare@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/cloudflare": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/cloudflare@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/expo": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/expo@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/plugin-insights": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-insights@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/plugin-core": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-core@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/plugin-remote-config": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/plugin-remote-config@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  "@hot-updater/standalone": https://pkg.pr.new/gronxb/hot-updater/@hot-updater/standalone@4c1a62fab3dd8d5a1c5413876d8c52656443b331
-  # v1.2 QA overrides end
