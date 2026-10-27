@@ -31,7 +31,6 @@ export default defineConfig({
   updateStrategy: "appVersion", // or "fingerprint"
   secrets: localSecrets(),
   signing: { enabled: true, privateKeyPath: "./keys/private-key.pem" },
-  console: { channelLinkPrefix: "codex-relay://" },
   nativeBuild: {
     android: {
       // The Play internal testing build: a release .aab on the production channel,

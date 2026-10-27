@@ -18,7 +18,6 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { useInitialPushNotificationRegistration } from "@/hooks/use-initial-push-notification-registration";
-import { listenForChannelLinks } from "@/lib/channel-links";
 import { hotUpdater } from "@/lib/hot-updater";
 import {
   addHotUpdaterLog,
@@ -153,9 +152,6 @@ function TabLayout() {
       void SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-
-  // v1.2 QA: channel links, opened only by the QA preview build.
-  useEffect(() => listenForChannelLinks(), []);
 
   useEffect(() => {
     const unsubscribeProgress = hotUpdater?.addListener("onProgress", (event) => {
