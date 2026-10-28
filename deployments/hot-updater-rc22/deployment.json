@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.2.0-rc.1",
+  "deployedServerVersion": "1.2.0-rc.2",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -3206,6 +3206,18 @@
       },
       "observation": "Catalogs gen 46 unchanged; app doctor no issue; infra doctor 7/7 for ios production 1.6.0-1.7.0; R2 200; live 200 catalogs/artifacts/remote-config + 204 events",
       "checkedAt": "2026-10-28T01:30:48Z"
+    },
+    {
+      "id": "v1.2.0-rc.2:cutover",
+      "action": "Upload 1.2.0-rc.2 without traffic (4eb538b3), preview, then route 100% (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "ff0cc26f-7d16-4481-a101-df4c4cf87d69",
+        "d1Bookmark": "0000222c-00000016-00005112-466b057ca3dc1f84aa9020554ba8fe78"
+      },
+      "requestId": "4eb538b3-eece-404e-b7f3-47ec5d08697a",
+      "observation": "Bindings equal; preview == production except /version; after deploy /version 1.2.0-rc.2, catalogs gen 46, app doctor clean, infra 7/7 ios production 1.6.0-1.7.0, R2 200, live 200/204",
+      "checkedAt": "2026-10-28T03:16:28Z"
     }
   ]
 }
