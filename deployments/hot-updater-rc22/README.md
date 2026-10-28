@@ -987,3 +987,9 @@ npm `1.2.0-rc.0` (dist-tag `rc`, from `612449d2e`) replaced the pkg.pr.new pins.
 **Rollback.** `versions deploy 75deef3b-d8aa-484a-b7f3-2be794bf7cf9@100%` and the console image `ship/codex-relay:v1.2-next-5ca0151-f955a0b`.
 
 Private receipts are under `.codex/mobile-1.6/v1.2-qa/rc0/`.
+
+## 1.2.0-rc.1 upgrade (2026-10-28 KST, QA branch)
+
+npm `1.2.0-rc.1` (from `80e834282`). The scaffold changed `upgrades/1.2.0.md` and the Worker dist only; the migration did not change, so the database did not either. Bookmark `00002213-0000001e-00005112-4d622f20115e5aab362016281d50a3e7`. Version `ff0cc26f-7d16-4481-a101-df4c4cf87d69`, uploaded without traffic, answered on its preview as production did; it took 100% at 01:30:48Z. Console `ship/codex-relay:v1.2.0-rc.1-09efe23`. Doctors: app passes; infrastructure passes 7/7 for iOS 1.6.0, 1.6.1, 1.6.2 and 1.7.0.
+
+**Rollback.** `versions deploy efefb297-27a9-4b59-8a4b-c5f7cbae7be7@100%` and the console image `ship/codex-relay:v1.2.0-rc.0-cd42fb5`. Receipts are under `.codex/mobile-1.6/v1.2-qa/rc1/`.
