@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.2.0-rc.0",
-  "providerVersion": "1.2.0-rc.0",
-  "serverVersion": "1.2.0-rc.0",
+  "cliVersion": "1.2.0-rc.1",
+  "providerVersion": "1.2.0-rc.1",
+  "serverVersion": "1.2.0-rc.1",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.2.0-rc.0",
-    "@hot-updater/server": "1.2.0-rc.0",
-    "@hot-updater/react-native": "1.2.0-rc.0",
-    "@hot-updater/cloudflare": "1.2.0-rc.0",
-    "@hot-updater/expo": "1.2.0-rc.0"
+    "hot-updater": "1.2.0-rc.1",
+    "@hot-updater/server": "1.2.0-rc.1",
+    "@hot-updater/react-native": "1.2.0-rc.1",
+    "@hot-updater/cloudflare": "1.2.0-rc.1",
+    "@hot-updater/expo": "1.2.0-rc.1"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -48,11 +48,11 @@
     "ENVIRONMENT.md": "6452e12ad10cf3e3c0351cf2a36d0982b544675fa8b50461bfefb96f022a306a",
     "SETUP.md": "c30d729a7cfa62dc5a8e35832a5dd48d708a3685a089936562f607f87981aafe",
     "upgrades/1.0.0.md": "42c3424ffb0a286fdc0253afad2b31e8abc34d2fb7a060fc5818b5be2d6a76d5",
-    "upgrades/1.2.0.md": "531e3593046e9a9de33fc22197c4b1b4d5f2acc877e87997bd808c2faf1f6f89",
+    "upgrades/1.2.0.md": "2c38b299c6129334c8a7651f46d871df1a17d32fff49cc0daceffd8a0d9d440d",
     "upgrades/README.md": "e4368e90bd7bb5bf5e7df263dd004a30f96181e405d04d6f5f27cf3cec15ac1a",
-    "worker/dist/index.js": "b7d05d6fdfa8aa5d0c4c6b2d98940641269f88c876a749d91e7c7f3424d28486",
-    "worker/dist/index.js.map": "be584bb08b1cc9fc30585f2f7cc9ad77f6e575d7a248e07bd472f424447b8b51",
-    "worker/dist/README.md": "f450a7e3f9533b536655cf3c6a930a17da5f3f0f802c5b82c35a720cd71bc543",
+    "worker/dist/index.js": "2a0a35e56ac129b1b66c730f792f2e18b4ababefc591e4770aefddcd574f87b6",
+    "worker/dist/index.js.map": "a1e87be79d282be178dbceeb2802eaa3d46daacf7c4c10a1173d2631bd598f4c",
+    "worker/dist/README.md": "d9d751728ae1ca05b05bbfea9264c42517fcf57af5f4ac96743529641efe71a2",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "ed96ee68fe1511d77fcec2cdd704389a68f13976814467b45a07fbfae4b3612f",
     "worker/migrations/0002_hot-updater_1.2.0.sql": "747ec4adc41124a4dd834747d8f53f179f5a341435ee09f3c7f9a237d4e01d4f",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",

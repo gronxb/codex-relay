@@ -966,3 +966,24 @@ Before widening, a Release simulator build of app 1.6.2 with native code from SD
 After a dry run, `hot-updater bundle update 01a13d86-… --target-app-version 1.6.x --expected-revision 1 -y` widened it at 03:24:28Z: revision 2, catalog generation 38 → 39, with `1.6.2-ship.3` first for 1.6.0, 1.6.1 and 1.6.2. To undo the widening, set the target back to `1.6.2`.
 
 **Watch.** By 13:35Z, `1.6.2-ship.3` had 339 downloads and 92 applies, 54 of them on its own 1.0.7 JavaScript (53 on 1.6.2, 1 on 1.6.1), with no crash, rollback or recovery. Update failures stayed at 3.6% of downloads (12, all network or download errors from devices still running the rc.46 JavaScript), the same as the three days before the deploy (81 of 2,217).
+
+## 1.2.0-rc.0 upgrade (2026-10-28 KST, QA branch)
+
+npm `1.2.0-rc.0` (dist-tag `rc`, from `612449d2e`) replaced the pkg.pr.new pins. D1 was already at core `1.2.0` with every `native_builds` column and index of the rc.0 `0002` migration, so nothing changed in the database.
+
+1. Time Travel bookmark `00002182-00000020-00005111-66cbcf9fdade4f5f771d7a273444f336` was taken first.
+2. The scaffold from `agent infra upgrade` replaced 8 files (Worker dist, `0002` migration text, docs, app files) and the manifest's versions and hashes. Resource IDs were kept, and the scaffold doctor passed.
+3. The rc.0 Worker was uploaded as version `efefb297-27a9-4b59-8a4b-c5f7cbae7be7` without traffic. Its bindings and secrets matched `75deef3b`, and its preview answered exactly as production did, except that `/version` reported `1.2.0-rc.0`.
+4. At 15:51:16Z, 100% of traffic moved to `efefb297`. The Ship console rolled to `ship/codex-relay:v1.2.0-rc.0-cd42fb5`.
+
+`hot-updater doctor` named `init --provider cloudflare --from-env-file .env.hotupdater` for the outdated server. It was not run: it deploys straight to 100% and does not update this directory.
+
+**Validation.**
+
+- Doctors: the app doctor (with `--server-base-url`) reports no server or schema issue; the infrastructure doctor passes 7/7 for iOS 1.6.0, 1.6.1, 1.6.2 and 1.7.0.
+- Catalogs stay at generation 46, and R2 answers 200.
+- Live devices got 200/304 catalogs, 204 events and 200 Remote Config.
+
+**Rollback.** `versions deploy 75deef3b-d8aa-484a-b7f3-2be794bf7cf9@100%` and the console image `ship/codex-relay:v1.2-next-5ca0151-f955a0b`.
+
+Private receipts are under `.codex/mobile-1.6/v1.2-qa/rc0/`.
