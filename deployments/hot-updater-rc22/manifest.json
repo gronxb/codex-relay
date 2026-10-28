@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "provider": "cloudflare",
-  "cliVersion": "1.2.0-rc.3",
-  "providerVersion": "1.2.0-rc.3",
-  "serverVersion": "1.2.0-rc.3",
+  "cliVersion": "1.2.0-rc.4",
+  "providerVersion": "1.2.0-rc.4",
+  "serverVersion": "1.2.0-rc.4",
   "infrastructureGeneration": 1,
   "clientAuth": {
     "plugin": "apiKeys",
@@ -21,11 +21,11 @@
     }
   ],
   "packages": {
-    "hot-updater": "1.2.0-rc.3",
-    "@hot-updater/server": "1.2.0-rc.3",
-    "@hot-updater/react-native": "1.2.0-rc.3",
-    "@hot-updater/cloudflare": "1.2.0-rc.3",
-    "@hot-updater/expo": "1.2.0-rc.3"
+    "hot-updater": "1.2.0-rc.4",
+    "@hot-updater/server": "1.2.0-rc.4",
+    "@hot-updater/react-native": "1.2.0-rc.4",
+    "@hot-updater/cloudflare": "1.2.0-rc.4",
+    "@hot-updater/expo": "1.2.0-rc.4"
   },
   "requiredInputs": {
     "workerName": "codex-relay-ota-rc22",
@@ -50,9 +50,9 @@
     "upgrades/1.0.0.md": "42c3424ffb0a286fdc0253afad2b31e8abc34d2fb7a060fc5818b5be2d6a76d5",
     "upgrades/1.2.0.md": "2c38b299c6129334c8a7651f46d871df1a17d32fff49cc0daceffd8a0d9d440d",
     "upgrades/README.md": "e4368e90bd7bb5bf5e7df263dd004a30f96181e405d04d6f5f27cf3cec15ac1a",
-    "worker/dist/index.js": "806f3266e5f266cc5ad36130d389279c03e9552fe9116a5cd7717a80a5e6a5fb",
-    "worker/dist/index.js.map": "ce341463f5cc2097fcc924a870e15e0bd1862036d76fb55971258b98b781ba2a",
-    "worker/dist/README.md": "2b882b72102278a08a6907fb98436d3561195ecfa31c547e6648a9a74ce18eb5",
+    "worker/dist/index.js": "bfdf8f53d857ea979a4737047a0abfe1a8441b78a76657f8fc3db3d4fcf7fb06",
+    "worker/dist/index.js.map": "d3763bdac969f4c4bb10367afb826bed22ce2a4d0f716806d9a866ba5619ca70",
+    "worker/dist/README.md": "5e9f30d0b16a194731b975a078ec1f466bd2831ba2e75488d39aa57388b7fa66",
     "worker/migrations/0001_hot-updater_1.0.0.sql": "ed96ee68fe1511d77fcec2cdd704389a68f13976814467b45a07fbfae4b3612f",
     "worker/migrations/0002_hot-updater_1.2.0.sql": "747ec4adc41124a4dd834747d8f53f179f5a341435ee09f3c7f9a237d4e01d4f",
     "worker/package.json": "f5c51eff03c6bba7c761a556932a9ab6f06cbb3c188d3e7224e52da8f19857e2",
