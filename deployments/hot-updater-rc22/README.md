@@ -993,3 +993,9 @@ Private receipts are under `.codex/mobile-1.6/v1.2-qa/rc0/`.
 npm `1.2.0-rc.1` (from `80e834282`). The scaffold changed `upgrades/1.2.0.md` and the Worker dist only; the migration did not change, so the database did not either. Bookmark `00002213-0000001e-00005112-4d622f20115e5aab362016281d50a3e7`. Version `ff0cc26f-7d16-4481-a101-df4c4cf87d69`, uploaded without traffic, answered on its preview as production did; it took 100% at 01:30:48Z. Console `ship/codex-relay:v1.2.0-rc.1-09efe23`. Doctors: app passes; infrastructure passes 7/7 for iOS 1.6.0, 1.6.1, 1.6.2 and 1.7.0.
 
 **Rollback.** `versions deploy efefb297-27a9-4b59-8a4b-c5f7cbae7be7@100%` and the console image `ship/codex-relay:v1.2.0-rc.0-cd42fb5`. Receipts are under `.codex/mobile-1.6/v1.2-qa/rc1/`.
+
+## 1.2.0-rc.2 upgrade (2026-10-28 KST, QA branch)
+
+npm `1.2.0-rc.2` (from `df1bfeb8e`) changed only the Worker dist. Bookmark `0000222c-00000016-00005112-466b057ca3dc1f84aa9020554ba8fe78`. Version `4eb538b3-eece-404e-b7f3-47ec5d08697a` was uploaded and previewed, then took 100% at 03:16:27Z. Console `ship/codex-relay:v1.2.0-rc.2-0918e54`. Doctors: app passes; infrastructure passes 7/7 for iOS 1.6.0, 1.6.1, 1.6.2 and 1.7.0.
+
+**Rollback.** `versions deploy ff0cc26f-7d16-4481-a101-df4c4cf87d69@100%` and the console image `ship/codex-relay:v1.2.0-rc.1-09efe23`. Receipts are under `.codex/mobile-1.6/v1.2-qa/rc2/`.
