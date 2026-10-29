@@ -5,8 +5,8 @@ import { defineConfig, infisical, secret } from "hot-updater";
 import { apiKeys, insights, remoteConfig } from "hot-updater/plugins";
 
 // Deploy credentials live in Infisical (secrets below). A local INFISICAL_* sign-in or a
-// value override can sit in .env.hotupdater.rc22 (gitignored); CI signs in with the
-// read-only Viewer identity from gronxb/codex-relay's GitHub Actions secrets.
+// value override can sit in .env.hotupdater.rc22 (gitignored); CI signs in with GitHub
+// OIDC as a read-only (Viewer) machine identity, so it holds no Infisical secret.
 config({ path: ".env.hotupdater.rc22", quiet: true });
 
 if (process.env.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID === "1a140b73-204a-4bcb-8492-f4760c40a834") {
@@ -31,7 +31,7 @@ export default defineConfig({
   }),
   updateStrategy: "appVersion", // or "fingerprint"
   // v1.2 QA: the team store (Infisical Cloud, env prod, path /); sign-in comes from
-  // INFISICAL_UNIVERSAL_AUTH_* in the environment or .env.hotupdater.
+  // INFISICAL_UNIVERSAL_AUTH_* locally, INFISICAL_MACHINE_IDENTITY_ID in CI.
   // OTA bundles are signed with the production key stored as bundle-signing-key.
   secrets: infisical({ projectId: "33b972fc-d37a-457a-8a36-cdb6149b94cf" }),
   signing: secret("bundle-signing-key"),

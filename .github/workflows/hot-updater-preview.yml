@@ -13,6 +13,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  # infisical() signs in with GitHub OIDC (INFISICAL_MACHINE_IDENTITY_ID).
+  id-token: write
 
 concurrency:
   group: hot-updater-preview-${{ github.event.pull_request.number }}
@@ -28,9 +30,9 @@ jobs:
       # embeds the pull request's channel (the action's default channel, pr-<number>).
       PREVIEW_CHANNEL: pr-${{ github.event.number }}
       # hot-updater.config.ts reads every deploy credential (Cloudflare tokens, the bundle
-      # signing key) from Infisical with the read-only Viewer identity (Universal Auth).
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
+      # signing key) from Infisical. It signs in with GitHub OIDC as a read-only (Viewer)
+      # machine identity bound to this repository's pull_request runs on the QA branch.
+      INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
@@ -53,6 +55,12 @@ jobs:
         run: |
           umask 077
           printf '%s' "$MOBILE_ENV" > .env
+      # Which Infisical sign-in this job offers (variable names only, never values).
+      - name: Show the Infisical sign-in
+        run: |
+          for name in INFISICAL_TOKEN INFISICAL_UNIVERSAL_AUTH_CLIENT_ID INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET INFISICAL_MACHINE_IDENTITY_ID ACTIONS_ID_TOKEN_REQUEST_URL ACTIONS_ID_TOKEN_REQUEST_TOKEN; do
+            if [ -n "${!name:-}" ]; then echo "$name: set"; else echo "$name: unset"; fi
+          done
       - uses: gronxb/hot-updater/actions/preview@700d4b2b479861425fea5a31ae7019fef43f9cf0
         with:
           console-url: https://codex-relay.gron-studio.com
