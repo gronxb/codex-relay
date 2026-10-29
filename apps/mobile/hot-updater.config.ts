@@ -1,7 +1,7 @@
 import { d1Database, r2Storage } from "@hot-updater/cloudflare";
 import { expo } from "@hot-updater/expo";
 import { config } from "dotenv";
-import { defineConfig, localSecrets } from "hot-updater";
+import { defineConfig, localSecrets, secret } from "hot-updater";
 import { apiKeys, insights, remoteConfig } from "hot-updater/plugins";
 
 // Deploy credentials: this machine keeps them in .env.hotupdater.rc22 (gitignored);
@@ -38,7 +38,7 @@ export default defineConfig({
       // android-keystore). OTA bundle signing stays the production key in keys/.
       release: {
         packageName: "com.gronstudio.codexrelay",
-        signing: { keystore: "secret:android-keystore" },
+        signing: { keystore: secret("android-keystore") },
       },
     },
     ios: {
@@ -51,7 +51,7 @@ export default defineConfig({
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
         installPods: true,
-        signing: { ascApiKey: "secret:asc-api-key" },
+        signing: { ascApiKey: secret("asc-api-key") },
       },
       simulator: {
         bundleIdentifier: "com.gronstudio.codexrelay",
