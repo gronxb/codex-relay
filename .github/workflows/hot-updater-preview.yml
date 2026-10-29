@@ -1,4 +1,4 @@
-# v1.2 QA: Hot Updater's pull request previews on codex-relay (actions/preview, hot-updater 1.2.0-rc.6).
+# v1.2 QA: Hot Updater's pull request previews on codex-relay (actions/preview, hot-updater 1.2.0-rc.7).
 # Every run deploys this pull request's bundle to its pr-<number> channel and, unless the registry
 # already has an iOS Simulator build for the project's fingerprint there, builds and registers one
 # that embeds that channel (app.config.ts reads PREVIEW_CHANNEL). The comment links the build's
@@ -62,7 +62,7 @@ jobs:
           printf '%s' "$MOBILE_ENV" > .env
           mkdir -p keys
           printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
-      - uses: gronxb/hot-updater/actions/preview@d14efd484138f2ace15be368d9f874e6820fd0a0
+      - uses: gronxb/hot-updater/actions/preview@b4e4eaaf254eff2bc99d33797e9f8fd26fd7918b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
