@@ -27,16 +27,10 @@ jobs:
       # app.config.ts passes this to the @hot-updater/expo config plugin, so the preview build
       # embeds the pull request's channel (the action's default channel, pr-<number>).
       PREVIEW_CHANNEL: pr-${{ github.event.number }}
-      # Deploy credentials, read by hot-updater.config.ts through the env() secrets adapter.
-      HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID }}
-      HOT_UPDATER_CLOUDFLARE_API_TOKEN: ${{ secrets.HOT_UPDATER_CLOUDFLARE_API_TOKEN }}
-      HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_ID }}
-      HOT_UPDATER_CLOUDFLARE_D1_DATABASE_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_D1_DATABASE_NAME }}
-      HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_ACCESS_KEY_ID }}
-      HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_BUCKET_NAME }}
-      HOT_UPDATER_CLOUDFLARE_R2_PRIVATE: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_PRIVATE }}
-      HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.HOT_UPDATER_CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
-      HOT_UPDATER_CLOUDFLARE_WORKER_NAME: ${{ secrets.HOT_UPDATER_CLOUDFLARE_WORKER_NAME }}
+      # hot-updater.config.ts reads every deploy credential (Cloudflare tokens, the bundle
+      # signing key) from Infisical with the read-only Viewer identity (Universal Auth).
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
@@ -51,17 +45,14 @@ jobs:
           bundler-cache: true
           working-directory: apps/mobile
       - run: pnpm install --frozen-lockfile
-      # The app's EXPO_PUBLIC_* values and the bundle signing key the production builds trust.
-      - name: Restore the app environment and the bundle signing key
+      # The app's EXPO_PUBLIC_* values.
+      - name: Restore the app environment
         working-directory: apps/mobile
         env:
           MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
-          HOT_UPDATER_PRIVATE_KEY: ${{ secrets.HOT_UPDATER_PRIVATE_KEY }}
         run: |
           umask 077
           printf '%s' "$MOBILE_ENV" > .env
-          mkdir -p keys
-          printf '%s' "$HOT_UPDATER_PRIVATE_KEY" > keys/private-key.pem
       - uses: gronxb/hot-updater/actions/preview@700d4b2b479861425fea5a31ae7019fef43f9cf0
         with:
           console-url: https://codex-relay.gron-studio.com
