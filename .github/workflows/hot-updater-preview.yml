@@ -1,4 +1,4 @@
-# v1.2 QA: Hot Updater's pull request previews on codex-relay (actions/preview, hot-updater 1.2.0-rc.9).
+# v1.2 QA: Hot Updater's pull request previews on codex-relay (actions/preview, hot-updater 1.2.0-rc.10).
 # Every run deploys this pull request's bundle to its pr-<number> channel and, unless the registry
 # already has an iOS Simulator build for the project's fingerprint there, builds and registers one
 # that embeds that channel (app.config.ts reads PREVIEW_CHANNEL). The comment links the build's
@@ -61,7 +61,7 @@ jobs:
           for name in INFISICAL_TOKEN INFISICAL_UNIVERSAL_AUTH_CLIENT_ID INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET INFISICAL_MACHINE_IDENTITY_ID ACTIONS_ID_TOKEN_REQUEST_URL ACTIONS_ID_TOKEN_REQUEST_TOKEN; do
             if [ -n "${!name:-}" ]; then echo "$name: set"; else echo "$name: unset"; fi
           done
-      - uses: gronxb/hot-updater/actions/preview@700d4b2b479861425fea5a31ae7019fef43f9cf0
+      - uses: gronxb/hot-updater/actions/preview@483db0a2e422dccd7e5a68e1fee37c04b038b90c
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
