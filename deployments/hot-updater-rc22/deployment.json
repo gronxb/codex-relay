@@ -9,7 +9,7 @@
     "bucketName": "codex-relay-rc22-storage"
   },
   "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
-  "deployedServerVersion": "1.0.7",
+  "deployedServerVersion": "1.2.0-rc.4",
   "pendingStep": null,
   "verifiedSteps": [
     {
@@ -3140,6 +3140,108 @@
         "consoleUrlStatus": 200
       },
       "checkedAt": "2026-10-15T02:58:00Z"
+    },
+    {
+      "id": "v1.2.0-rc.0:worker-version",
+      "action": "Upload the 1.2.0-rc.0 Worker as a new version without traffic",
+      "target": {
+        "accountId": "e8488f1eee751a6aa2d4831c5de1c3dc",
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.2.0-rc.0",
+        "variables": ["ACCOUNT_ID", "BUCKET_NAME"],
+        "secrets": ["R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "STORAGE_DOWNLOAD_URL_SIGNING_KEY"]
+      },
+      "requestId": "efefb297-27a9-4b59-8a4b-c5f7cbae7be7",
+      "observation": "Bindings and secret names equal 75deef3b's; preview /version 1.2.0-rc.0; catalogs ios 1.6.0-1.7.0 gen 46 as production; artifacts 401/200/200, files 200 + R2 206; remote-config 200/401",
+      "checkedAt": "2026-10-27T15:50:30Z"
+    },
+    {
+      "id": "v1.2.0-rc.0:cutover",
+      "action": "Route 100% to 1.2.0-rc.0 version efefb297 (no schema change: D1 already at core 1.2.0 with every native_builds column)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "75deef3b-d8aa-484a-b7f3-2be794bf7cf9",
+        "d1Bookmark": "00002182-00000020-00005111-66cbcf9fdade4f5f771d7a273444f336"
+      },
+      "observation": "Production /version 1.2.0-rc.0, catalogs gen 46 unchanged, real devices 200/304 catalogs + 204 events + 200 remote-config in a 4 min tail, no 5xx",
+      "checkedAt": "2026-10-27T15:51:16Z"
+    },
+    {
+      "id": "common.verify.v1.2.0-rc.0",
+      "action": "Verify 1.2.0-rc.0 infrastructure and local app configuration",
+      "target": {
+        "serverVersion": "1.2.0-rc.0",
+        "baseUrl": "https://codex-relay-ota-rc22.gron1gh1.workers.dev",
+        "platform": "ios",
+        "channel": "production",
+        "appVersions": ["1.6.0", "1.6.1", "1.6.2", "1.7.0"]
+      },
+      "observation": {
+        "scaffoldDoctorPassed": true,
+        "infrastructureDoctorPassed": true,
+        "infrastructureChecks": "7/7 per app version",
+        "appDoctorPassed": true,
+        "r2BoundedList": 200
+      },
+      "checkedAt": "2026-10-27T15:56:00Z"
+    },
+    {
+      "id": "v1.2.0-rc.1:worker-version",
+      "action": "Upload the 1.2.0-rc.1 Worker as a new version without traffic",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "packageVersion": "1.2.0-rc.1"
+      },
+      "requestId": "ff0cc26f-7d16-4481-a101-df4c4cf87d69",
+      "observation": "Bindings and secret names equal efefb297's; preview answers as production except /version 1.2.0-rc.1",
+      "checkedAt": "2026-10-28T01:29:30Z"
+    },
+    {
+      "id": "v1.2.0-rc.1:cutover",
+      "action": "Route 100% to 1.2.0-rc.1 version ff0cc26f (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "efefb297-27a9-4b59-8a4b-c5f7cbae7be7",
+        "d1Bookmark": "00002213-0000001e-00005112-4d622f20115e5aab362016281d50a3e7"
+      },
+      "observation": "Catalogs gen 46 unchanged; app doctor no issue; infra doctor 7/7 for ios production 1.6.0-1.7.0; R2 200; live 200 catalogs/artifacts/remote-config + 204 events",
+      "checkedAt": "2026-10-28T01:30:48Z"
+    },
+    {
+      "id": "v1.2.0-rc.2:cutover",
+      "action": "Upload 1.2.0-rc.2 without traffic (4eb538b3), preview, then route 100% (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "ff0cc26f-7d16-4481-a101-df4c4cf87d69",
+        "d1Bookmark": "0000222c-00000016-00005112-466b057ca3dc1f84aa9020554ba8fe78"
+      },
+      "requestId": "4eb538b3-eece-404e-b7f3-47ec5d08697a",
+      "observation": "Bindings equal; preview == production except /version; after deploy /version 1.2.0-rc.2, catalogs gen 46, app doctor clean, infra 7/7 ios production 1.6.0-1.7.0, R2 200, live 200/204",
+      "checkedAt": "2026-10-28T03:16:28Z"
+    },
+    {
+      "id": "v1.2.0-rc.3:cutover",
+      "action": "Upload 1.2.0-rc.3 without traffic (271f271d), preview, then route 100% (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "4eb538b3-eece-404e-b7f3-47ec5d08697a",
+        "d1Bookmark": "00002290-0000000a-00005112-4f1622e5b57b47a406524bb989c9e52a"
+      },
+      "requestId": "271f271d-713c-4c5c-8579-3d775e49e93d",
+      "observation": "Bindings equal; preview == production except /version; after deploy /version 1.2.0-rc.3, catalogs gen 46, app doctor up to date, infra 7/7 ios production 1.6.0-1.7.0, R2 200, live 200/204",
+      "checkedAt": "2026-10-28T10:03:57Z"
+    },
+    {
+      "id": "v1.2.0-rc.4:cutover",
+      "action": "Upload 1.2.0-rc.4 without traffic (00c54c91), preview, then route 100% (no schema change)",
+      "target": {
+        "workerName": "codex-relay-ota-rc22",
+        "previousVersionId": "271f271d-713c-4c5c-8579-3d775e49e93d",
+        "d1Bookmark": "000022b3-0000000a-00005112-1dbfdd8d96dc7b380f716fe2482d6505"
+      },
+      "requestId": "00c54c91-2e7b-44aa-91a4-455bce5730bd",
+      "observation": "Bindings equal; preview == production except /version; after deploy /version 1.2.0-rc.4, catalogs gen 46, app doctor up to date, infra 7/7 ios production 1.6.0-1.7.0, R2 200, live 200/304/204",
+      "checkedAt": "2026-10-28T12:51:10Z"
     }
   ]
 }

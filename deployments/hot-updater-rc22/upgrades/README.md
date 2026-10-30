@@ -11,3 +11,4 @@ Azure was added after 1.0.0: files through 1.0.0 have no Azure section. A Azure 
 Use the common sections and your provider's section to plan the full transition. Previously completed steps provide context and must not be replayed blindly. Inspect actual migration/resource state, preserve customizations and secrets, and record which version files and steps have been applied and verified. Apply pending changes in order using the target scaffold; investigate conflicting requirements before proceeding.
 
 - [1.0.0](./1.0.0.md) — Release Catalog, manifest artifact protocol v1, and storage engine infrastructure generation
+- [1.2.0](./1.2.0.md) — Core schema 1.2.0: the native build registry table and the tables of the official plugins added beside it
