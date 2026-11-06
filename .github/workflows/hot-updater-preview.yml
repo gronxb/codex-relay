@@ -62,6 +62,15 @@ jobs:
         run: |
           umask 077
           printf '%s' "$MOBILE_ENV" > .env
+      # The update server's client API key for the native build: app.config.ts reads
+      # HOT_UPDATER_API_KEY from .env.hotupdater.rc22 into extra.hotUpdaterApiKey.
+      # Only that one name is pulled from Infisical; the file holds nothing else.
+      - name: Pull the app's client API key
+        working-directory: apps/mobile
+        run: |
+          umask 077
+          pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
+          grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
       - uses: gronxb/hot-updater/actions/preview@a5517a80784e6da77e0cbb31cbcb2ea504046a7e
         with:
           console-url: https://codex-relay.gron-studio.com
