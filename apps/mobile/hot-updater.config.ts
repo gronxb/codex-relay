@@ -46,6 +46,13 @@ export default defineConfig({
         signing: { keystore: secret("release-keystore") },
         sandbox: true,
       },
+      // The same sandbox app as an .aab for Google Play internal testing
+      // (com.gronstudio.codexrelay.sandbox, channel sandbox-sandboxPlay).
+      sandboxPlay: {
+        packageName: "com.gronstudio.codexrelay",
+        signing: { keystore: secret("release-keystore") },
+        sandbox: true,
+      },
     },
     ios: {
       // TestFlight internal testing only, same bundle ID as the store app,
