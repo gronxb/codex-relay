@@ -8,7 +8,7 @@ import { hotUpdater } from "@/lib/hot-updater";
  * built-in bundle shows its own channel (sandbox-sandbox); a pull request's
  * bundle opened from the sandbox screen shows pr-<number> and this revision.
  */
-export const HOT_UPDATER_QA_REVISION = "PR bundle rev 1";
+export const HOT_UPDATER_QA_REVISION = "PR bundle rev 2";
 
 export function HotUpdaterQaBadge() {
   const insets = useSafeAreaInsets();
