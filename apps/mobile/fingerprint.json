@@ -643,7 +643,7 @@
   },
   "android": {
     "engine": "hot-updater/interface@1",
-    "hash": "e181b353b6d869f583899ee8bcb6949fa71003cb62f1ee98c21a1f549480e1be",
+    "hash": "33390d036c217f41eb29335d23a83c359b02bbf3bf0681a1ab66b46da95d764e",
     "sources": [
       {
         "type": "contents",
@@ -1033,7 +1033,7 @@
         "type": "file",
         "filePath": "../../packages/react-native-direct-fetch/android/build.gradle",
         "reasons": ["local-dependency-native"],
-        "hash": "f8ffaf1fcd1a2e5495b9b8e5c8eca5b47bea1b8e464a57fa01b0824669fd3bb7"
+        "hash": "8f823ee6deeeb83440aab63ad0bc5bc0505aaaf3c99d175f623efd05450ce8af"
       },
       {
         "type": "file",
