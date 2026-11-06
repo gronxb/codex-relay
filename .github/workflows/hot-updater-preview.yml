@@ -1,0 +1,64 @@
+# Hot Updater 1.2 sandbox QA (hot-updater 1.2.0-rc.24, actions/preview at its release commit).
+# The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only and lives
+# on the sandbox-sandbox channel, shared by every pull request with the same native code.
+# Every run deploys this pull request's bundle to pr-<number>; the comment carries the
+# sandbox link that opens it in the sandbox build. Closing the pull request deletes
+# pr-<number> with its bundles; the TestFlight build stays. Production is never touched.
+name: Hot Updater preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  # infisical() signs in with GitHub OIDC (INFISICAL_MACHINE_IDENTITY_ID).
+  id-token: write
+
+concurrency:
+  group: hot-updater-preview-${{ github.event.pull_request.number }}
+  # A newer push waits instead of cancelling a TestFlight upload in flight.
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: macos-latest
+    timeout-minutes: 150
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+      # hot-updater.config.ts reads every credential (Cloudflare, the bundle signing key,
+      # the App Store Connect API key, the release keystore) from Infisical, signed in
+      # with GitHub OIDC as a read-only (Viewer) machine identity.
+      INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      # apps/mobile's Gemfile runs CocoaPods through bundler (Ruby 3.3: 3.2 crashes pod install).
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: apps/mobile
+      - run: pnpm install --frozen-lockfile
+      # The app's EXPO_PUBLIC_* values (the update server and its API key).
+      - name: Restore the app environment
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+      - uses: gronxb/hot-updater/actions/preview@a5517a80784e6da77e0cbb31cbcb2ea504046a7e
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          platforms: ios
+          ios-scheme: sandbox
+          ios-submit: testflight
+          ios-testflight-group: mine
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
