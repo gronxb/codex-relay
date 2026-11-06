@@ -10,7 +10,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.6.3",
+    version: "1.7.0",
     orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
@@ -18,6 +18,9 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      appleTeamId: "Q3QT4ZF343",
+      // Hot Updater builds this TestFlight build locally; EAS keeps its own remote counter (62 at 1.6.2).
+      buildNumber: process.env.HU_IOS_BUILD_NUMBER?.trim() || "63",
       deploymentTarget: "16.4",
       supportsTablet: true,
       infoPlist: {
@@ -44,6 +47,8 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       },
       predictiveBackGestureEnabled: false,
       package: "com.gronstudio.codexrelay",
+      // Hot Updater builds this Play internal build locally; EAS has built no Android binary.
+      versionCode: Number(process.env.HU_ANDROID_VERSION_CODE?.trim() || 63),
       permissions: ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
     },
     web: {
@@ -96,8 +101,11 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       [
         "@hot-updater/expo",
         {
-          channel: "production",
-          publicKeyPath: "./keys/public-key.pem",
+          // v1.2 QA: a pull request's preview build embeds its channel from
+          // PREVIEW_CHANNEL (the preview job sets pr-<number>); unset, both stay
+          // the production values.
+          channel: process.env.PREVIEW_CHANNEL?.trim() || "production",
+          publicKeyPath: process.env.HU_QA_PUBLIC_KEY_PATH?.trim() || "./keys/public-key.pem",
         },
       ],
       [

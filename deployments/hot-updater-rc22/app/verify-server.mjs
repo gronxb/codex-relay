@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { parseArgs, parseEnv } from "node:util";
 import path from "node:path";
-//#region ../protocol/dist/index.mjs
+//#region ../protocol/dist/uuid-kZvLA0Ly.mjs
 const LETTER_DASH_NUMBER = "[a-zA-Z0-9-]";
 const NUMERIC_IDENTIFIER = String.raw`0|[1-9]\d*`;
 const NUMERIC_IDENTIFIER_LOOSE = String.raw`\d+`;
@@ -165,6 +165,8 @@ function parseReleaseCatalogScopeKey(scopeKey) {
 }
 const UUID_V7_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const isUUIDv7 = (value) => typeof value === "string" && UUID_V7_PATTERN.test(value);
+//#endregion
+//#region ../protocol/dist/index.mjs
 /** The largest release catalog response body a client accepts, in UTF-8 bytes. */
 const MAX_RELEASE_CATALOG_WIRE_BYTES = 528384;
 /** The length of `value` in UTF-8 bytes, without an encoder the device may lack. */
