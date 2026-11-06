@@ -1,8 +1,7 @@
 # Hot Updater 1.2 sandbox QA (hot-updater 1.2.0-rc.24, actions/preview at its release commit).
-# The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only; the
-# Android sandbox build is an .apk the comment links through the Console's signed download.
-# Both live on the sandbox-sandbox channel, shared by every pull request with the same
-# native code.
+# The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only, and the
+# Android one (scheme `sandboxPlay`) to Google Play internal testing only. Each lives on its
+# scheme's sandbox-<scheme> channel, shared by every pull request with the same native code.
 # Every run deploys this pull request's bundle to pr-<number>; the comment carries the
 # sandbox link that opens it in the sandbox build. Closing the pull request deletes
 # pr-<number> with its bundles; the TestFlight build stays. Production is never touched.
@@ -75,7 +74,11 @@ jobs:
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios
-          android-scheme: sandbox
+          # Google Play internal testing for com.gronstudio.codexrelay.sandbox. The action
+          # takes one Android scheme, so the comment shows the Play link; the .apk build of
+          # the `sandbox` scheme stays registered with its Console download link.
+          android-scheme: sandboxPlay
+          android-submit: play-internal
           ios-scheme: sandbox
           ios-submit: testflight
           ios-testflight-group: mine
