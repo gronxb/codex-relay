@@ -1,0 +1,86 @@
+# Hot Updater 1.2 sandbox QA (hot-updater next packed into vendor/, actions/preview at the same next commit).
+# The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only, and the
+# Android one (scheme `sandboxPlay`) to Google Play internal testing only. Each lives on its
+# scheme's sandbox-<scheme> channel, shared by every pull request with the same native code.
+# Every run deploys this pull request's bundle to pr-<number>; the comment carries the
+# sandbox link that opens it in the sandbox build. Closing the pull request deletes
+# pr-<number> with its bundles; the TestFlight build stays. Production is never touched.
+name: Hot Updater preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  # infisical() signs in with GitHub OIDC (INFISICAL_MACHINE_IDENTITY_ID).
+  id-token: write
+
+concurrency:
+  group: hot-updater-preview-${{ github.event.pull_request.number }}
+  # A newer push waits instead of cancelling a TestFlight upload in flight.
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: macos-latest
+    timeout-minutes: 150
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+      # The 260 MB release .apk runs out of memory in Gradle's default 2 GB heap.
+      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx5g
+      # hot-updater.config.ts reads every credential (Cloudflare, the bundle signing key,
+      # the App Store Connect API key, the release keystore) from Infisical, signed in
+      # with GitHub OIDC as a read-only (Viewer) machine identity.
+      INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      # apps/mobile's Gemfile runs CocoaPods through bundler (Ruby 3.3: 3.2 crashes pod install).
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: apps/mobile
+      # The Android sandbox .apk builds with Gradle on JDK 17.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: pnpm install --frozen-lockfile
+      # The app's EXPO_PUBLIC_* values (the update server and its API key).
+      - name: Restore the app environment
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+      # The update server's client API key for the native build: app.config.ts reads
+      # HOT_UPDATER_API_KEY from .env.hotupdater.rc22 into extra.hotUpdaterApiKey.
+      # Only that one name is pulled from Infisical; the file holds nothing else.
+      - name: Pull the app's client API key
+        working-directory: apps/mobile
+        run: |
+          umask 077
+          pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
+          grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
+      - uses: gronxb/hot-updater/actions/preview@8a045f4e6e092e269249b277d0f8b755a4f6637b
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          platforms: android,ios
+          # Google Play internal testing for com.gronstudio.codexrelay.sandbox. The action
+          # takes one Android scheme, so the comment shows the Play link; the .apk build of
+          # the `sandbox` scheme stays registered with its Console download link.
+          android-scheme: sandboxPlay
+          android-submit: play-internal
+          ios-scheme: sandbox
+          ios-submit: testflight
+          ios-testflight-group: mine
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
