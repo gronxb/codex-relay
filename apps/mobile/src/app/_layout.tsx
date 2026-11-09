@@ -17,7 +17,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { HotUpdaterQaBadge } from "@/components/hot-updater-qa-badge";
 import { useInitialPushNotificationRegistration } from "@/hooks/use-initial-push-notification-registration";
 import { hotUpdater } from "@/lib/hot-updater";
 import {
@@ -253,7 +252,6 @@ function TabLayout() {
                 />
               </Stack>
               <PortalHost />
-              <HotUpdaterQaBadge />
             </BottomSheetModalProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>

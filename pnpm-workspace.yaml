@@ -19,8 +19,8 @@ minimumReleaseAge: 0
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
   # QA only: Hot Updater next (sandbox native UI) packed from the repo, before the next RC.
-  "@hot-updater/react-native": file:./vendor/hot-updater/hot-updater-react-native-1.2.0-rc.24.1.tgz
-  "@hot-updater/android-helper": file:./vendor/hot-updater/hot-updater-android-helper-1.2.0-rc.24.1.tgz
-  "@hot-updater/apple-helper": file:./vendor/hot-updater/hot-updater-apple-helper-1.2.0-rc.24.1.tgz
-  "@hot-updater/cli-tools": file:./vendor/hot-updater/hot-updater-cli-tools-1.2.0-rc.24.1.tgz
-  hot-updater: file:./vendor/hot-updater/hot-updater-1.2.0-rc.24.1.tgz
+  "@hot-updater/react-native": file:./vendor/hot-updater/hot-updater-react-native-1.2.0-rc.24.2.tgz
+  "@hot-updater/android-helper": file:./vendor/hot-updater/hot-updater-android-helper-1.2.0-rc.24.2.tgz
+  "@hot-updater/apple-helper": file:./vendor/hot-updater/hot-updater-apple-helper-1.2.0-rc.24.2.tgz
+  "@hot-updater/cli-tools": file:./vendor/hot-updater/hot-updater-cli-tools-1.2.0-rc.24.2.tgz
+  hot-updater: file:./vendor/hot-updater/hot-updater-1.2.0-rc.24.2.tgz
