@@ -65,6 +65,16 @@ export default defineConfig({
         signing: { ascApiKey: secret("asc-api-key") },
         sandbox: true,
       },
+      // The same sandbox app exported for registered iPhones (ad hoc), to install
+      // from the Console's build page. Channel sandbox-sandboxAdhoc.
+      sandboxAdhoc: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        installPods: true,
+        exportOptionsPlist: "./ExportOptions.adhoc.plist",
+        signing: { ascApiKey: secret("asc-api-key") },
+        sandbox: true,
+      },
     },
   },
   patch: {
