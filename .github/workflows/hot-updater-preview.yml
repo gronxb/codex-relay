@@ -36,6 +36,11 @@ jobs:
       INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          # The pull request's own commit, not its merge into main, as the docs set it:
+          # the comment's "Latest commit" and the deploy message name this commit.
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
