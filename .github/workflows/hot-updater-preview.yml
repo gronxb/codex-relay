@@ -70,7 +70,7 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@211e58406f97b861078bd063c72ec2d13daefafe
+      - uses: gronxb/hot-updater/actions/preview@6ac070336d91ee3c1e5506c455bce451990b141b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios
