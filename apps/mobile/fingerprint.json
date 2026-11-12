@@ -1,7 +1,7 @@
 {
   "ios": {
     "engine": "hot-updater/interface@1",
-    "hash": "3298a017d1252e010f9d631b93709b8ac05b0cfead4c7045372a8ed89257e3b3",
+    "hash": "caaaf9098968f3fd4b204ec601249c10e8d797e9547aa75b2263041c5078bd39",
     "sources": [
       {
         "type": "contents",
@@ -27,9 +27,9 @@
       {
         "type": "contents",
         "id": "dependency:@hot-updater/react-native",
-        "contents": "@hot-updater/react-native@1.2.0-rc.27",
+        "contents": "@hot-updater/react-native@1.2.0-rc.30",
         "reasons": ["native-dependency"],
-        "hash": "d22187803a6e30cc0cc22c8275600e9e6ae020eb79c675a564978dea654b6dc7"
+        "hash": "ef0a358fa8eba002b6efa2354d6fbbf3f1bbcdb1474855b2b73b0f635ecb8888"
       },
       {
         "type": "contents",
@@ -643,7 +643,7 @@
   },
   "android": {
     "engine": "hot-updater/interface@1",
-    "hash": "6dc9c7b04bc44e4a2d135b0514b03acfa5dc16ffbdc1cefaa4b79c8e26b9c909",
+    "hash": "e67700b57ff72dccfcf6874ffef114f5abeed1698d051aa8ad378bdd2bc53f68",
     "sources": [
       {
         "type": "contents",
@@ -669,9 +669,9 @@
       {
         "type": "contents",
         "id": "dependency:@hot-updater/react-native",
-        "contents": "@hot-updater/react-native@1.2.0-rc.27",
+        "contents": "@hot-updater/react-native@1.2.0-rc.30",
         "reasons": ["native-dependency"],
-        "hash": "d22187803a6e30cc0cc22c8275600e9e6ae020eb79c675a564978dea654b6dc7"
+        "hash": "ef0a358fa8eba002b6efa2354d6fbbf3f1bbcdb1474855b2b73b0f635ecb8888"
       },
       {
         "type": "contents",

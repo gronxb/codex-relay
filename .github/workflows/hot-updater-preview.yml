@@ -1,4 +1,4 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.27 from npm, actions/preview at its release commit).
+# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.30 from npm, actions/preview at its release commit).
 # The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only, and the
 # Android one (scheme `sandboxPlay`) to Google Play internal testing only. Each lives on its
 # scheme's sandbox-<scheme> channel, shared by every pull request with the same native code.
@@ -75,7 +75,7 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@7506c851cb37950e9490b68cf244a57928da1cf7
+      - uses: gronxb/hot-updater/actions/preview@149fc8b4dd976fa72c61f9935af1ce057ea2b675
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios
