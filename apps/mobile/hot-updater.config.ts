@@ -76,6 +76,16 @@ export default defineConfig({
         signing: { ascApiKey: secret("asc-api-key") },
         sandbox: true,
       },
+      // The same sandbox app as an iOS Simulator .app, the ad hoc build's
+      // sibling: same bundle identifier and sandbox URL scheme, no signing.
+      simulator: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        configuration: "Release",
+        installPods: true,
+        simulator: true,
+        sandbox: true,
+      },
     },
   },
   patch: {
