@@ -1,10 +1,10 @@
 # Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.31 from npm, actions/preview at its release commit).
-# The iOS sandbox build (scheme `sandbox`) goes to TestFlight internal testing only, and the
-# Android one (scheme `sandboxPlay`) to Google Play internal testing only. Each lives on its
-# scheme's sandbox-<scheme> channel, shared by every pull request with the same native code.
-# Every run deploys this pull request's bundle to pr-<number>; the comment carries the
+# The iOS sandbox build (scheme `sandboxAdhoc`) is an ad hoc .ipa for the iPhones in the
+# Console's device registry, and the Android one (scheme `sandbox`) a direct .apk. Each lives
+# on its scheme's sandbox-<scheme> channel, shared by every pull request with the same native
+# code. Every run deploys this pull request's bundle to pr-<number>; the comment carries the
 # sandbox link that opens it in the sandbox build. Closing the pull request deletes
-# pr-<number> with its bundles; the TestFlight build stays. Production is never touched.
+# pr-<number> with its bundles; the sandbox builds stay. Production is never touched.
 name: Hot Updater preview
 
 on:
@@ -19,7 +19,7 @@ permissions:
 
 concurrency:
   group: hot-updater-preview-${{ github.event.pull_request.number }}
-  # A newer push waits instead of cancelling a TestFlight upload in flight.
+  # A newer push waits instead of cancelling a native build in flight.
   cancel-in-progress: false
 
 jobs:
@@ -83,8 +83,9 @@ jobs:
           # page (com.gronstudio.codexrelay.sandbox). Google Play internal testing stays
           # available as the `sandboxPlay` scheme with `android-submit: play-internal`.
           android-scheme: sandbox
-          ios-scheme: sandbox
-          ios-submit: testflight
-          ios-testflight-group: mine
+          # The sandbox exported ad hoc for the iPhones in the Console's device registry,
+          # installed from the Console's build page. TestFlight internal testing stays
+          # available as the `sandbox` scheme with `ios-submit: testflight`.
+          ios-scheme: sandboxAdhoc
           working-directory: apps/mobile
           cli: pnpm exec hot-updater
