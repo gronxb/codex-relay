@@ -79,11 +79,10 @@ jobs:
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios
-          # Google Play internal testing for com.gronstudio.codexrelay.sandbox. The action
-          # takes one Android scheme, so the comment shows the Play link; the .apk build of
-          # the `sandbox` scheme stays registered with its Console download link.
-          android-scheme: sandboxPlay
-          android-submit: play-internal
+          # The default Android path: the sandbox .apk, downloaded from the Console's build
+          # page (com.gronstudio.codexrelay.sandbox). Google Play internal testing stays
+          # available as the `sandboxPlay` scheme with `android-submit: play-internal`.
+          android-scheme: sandbox
           ios-scheme: sandbox
           ios-submit: testflight
           ios-testflight-group: mine
