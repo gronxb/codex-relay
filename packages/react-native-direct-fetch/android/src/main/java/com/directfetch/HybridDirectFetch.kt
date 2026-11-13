@@ -18,6 +18,7 @@ import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
 
+// Hot Updater 1.2 QA: a native change, so the pull request preview builds a new sandbox build.
 class HybridDirectFetch: HybridDirectFetchSpec() {
     override fun fetch(request: DirectFetchRequest): Promise<DirectFetchResponse> {
         val promise = Promise<DirectFetchResponse>()
