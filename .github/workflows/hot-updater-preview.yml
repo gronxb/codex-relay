@@ -1,4 +1,4 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.41 from npm, actions/preview at its release commit).
+# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.42 from npm, actions/preview at its release commit).
 # The iOS sandbox build (scheme `adhoc`) is an ad hoc .ipa for the iPhones in the Console's
 # device registry, and the Android one (scheme `apk`) a direct .apk. A sandbox build lives on
 # the channel of the pull request whose native change built it (pr-<number>), and every later
@@ -29,9 +29,6 @@ jobs:
     timeout-minutes: 240
     env:
       SENTRY_DISABLE_AUTO_UPLOAD: "true"
-      # The channel a new sandbox build embeds: app.config.ts reads it into the
-      # @hot-updater/expo plugin, since Expo prebuild ignores `channel set`.
-      PREVIEW_CHANNEL: pr-${{ github.event.number }}
       # The 260 MB release .apk runs out of memory in Gradle's default 2 GB heap.
       GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx5g
       # hot-updater.config.ts reads every credential (Cloudflare, the bundle signing key,
@@ -79,7 +76,7 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@d7a26cca82c09911bf66ff1846c291202ef7249c
+      - uses: gronxb/hot-updater/actions/preview@f5fbb05ec87160fc1dfb1f83646e0d4c1543803c
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios

@@ -1,7 +1,7 @@
 {
   "ios": {
     "engine": "hot-updater/interface@1",
-    "hash": "475d24f1495a20890afb525bf787389b66d2b27c8069d896a3a697910823dbde",
+    "hash": "447ce9e06ab8b3c530c79f11f4c1174fca9a2d3467bf2add13e96c36c644c8aa",
     "sources": [
       {
         "type": "contents",
@@ -27,9 +27,9 @@
       {
         "type": "contents",
         "id": "dependency:@hot-updater/react-native",
-        "contents": "@hot-updater/react-native@1.2.0-rc.41",
+        "contents": "@hot-updater/react-native@1.2.0-rc.42",
         "reasons": ["native-dependency"],
-        "hash": "dcdb4f6723ddfe10082247abb62fadf6fb6b89c7838072ad3c12efb407eddb13"
+        "hash": "1be169b78aa9fa16bc20c753fba6c7940ed4a77a3789f3f991848bd844403cdb"
       },
       {
         "type": "contents",
@@ -643,7 +643,7 @@
   },
   "android": {
     "engine": "hot-updater/interface@1",
-    "hash": "bc1675bdd4afc4660add039077d5b90b9bd17ff93445cf621e3d7416f56fea70",
+    "hash": "6d06db9490495c85e05a8c7b6a8cb0634384325fc96f74ee15e2bc59848736f5",
     "sources": [
       {
         "type": "contents",
@@ -669,9 +669,9 @@
       {
         "type": "contents",
         "id": "dependency:@hot-updater/react-native",
-        "contents": "@hot-updater/react-native@1.2.0-rc.41",
+        "contents": "@hot-updater/react-native@1.2.0-rc.42",
         "reasons": ["native-dependency"],
-        "hash": "dcdb4f6723ddfe10082247abb62fadf6fb6b89c7838072ad3c12efb407eddb13"
+        "hash": "1be169b78aa9fa16bc20c753fba6c7940ed4a77a3789f3f991848bd844403cdb"
       },
       {
         "type": "contents",
