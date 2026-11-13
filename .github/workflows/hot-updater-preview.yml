@@ -29,6 +29,9 @@ jobs:
     timeout-minutes: 240
     env:
       SENTRY_DISABLE_AUTO_UPLOAD: "true"
+      # The channel a new sandbox build embeds: app.config.ts reads it into the
+      # @hot-updater/expo plugin, since Expo prebuild ignores `channel set`.
+      PREVIEW_CHANNEL: pr-${{ github.event.number }}
       # The 260 MB release .apk runs out of memory in Gradle's default 2 GB heap.
       GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx5g
       # hot-updater.config.ts reads every credential (Cloudflare, the bundle signing key,

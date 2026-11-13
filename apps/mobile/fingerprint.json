@@ -1,7 +1,7 @@
 {
   "ios": {
     "engine": "hot-updater/interface@1",
-    "hash": "972a5b9acde7518d3d8a7152fad87fd5cd95c795167a158ad028c9d75d01eece",
+    "hash": "475d24f1495a20890afb525bf787389b66d2b27c8069d896a3a697910823dbde",
     "sources": [
       {
         "type": "contents",
@@ -403,7 +403,7 @@
         "type": "file",
         "filePath": "../../packages/react-native-direct-fetch/ios/HybridDirectFetch.swift",
         "reasons": ["local-dependency-native"],
-        "hash": "c0b07256d85e4b8b4a6c1b5fb701286858d5ca843815dbce717dc6928835ecdc"
+        "hash": "2d7d5327f2b0984bf6c11ff390e1230fe5fe6ed2b1a26adb3940fdfcc8723909"
       },
       {
         "type": "file",
@@ -643,7 +643,7 @@
   },
   "android": {
     "engine": "hot-updater/interface@1",
-    "hash": "7df29f3577f0d567f00bc59ff91b26985e44e0d351de24700c2287d819593ed4",
+    "hash": "bc1675bdd4afc4660add039077d5b90b9bd17ff93445cf621e3d7416f56fea70",
     "sources": [
       {
         "type": "contents",
@@ -1057,7 +1057,7 @@
         "type": "file",
         "filePath": "../../packages/react-native-direct-fetch/android/src/main/java/com/directfetch/HybridDirectFetch.kt",
         "reasons": ["local-dependency-native"],
-        "hash": "6d717582396571dc3176d922e9361059ff243f3f5697ffb502e5c19b9db7f340"
+        "hash": "d2dd23ad12fb4d8ea7b455de297294723437b996b4663db782e494b9617d689a"
       },
       {
         "type": "file",

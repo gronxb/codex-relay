@@ -98,7 +98,10 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
       [
         "@hot-updater/expo",
         {
-          channel: "production",
+          // A pull request preview's native build embeds pr-<number>
+          // (PREVIEW_CHANNEL, set by the preview workflow); every other build
+          // embeds production.
+          channel: process.env.PREVIEW_CHANNEL ?? "production",
           publicKeyPath: "./keys/public-key.pem",
         },
       ],
