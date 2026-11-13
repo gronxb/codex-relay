@@ -38,27 +38,28 @@ export default defineConfig({
   signing: secret("bundle-signing-key"),
   nativeBuild: {
     android: {
-      // Direct .apk, application ID com.gronstudio.codexrelay.sandbox, channel
-      // sandbox-sandbox. Installs beside the Play app.
-      sandbox: {
+      // Direct .apk, application ID com.gronstudio.codexrelay.sandbox, on the
+      // channel it was built for (pr-<number> in a preview). Installs beside
+      // the Play app.
+      apk: {
         packageName: "com.gronstudio.codexrelay",
         aab: false,
         signing: { keystore: secret("release-keystore") },
         sandbox: true,
       },
       // The same sandbox app as an .aab for Google Play internal testing
-      // (com.gronstudio.codexrelay.sandbox, channel sandbox-sandboxPlay).
-      sandboxPlay: {
+      // (com.gronstudio.codexrelay.sandbox).
+      play: {
         packageName: "com.gronstudio.codexrelay",
         signing: { keystore: secret("release-keystore") },
         sandbox: true,
       },
     },
     ios: {
-      // TestFlight internal testing only, same bundle ID as the store app,
-      // channel sandbox-sandbox. Signed with automatic signing through the
-      // App Store Connect API key stored as asc-api-key (team Q3QT4ZF343).
-      sandbox: {
+      // TestFlight internal testing only, same bundle ID as the store app.
+      // Signed with automatic signing through the App Store Connect API key
+      // stored as asc-api-key (team Q3QT4ZF343).
+      testflight: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
         installPods: true,
@@ -66,8 +67,8 @@ export default defineConfig({
         sandbox: true,
       },
       // The same sandbox app exported for registered iPhones (ad hoc), to install
-      // from the Console's build page. Channel sandbox-sandboxAdhoc.
-      sandboxAdhoc: {
+      // from the Console's build page.
+      adhoc: {
         bundleIdentifier: "com.gronstudio.codexrelay",
         scheme: "CodexRelay",
         installPods: true,

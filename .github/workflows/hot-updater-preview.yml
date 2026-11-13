@@ -1,10 +1,11 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.31 from npm, actions/preview at its release commit).
-# The iOS sandbox build (scheme `sandboxAdhoc`) is an ad hoc .ipa for the iPhones in the
-# Console's device registry, and the Android one (scheme `sandbox`) a direct .apk. Each lives
-# on its scheme's sandbox-<scheme> channel, shared by every pull request with the same native
-# code. Every run deploys this pull request's bundle to pr-<number>; the comment carries the
-# sandbox link that opens it in the sandbox build. Closing the pull request deletes
-# pr-<number> with its bundles; the sandbox builds stay. Production is never touched.
+# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.41 from npm, actions/preview at its release commit).
+# The iOS sandbox build (scheme `adhoc`) is an ad hoc .ipa for the iPhones in the Console's
+# device registry, and the Android one (scheme `apk`) a direct .apk. A sandbox build lives on
+# the channel of the pull request whose native change built it (pr-<number>), and every later
+# pull request with the same native code reuses it. Every run deploys this pull request's
+# bundle to pr-<number>; the comment carries the install links and the sandbox link that opens
+# the bundle in the sandbox build. Closing the pull request deletes its bundles; the sandbox
+# builds stay. Production is never touched.
 name: Hot Updater preview
 
 on:
@@ -75,17 +76,17 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@e995af8dfe1b248a8966fe39e7480ac1839032f7
+      - uses: gronxb/hot-updater/actions/preview@d7a26cca82c09911bf66ff1846c291202ef7249c
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios
           # The default Android path: the sandbox .apk, downloaded from the Console's build
           # page (com.gronstudio.codexrelay.sandbox). Google Play internal testing stays
-          # available as the `sandboxPlay` scheme with `android-submit: play-internal`.
-          android-scheme: sandbox
+          # available as the `play` scheme with `android-submit: play-internal`.
+          android-scheme: apk
           # The sandbox exported ad hoc for the iPhones in the Console's device registry,
           # installed from the Console's build page. TestFlight internal testing stays
-          # available as the `sandbox` scheme with `ios-submit: testflight`.
-          ios-scheme: sandboxAdhoc
+          # available as the `testflight` scheme with `ios-submit: testflight`.
+          ios-scheme: adhoc
           working-directory: apps/mobile
           cli: pnpm exec hot-updater
