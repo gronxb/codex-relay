@@ -91,7 +91,7 @@ jobs:
         if: steps.preview.outputs.result != ''
         working-directory: apps/mobile
         env:
-          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result).previews[0].nativeBuild.id }}
+          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result || '{}').previews[0].nativeBuild.id }}
         run: |
           pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/app.apk"
           ls -l "$RUNNER_TEMP/app.apk"
@@ -210,7 +210,7 @@ jobs:
         if: steps.preview.outputs.result != ''
         working-directory: apps/mobile
         env:
-          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result).previews[0].nativeBuild.id }}
+          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result || '{}').previews[0].nativeBuild.id }}
         run: |
           pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/sim"
           app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 4 | head -1)
