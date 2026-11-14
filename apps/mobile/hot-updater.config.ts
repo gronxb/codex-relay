@@ -86,6 +86,17 @@ export default defineConfig({
         simulator: true,
         sandbox: true,
       },
+      // Scratch QA only: the simulator scheme with an xcodebuild flag that
+      // doesn't exist, for a real build failure in one lane.
+      simulatorBroken: {
+        bundleIdentifier: "com.gronstudio.codexrelay",
+        scheme: "CodexRelay",
+        configuration: "Release",
+        installPods: true,
+        simulator: true,
+        sandbox: true,
+        extraParams: ["-hotUpdaterScratchBrokenOnPurpose"],
+      },
     },
   },
   patch: {
