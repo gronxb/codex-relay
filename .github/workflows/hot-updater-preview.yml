@@ -70,6 +70,11 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo "kotlin.daemon.jvmargs=-Xmx2g" >> ~/.gradle/gradle.properties
+      # QA: a lane that fails before the action on attempt 1, so it has no
+      # result, then passes on a re-run.
+      - name: Fail before the preview on attempt 1
+        if: github.run_attempt == '1'
+        run: exit 1
       # QA evidence: memory and the JVMs' arguments every 10 s.
       - name: Sample memory
         run: |
@@ -226,9 +231,7 @@ jobs:
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
-          # QA: a real partial failure on attempt 1 (a scheme whose
-          # xcodebuild flag doesn't exist), the real scheme on a re-run.
-          ios-scheme: ${{ github.run_attempt == '1' && 'simulatorBroken' || 'simulator' }}
+          ios-scheme: simulator
           # The ad hoc lane deploys the iOS bundle.
           deploy: false
           comment: false
