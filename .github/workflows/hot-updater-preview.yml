@@ -44,6 +44,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # QA measurement: Gradle's dependency, wrapper, and transform caches.
+      # A pull request's run writes them too, so this pull request's next
+      # native change can read them.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - run: pnpm install --frozen-lockfile
       - name: Restore the app environment
         working-directory: apps/mobile
@@ -61,7 +67,8 @@ jobs:
       # QA evidence: memory and the JVMs' arguments every 10 s.
       - name: Sample memory
         run: |
-          nohup bash -c 'while true; do echo "== $(date -u +%T)"; free -m | sed -n "2,3p"; ps -eo rss=,args= --sort=-rss | grep -E "[j]ava" | head -4 | cut -c1-700; sleep 10; done' > "$RUNNER_TEMP/memory.log" 2>&1 &
+          mkdir -p "$RUNNER_TEMP/jvm"
+          nohup bash -c 'while true; do echo "== $(date -u +%T)"; free -m | sed -n "2,3p"; ps -eo rss=,args= --sort=-rss | grep -E "[j]ava" | head -4 | cut -c1-700; for p in $(pgrep java); do [ -f "$RUNNER_TEMP/jvm/$p" ] || tr "\0" " " < /proc/$p/cmdline > "$RUNNER_TEMP/jvm/$p"; done; sleep 10; done' > "$RUNNER_TEMP/memory.log" 2>&1 &
           nproc; free -m
       - id: preview
         uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
@@ -80,12 +87,14 @@ jobs:
           echo "peak swap MB: $(awk '/^Swap:/ { if ($3 > m) m = $3 } END { print m }' "$log")"
           echo "peak java RSS MB: $(grep -E '^ *[0-9]+ .*java' "$log" | awk '{ if ($1 > m) m = $1 } END { print int(m / 1024) }')"
           echo "JVM heaps:"
-          grep -E '^ *[0-9]+ .*java' "$log" | grep -oE '(GradleDaemon|KotlinCompileDaemon|GradleWrapperMain|-Xmx[0-9]+[a-zA-Z]|-XX:MaxMetaspaceSize=[0-9]+[a-zA-Z])' | sort | uniq -c
+          for f in "$RUNNER_TEMP"/jvm/*; do echo "$(grep -oE '(GradleDaemon|KotlinCompileDaemon|GradleWrapperMain|GradleWorkerMain)' "$f" | head -1): $(grep -oE '(-Xmx[0-9]+[a-zA-Z]|-Xms[0-9]+[a-zA-Z]|-XX:MaxMetaspaceSize=[0-9]+[a-zA-Z])' "$f" | sort -u | tr '\n' ' ')"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-memory
-          path: ${{ runner.temp }}/memory.log
+          path: |
+            ${{ runner.temp }}/memory.log
+            ${{ runner.temp }}/jvm
       # QA evidence: the APK's native libraries, from the tracked build.
       - name: The APK's lib/
         if: steps.preview.outputs.result != ''
@@ -127,6 +136,12 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
           working-directory: apps/mobile
+      # QA measurement: CocoaPods' download cache.
+      - uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: cocoapods-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: cocoapods-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
       - name: Restore the app environment
         working-directory: apps/mobile
@@ -180,6 +195,12 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
           working-directory: apps/mobile
+      # QA measurement: CocoaPods' download cache.
+      - uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: cocoapods-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: cocoapods-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
       - name: Restore the app environment
         working-directory: apps/mobile
@@ -212,9 +233,9 @@ jobs:
         env:
           BUILD_ID: ${{ fromJSON(steps.preview.outputs.result || '{}').previews[0].nativeBuild.id }}
         run: |
-          pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/sim"
-          app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 4 | head -1)
-          [ -n "$app" ] || { ls -R "$RUNNER_TEMP/sim" | head -20; (cd "$RUNNER_TEMP/sim" && for z in *.zip; do unzip -q "$z"; done); app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 4 | head -1); }
+          pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/sim.zip"
+          mkdir -p "$RUNNER_TEMP/sim" && unzip -q -o "$RUNNER_TEMP/sim.zip" -d "$RUNNER_TEMP/sim"
+          app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 3 | head -1)
           exe=$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$app/Info.plist")
           echo "app: $app"
           lipo -archs "$app/$exe"

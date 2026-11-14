@@ -1048,4 +1048,4 @@ class HybridDirectFetch: HybridDirectFetchSpec {
     }
 }
 
-// Scratch QA of the hot-updater preview lanes: native change 1.
+// Scratch QA of the hot-updater preview lanes: native change 2.
