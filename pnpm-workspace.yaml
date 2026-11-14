@@ -18,12 +18,21 @@ minimumReleaseAge: 0
 
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
-  # QA only: Hot Updater 1.2.0-rc.44 from npm, exact, for every package the app pulls in.
-  "@hot-updater/react-native": 1.2.0-rc.44
-  "@hot-updater/android-helper": 1.2.0-rc.44
-  "@hot-updater/apple-helper": 1.2.0-rc.44
-  "@hot-updater/cli-tools": 1.2.0-rc.44
-  hot-updater: 1.2.0-rc.44
-  "@hot-updater/protocol": 1.2.0-rc.44
-  "@hot-updater/plugin-core": 1.2.0-rc.44
-  "@hot-updater/server": 1.2.0-rc.44
+  # Scratch QA of gronxb/hot-updater preview-ci-speed: every package from that branch, packed.
+  hot-updater: file:vendor/hot-updater/hot-updater-1.2.0-rc.44.tgz
+  "@hot-updater/android-helper": file:vendor/hot-updater/hot-updater-android-helper-1.2.0-rc.44.tgz
+  "@hot-updater/apple-helper": file:vendor/hot-updater/hot-updater-apple-helper-1.2.0-rc.44.tgz
+  "@hot-updater/bare": file:vendor/hot-updater/hot-updater-bare-1.2.0-rc.44.tgz
+  "@hot-updater/bsdiff": file:vendor/hot-updater/hot-updater-bsdiff-1.2.0-rc.44.tgz
+  "@hot-updater/cli-tools": file:vendor/hot-updater/hot-updater-cli-tools-1.2.0-rc.44.tgz
+  "@hot-updater/cloudflare": file:vendor/hot-updater/hot-updater-cloudflare-1.2.0-rc.44.tgz
+  "@hot-updater/console": file:vendor/hot-updater/hot-updater-console-1.2.0-rc.44.tgz
+  "@hot-updater/expo": file:vendor/hot-updater/hot-updater-expo-1.2.0-rc.44.tgz
+  "@hot-updater/plugin-api-keys": file:vendor/hot-updater/hot-updater-plugin-api-keys-1.2.0-rc.44.tgz
+  "@hot-updater/plugin-core": file:vendor/hot-updater/hot-updater-plugin-core-1.2.0-rc.44.tgz
+  "@hot-updater/plugin-insights": file:vendor/hot-updater/hot-updater-plugin-insights-1.2.0-rc.44.tgz
+  "@hot-updater/plugin-remote-config": file:vendor/hot-updater/hot-updater-plugin-remote-config-1.2.0-rc.44.tgz
+  "@hot-updater/protocol": file:vendor/hot-updater/hot-updater-protocol-1.2.0-rc.44.tgz
+  "@hot-updater/react-native": file:vendor/hot-updater/hot-updater-react-native-1.2.0-rc.44.tgz
+  "@hot-updater/server": file:vendor/hot-updater/hot-updater-server-1.2.0-rc.44.tgz
+  "@hot-updater/storage-s3": file:vendor/hot-updater/hot-updater-storage-s3-1.2.0-rc.44.tgz

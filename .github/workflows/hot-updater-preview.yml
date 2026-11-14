@@ -1,11 +1,7 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.44 from npm, actions/preview at its release commit).
-# The iOS sandbox build (scheme `adhoc`) is an ad hoc .ipa for the iPhones in the Console's
-# device registry, and the Android one (scheme `apk`) a direct .apk. A sandbox build lives on
-# the channel of the pull request whose native change built it (pr-<number>), and every later
-# pull request with the same native code reuses it. Every run deploys this pull request's
-# bundle to pr-<number>; the comment carries the install links and the sandbox link that opens
-# the bundle in the sandbox build. Closing the pull request deletes its bundles; the sandbox
-# builds stay. Production is never touched.
+# Scratch QA of gronxb/hot-updater's preview-ci-speed branch: every @hot-updater
+# package packed from that branch (vendor/hot-updater), and actions/preview at its
+# commit. Three build lanes run at once (Android on Linux, the iPhone's ad hoc
+# .ipa, the Simulator .app) and one comment job writes the comment. Do not merge.
 name: Hot Updater preview
 
 on:
@@ -20,26 +16,23 @@ permissions:
 
 concurrency:
   group: hot-updater-preview-${{ github.event.pull_request.number }}
-  # A newer push waits instead of cancelling a native build in flight.
   cancel-in-progress: false
 
+env:
+  SENTRY_DISABLE_AUTO_UPLOAD: "true"
+  INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
+
 jobs:
-  preview:
-    runs-on: macos-latest
-    timeout-minutes: 240
+  android:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.preview.outputs.result }}
     env:
-      SENTRY_DISABLE_AUTO_UPLOAD: "true"
-      # The 260 MB release .apk runs out of memory in Gradle's default 2 GB heap.
-      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx5g
-      # hot-updater.config.ts reads every credential (Cloudflare, the bundle signing key,
-      # the App Store Connect API key, the release keystore) from Infisical, signed in
-      # with GitHub OIDC as a read-only (Viewer) machine identity.
-      INFISICAL_MACHINE_IDENTITY_ID: ${{ vars.INFISICAL_MACHINE_IDENTITY_ID }}
+      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
     steps:
       - uses: actions/checkout@v6
         with:
-          # The pull request's own commit, not its merge into main, as the docs set it:
-          # the comment's "Latest commit" and the deploy message name this commit.
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
       - uses: pnpm/action-setup@v4
@@ -47,19 +40,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      # apps/mobile's Gemfile runs CocoaPods through bundler (Ruby 3.3: 3.2 crashes pod install).
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.3"
-          bundler-cache: true
-          working-directory: apps/mobile
-      # The Android sandbox .apk builds with Gradle on JDK 17.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
       - run: pnpm install --frozen-lockfile
-      # The app's EXPO_PUBLIC_* values (the update server and its API key).
       - name: Restore the app environment
         working-directory: apps/mobile
         env:
@@ -67,28 +52,216 @@ jobs:
         run: |
           umask 077
           printf '%s' "$MOBILE_ENV" > .env
-      # The update server's client API key for the native build: app.config.ts reads
-      # HOT_UPDATER_API_KEY from .env.hotupdater.rc22 into extra.hotUpdaterApiKey.
-      # Only that one name is pulled from Infisical; the file holds nothing else.
       - name: Pull the app's client API key
         working-directory: apps/mobile
         run: |
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@2dac3ce3408df5f55afd8658f93bc85d3bb9c3a9
+      # QA evidence: memory and the JVMs' arguments every 10 s.
+      - name: Sample memory
+        run: |
+          nohup bash -c 'while true; do echo "== $(date -u +%T)"; free -m | sed -n "2,3p"; ps -eo rss=,args= --sort=-rss | grep -E "[j]ava" | head -4 | cut -c1-700; sleep 10; done' > "$RUNNER_TEMP/memory.log" 2>&1 &
+          nproc; free -m
+      - id: preview
+        uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
         with:
           console-url: https://codex-relay.gron-studio.com
-          platforms: android,ios
-          # The default Android path: the sandbox .apk, downloaded from the Console's build
-          # page (com.gronstudio.codexrelay.sandbox). Google Play internal testing stays
-          # available as the `play` scheme with `android-submit: play-internal`.
+          platforms: android
           android-scheme: apk
-          # The sandbox exported ad hoc for the iPhones in the Console's device registry,
-          # installed from the Console's build page. TestFlight internal testing stays
-          # available as the `testflight` scheme with `ios-submit: testflight`.
-          # The same native code as an iOS Simulator .app (scheme `simulator`), for
-          # testing on a Mac without an iPhone: the comment adds its install command.
-          ios-scheme: adhoc, simulator
+          comment: false
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
+      - name: Memory peaks and JVM arguments
+        if: always()
+        run: |
+          log="$RUNNER_TEMP/memory.log"
+          echo "peak used MB: $(awk '/^Mem:/ { if ($3 > m) m = $3 } END { print m }' "$log")"
+          echo "peak swap MB: $(awk '/^Swap:/ { if ($3 > m) m = $3 } END { print m }' "$log")"
+          echo "peak java RSS MB: $(grep -E '^ *[0-9]+ .*java' "$log" | awk '{ if ($1 > m) m = $1 } END { print int(m / 1024) }')"
+          echo "JVM heaps:"
+          grep -E '^ *[0-9]+ .*java' "$log" | grep -oE '(GradleDaemon|KotlinCompileDaemon|GradleWrapperMain|-Xmx[0-9]+[a-zA-Z]|-XX:MaxMetaspaceSize=[0-9]+[a-zA-Z])' | sort | uniq -c
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-memory
+          path: ${{ runner.temp }}/memory.log
+      # QA evidence: the APK's native libraries, from the tracked build.
+      - name: The APK's lib/
+        if: steps.preview.outputs.result != ''
+        working-directory: apps/mobile
+        env:
+          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result).previews[0].nativeBuild.id }}
+        run: |
+          pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/app.apk"
+          ls -l "$RUNNER_TEMP/app.apk"
+          unzip -l "$RUNNER_TEMP/app.apk" | awk '$4 ~ /^lib\// { split($4, p, "/"); n[p[2]]++ } END { for (a in n) print a, n[a] }'
+      # QA evidence: the iOS fingerprint computed on Linux, against the macOS lanes'.
+      - name: iOS fingerprint on Linux
+        if: always()
+        working-directory: apps/mobile
+        run: pnpm exec hot-updater fingerprint create && cp fingerprint.json "$RUNNER_TEMP/fingerprint-linux.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fingerprint-linux
+          path: ${{ runner.temp }}/fingerprint-linux.json
+
+  ios-adhoc:
+    if: github.event.action != 'closed'
+    runs-on: macos-latest
+    outputs:
+      result: ${{ steps.preview.outputs.result }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: apps/mobile
+      - run: pnpm install --frozen-lockfile
+      - name: Restore the app environment
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+      - name: Pull the app's client API key
+        working-directory: apps/mobile
+        run: |
+          umask 077
+          pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
+          grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
+      - id: preview
+        uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          platforms: ios
+          ios-scheme: adhoc
+          comment: false
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
+      - name: iOS fingerprint on macOS
+        if: always()
+        working-directory: apps/mobile
+        run: pnpm exec hot-updater fingerprint create && cp fingerprint.json "$RUNNER_TEMP/fingerprint-macos.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fingerprint-macos
+          path: ${{ runner.temp }}/fingerprint-macos.json
+
+  ios-simulator:
+    if: github.event.action != 'closed'
+    runs-on: macos-latest
+    outputs:
+      result: ${{ steps.preview.outputs.result }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: apps/mobile
+      - run: pnpm install --frozen-lockfile
+      - name: Restore the app environment
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+      - name: Pull the app's client API key
+        working-directory: apps/mobile
+        run: |
+          umask 077
+          pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
+          grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
+      - id: preview
+        uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          platforms: ios
+          ios-scheme: simulator
+          # The ad hoc lane deploys the iOS bundle.
+          deploy: false
+          comment: false
+          working-directory: apps/mobile
+          cli: pnpm exec hot-updater
+      # QA evidence: the architectures of the tracked Simulator app.
+      - name: The Simulator app's architectures
+        if: steps.preview.outputs.result != ''
+        working-directory: apps/mobile
+        env:
+          BUILD_ID: ${{ fromJSON(steps.preview.outputs.result).previews[0].nativeBuild.id }}
+        run: |
+          pnpm exec hot-updater native-build download "$BUILD_ID" -o "$RUNNER_TEMP/sim"
+          app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 4 | head -1)
+          [ -n "$app" ] || { ls -R "$RUNNER_TEMP/sim" | head -20; (cd "$RUNNER_TEMP/sim" && for z in *.zip; do unzip -q "$z"; done); app=$(find "$RUNNER_TEMP/sim" -name '*.app' -maxdepth 4 | head -1); }
+          exe=$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$app/Info.plist")
+          echo "app: $app"
+          lipo -archs "$app/$exe"
+          du -sh "$app"
+
+  comment:
+    needs: [android, ios-adhoc, ios-simulator]
+    if: ${{ !cancelled() && github.event.action != 'closed' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
+        with:
+          console-url: https://codex-relay.gron-studio.com
+          mode: comment
+          results: |
+            android ${{ needs.android.result }} ${{ needs.android.outputs.result }}
+            ios-adhoc ${{ needs.ios-adhoc.result }} ${{ needs.ios-adhoc.outputs.result }}
+            ios-simulator ${{ needs.ios-simulator.result }} ${{ needs.ios-simulator.outputs.result }}
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Restore the app environment
+        working-directory: apps/mobile
+        env:
+          MOBILE_ENV: ${{ secrets.MOBILE_ENV_RC22 }}
+        run: |
+          umask 077
+          printf '%s' "$MOBILE_ENV" > .env
+      - name: Pull the app's client API key
+        working-directory: apps/mobile
+        run: |
+          umask 077
+          pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
+      - uses: gronxb/hot-updater/actions/preview@935b9ef547ef960b682fad32ae8dceb62ce85dd3
+        with:
+          console-url: https://codex-relay.gron-studio.com
           working-directory: apps/mobile
           cli: pnpm exec hot-updater
