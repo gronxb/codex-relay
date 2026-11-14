@@ -1,4 +1,4 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.43 from npm, actions/preview at its release commit).
+# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.44 from npm, actions/preview at its release commit).
 # The iOS sandbox build (scheme `adhoc`) is an ad hoc .ipa for the iPhones in the Console's
 # device registry, and the Android one (scheme `apk`) a direct .apk. A sandbox build lives on
 # the channel of the pull request whose native change built it (pr-<number>), and every later
@@ -76,7 +76,7 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@eed4450ba5192682dd16b8ebc92aab54c863efe8
+      - uses: gronxb/hot-updater/actions/preview@2dac3ce3408df5f55afd8658f93bc85d3bb9c3a9
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android,ios

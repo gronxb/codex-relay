@@ -18,12 +18,12 @@ minimumReleaseAge: 0
 
 overrides:
   "@libsql/isomorphic-ws>ws": 8.21.0
-  # QA only: Hot Updater 1.2.0-rc.43 from npm, exact, for every package the app pulls in.
-  "@hot-updater/react-native": 1.2.0-rc.43
-  "@hot-updater/android-helper": 1.2.0-rc.43
-  "@hot-updater/apple-helper": 1.2.0-rc.43
-  "@hot-updater/cli-tools": 1.2.0-rc.43
-  hot-updater: 1.2.0-rc.43
-  "@hot-updater/protocol": 1.2.0-rc.43
-  "@hot-updater/plugin-core": 1.2.0-rc.43
-  "@hot-updater/server": 1.2.0-rc.43
+  # QA only: Hot Updater 1.2.0-rc.44 from npm, exact, for every package the app pulls in.
+  "@hot-updater/react-native": 1.2.0-rc.44
+  "@hot-updater/android-helper": 1.2.0-rc.44
+  "@hot-updater/apple-helper": 1.2.0-rc.44
+  "@hot-updater/cli-tools": 1.2.0-rc.44
+  hot-updater: 1.2.0-rc.44
+  "@hot-updater/protocol": 1.2.0-rc.44
+  "@hot-updater/plugin-core": 1.2.0-rc.44
+  "@hot-updater/server": 1.2.0-rc.44
