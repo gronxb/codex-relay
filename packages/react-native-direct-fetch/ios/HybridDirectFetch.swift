@@ -76,6 +76,8 @@ private final class HttpBodyStreamDecoder {
     }
 }
 
+// Hot Updater 1.2 QA: a native change, so the pull request preview builds a new sandbox build.
+// Hot Updater 1.2 QA (rc.41): another native change, so the preview builds a sandbox build born on pr-134.
 class HybridDirectFetch: HybridDirectFetchSpec {
     func fetch(request: DirectFetchRequest) throws -> Promise<DirectFetchResponse> {
         let promise = Promise<DirectFetchResponse>()

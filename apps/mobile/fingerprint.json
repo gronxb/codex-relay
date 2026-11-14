@@ -1,0 +1,1074 @@
+{
+  "ios": {
+    "engine": "hot-updater/interface@1",
+    "hash": "d9a7011cfeddbca495fb616b11231a23ffcfcda4b87a4925249d60b4c9e979be",
+    "sources": [
+      {
+        "type": "contents",
+        "id": "dependency:@expo/dom-webview",
+        "contents": "@expo/dom-webview@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "676d724f3edb56e9621dddf9562882406efc13c1cccf8287997516d7af6179bc"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@expo/log-box",
+        "contents": "@expo/log-box@58.0.8",
+        "reasons": ["native-dependency"],
+        "hash": "617ea294bbfa96daaf14af8b63bbc059d813d20f0f6e8fd16f4e867767ec3326"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@expo/ui",
+        "contents": "@expo/ui@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "930e10edbab1c2c44095a702930960c9b0ac1c7fd574f34c4a0afc1d76cb6db0"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@hot-updater/react-native",
+        "contents": "@hot-updater/react-native@1.2.0-rc.44",
+        "reasons": ["native-dependency"],
+        "hash": "f4d3e3f97776d6909e9d53bea2bf17cf5930cfa4f58a244df5f3063dbed40193"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@react-native-masked-view/masked-view",
+        "contents": "@react-native-masked-view/masked-view@0.3.2",
+        "reasons": ["native-dependency"],
+        "hash": "7e13cc992f97d1911e24fb215d06cf0feb6e87c32567872369ed43b66a2c353c"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo",
+        "contents": "expo@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "7443a1927d3c910ea0d0d51c497fc4a1a1e7e74fd3bfafcb414eb55b2bce87f1"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-application",
+        "contents": "expo-application@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "7b3b33314ab50cd6f6b71adc7744ef1d6bf6ce94f3c9b0b85a12a86aa7b4ff72"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-asset",
+        "contents": "expo-asset@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "f833c7e0ca1d391bb7fc8be9eea150ea9ff2fc820673e9d1a4aa737fb503cd1b"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-camera",
+        "contents": "expo-camera@58.0.7",
+        "reasons": ["native-dependency"],
+        "hash": "04e2ec374d87cb80da7a348b9a7c37979a585d8dd76f2efbaa7e20ec0c94e74d"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-clipboard",
+        "contents": "expo-clipboard@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "bba1484b338d40d579bd1e50bf8a8b8298fe3a806a262e7780ac22451e48b7f8"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-constants",
+        "contents": "expo-constants@58.0.9",
+        "reasons": ["native-dependency"],
+        "hash": "edaab46797c950d687a5daaf8174e4f8b3e26326c3a8dae6879098781bf49db9"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-client",
+        "contents": "expo-dev-client@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "a6eb48b4f434e472be998dd714f122cf4fee531150cfcb9d8e1521bdf57e292e"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-launcher",
+        "contents": "expo-dev-launcher@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "c3d9dc3906acefd719a8e7f2828590b6c4cbff052ac81c22a4d3b67b70140918"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-menu",
+        "contents": "expo-dev-menu@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "cf2806cd5bf57254bda08fd7edddf337d56624da1ed9f207542fc18defcc5bca"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-menu-interface",
+        "contents": "expo-dev-menu-interface@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "ccb86c5bc03ff26eb5f4e78ea63cd7fd1fb2a01d7ecec17997c2e4bda0011b86"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-file-system",
+        "contents": "expo-file-system@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "a439a092194d93e30a565ff71cd1f3e659c3a2d89ac95c27a017bae9b606a550"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-font",
+        "contents": "expo-font@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "6aa5eb3f4eddb1eaf6e74232c910f880f51b76399930562a84114478c3678f12"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-glass-effect",
+        "contents": "expo-glass-effect@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "74beea28481c60f0a3efd5f71fbc0659cceb65d0cb6099de768b6b5197213296"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-haptics",
+        "contents": "expo-haptics@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "c97e98c3dd81000c169030ff07773e9dba853244f9bbdd5fd9966befd5581f18"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-image",
+        "contents": "expo-image@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "14ae56e3818eef3f7502fab07671c02dea5d0ac3e38278e71521f7e295bd95ef"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-image-picker",
+        "contents": "expo-image-picker@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "722b539910524940658602b36f695aba0c3fdfe985aad8cd79012c39149014ee"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-json-utils",
+        "contents": "expo-json-utils@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "637797e43b557188ebfd41231f2dc39ffd7da68de4cdfa9fdc05fdb27b5fa575"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-keep-awake",
+        "contents": "expo-keep-awake@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "930d8c6fd0d27ccb8bd37052fcce8f8b2229fad985d710d316c00822eacf3614"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-linking",
+        "contents": "expo-linking@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "321f80aded5323cd1cbac17fe4bf9693cc3c1a5e21f46771f2db4f825efcdbb7"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-manifests",
+        "contents": "expo-manifests@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "261e2d8f42c2406e51f2fdcbf5a0fd3aadb367741c535848a01ae2bb63596c2a"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-modules-core",
+        "contents": "expo-modules-core@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "900da1b8f560edbda8da5b49e0769a1d5f60308eb063bbdf634d0c7ca109a027"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-modules-jsi",
+        "contents": "expo-modules-jsi@58.0.7",
+        "reasons": ["native-dependency"],
+        "hash": "dbdb8a8b5177b0e28ec0191e74aa8ef55b9976539f722f06d68fdf449d3d2cab"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-notifications",
+        "contents": "expo-notifications@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "45d13a5691641976b4acacfc6afe70adc8c3598b985f2b22653c5f202c14c952"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-router",
+        "contents": "expo-router@58.0.12",
+        "reasons": ["native-dependency"],
+        "hash": "594ec3f5964c1c8d56a5cdb35e1526b6d4941d5b2df488929e557d29a0f831c7"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-secure-store",
+        "contents": "expo-secure-store@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "82da81d0207b5322dd4071b1fb78967d2505ff942269766c412018d043c950b8"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-splash-screen",
+        "contents": "expo-splash-screen@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "162ffe083febd8f152fddf33ca4040c2bec4cb5aaaa4a073b28fe659e9323902"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-store-review",
+        "contents": "expo-store-review@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "2576c0716ab41bd1965be5fee1a048b0aa4d7e36249a93121b053e83fea263d2"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-system-ui",
+        "contents": "expo-system-ui@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "2a6bf5cd48a8e6b280c3e8cbd1f9fedfd59e147a9b3b6813dbaf5e63169260e5"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-updates-interface",
+        "contents": "expo-updates-interface@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "48006c85d3feaa45675e44203647d38aa1c9b3daa5bad3a7ad075ca22a514415"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-web-browser",
+        "contents": "expo-web-browser@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "91d8cfb101bbe566ff74f7a39977e09dd176e46fb069d3a829b0adc768b20b27"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-arrangement-view",
+        "contents": "react-native-arrangement-view@0.5.0",
+        "reasons": ["native-dependency"],
+        "hash": "16548aaa7b04bab4f924069c1f611ef43251fc386f1709ad4592bec554391160"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-enriched-markdown",
+        "contents": "react-native-enriched-markdown@1.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "dac19dbbde6857628c7af5be4f062e00b6865f7732aea3185d9e2f9a4718effb"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-gesture-handler",
+        "contents": "react-native-gesture-handler@3.2.1",
+        "reasons": ["native-dependency"],
+        "hash": "eaa2f226353aeb4ce576813ca4958b1457745a2b01ad728adcec3041bbcda50b"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-get-random-values",
+        "contents": "react-native-get-random-values@1.11.0",
+        "reasons": ["native-dependency"],
+        "hash": "e5e325c3ae4206d82e4cf80727094d7edc1232b8020a33e742239eea3893d80c"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-keyboard-controller",
+        "contents": "react-native-keyboard-controller@1.22.4",
+        "reasons": ["native-dependency"],
+        "hash": "75763ffb0a8aefc235df5eae6b63b3055da41a27db7c3db1ee62bd0b92513110"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-mmkv",
+        "contents": "react-native-mmkv@4.3.2",
+        "reasons": ["native-dependency"],
+        "hash": "cfa137b4ab26397f8a56d8f0bc777a7a8e37fbfd51ea453ba3ddd8f6a4b12567"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-fetch",
+        "contents": "react-native-nitro-fetch@1.6.3",
+        "reasons": ["native-dependency"],
+        "hash": "ecc1c73536f1a341da0f04c08333d0c3a2cd8743edbc21e7d102f45aa2d48fb9"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-image",
+        "contents": "react-native-nitro-image@0.15.2",
+        "reasons": ["native-dependency"],
+        "hash": "4df0e809610baaa975b4efa8c83b4cf13abf5c135e9fc9d6596876b1a6e9368a"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-modules",
+        "contents": "react-native-nitro-modules@0.37.1",
+        "reasons": ["native-dependency"],
+        "hash": "557f725682df9caec38b27aedc461b2b1e4cd048de67548db87a83ba62c123ac"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-web-image",
+        "contents": "react-native-nitro-web-image@0.15.2",
+        "reasons": ["native-dependency"],
+        "hash": "14fc7e2262c7fc4b3b57b89786ffe0199b777cd48cc2ec4dac9b80dd36c2cc99"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-reanimated",
+        "contents": "react-native-reanimated@4.7.0",
+        "reasons": ["native-dependency"],
+        "hash": "c07c3c7b03d91b0d38fcfb696c4622e81270375ed8a2d07e56cde5f7bdcf28c4"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-safe-area-context",
+        "contents": "react-native-safe-area-context@5.9.1",
+        "reasons": ["native-dependency"],
+        "hash": "a78e9a4ea131d3c58f7be6761e6c122997e04cee18b1c2b913ce3dd25f170dba"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-screens",
+        "contents": "react-native-screens@4.28.0",
+        "reasons": ["native-dependency"],
+        "hash": "8a179b359b8525f21c1db4766d8aa553521902ef5f61812229a638d8520db652"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-svg",
+        "contents": "react-native-svg@15.15.5",
+        "reasons": ["native-dependency"],
+        "hash": "1ac8060440a95ec65795fd4951e91b0d3f2a8772b55d9178f1490b54edbf3d87"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-unistyles",
+        "contents": "react-native-unistyles@3.3.0",
+        "reasons": ["native-dependency"],
+        "hash": "aef72aef2c5b873c48bf9c3a4c4879ccfd4f350ef6c4a8530af587a5c107f23e"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-webview",
+        "contents": "react-native-webview@14.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "b6e313fdebf1d901e6145efa1f59e14fb8eeabfd40593615382222bbb09ebf9d"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-worklets",
+        "contents": "react-native-worklets@0.13.0",
+        "reasons": ["native-dependency"],
+        "hash": "2c15fee1dc2024b563f81fedccd66bce660c24a279f3fd12bdb0ee607657d97b"
+      },
+      {
+        "type": "contents",
+        "id": "runtime",
+        "contents": "react-native@0.88.0-rc.3",
+        "reasons": ["runtime"],
+        "hash": "49a54c2e6f87a0e65957d13910177a90d788f98a07dd08d827291e03a5b76da8"
+      },
+      {
+        "type": "contents",
+        "id": "setting:expo.jsEngine",
+        "contents": "hermes",
+        "reasons": ["native-setting"],
+        "hash": "8cfde6efdfc4ed5ab1f6acbbd1ba49bf31932f84d0a4c090eb41c7d151e8b180"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/DirectFetch.podspec",
+        "reasons": ["local-dependency-native"],
+        "hash": "8a4a02dac9f145c0120b6c0c2ee3b04918fed73fc1e484efdf6fddfa4068ebc7"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/src/main/cpp/cpp-adapter.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "dc29a6c7320f2dbab8bf8d733c5e81f07f08ec21d3b7e3266983962e528a305e"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/ios/Bridge.h",
+        "reasons": ["local-dependency-native"],
+        "hash": "7011e9b75d9fa88337ec9eeb214f3071caa4c2164daf261b2defbed671fdc221"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/ios/HybridDirectFetch.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "2d7d5327f2b0984bf6c11ff390e1230fe5fe6ed2b1a26adb3940fdfcc8723909"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/DirectFetchOnLoad.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "42bee7a6283ae96da3180ba0b886bdcc07c1ac6df1e13dec49e09849c4aa0b52"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/DirectFetchOnLoad.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "934ee5c37a8fdaecaa567cf3c6bc3098a2095fa266d7b2ae5cc18f7335b55b51"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchDownloadRequest.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "f5a1092a01939e41b318f449a9c1c17b9815ff3713554d5d625f889e9b67b6d3"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchDownloadResponse.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "5894403b85118de25e2780f2e0a79f4a0a0d176324a6821b05c1773747c83d89"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchFormDataPart.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "1ae7bde2c7c1979930c14a5213c0bfd691ebad8895c86bed7346539cb6f8606a"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchRequest.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "1a580173aadb1d33db8a2fecff5ca0f299030a66c2262c4ae02d125855a16528"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchResponse.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "82257f3999f3b9fda4672dd8bd5c565133b2a7fc99bcdcbaa6c1bc145808f467"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JDirectFetchStreamChunk.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "c750750f095fd84e28743e8dab22fcb19f2dbcfe73240cc0deb15cbe39e2a8c3"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JFunc_void_DirectFetchStreamChunk.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "646faae4ca2cce8820a037ee299b490e5da597e51ec9bc8bb7a802f75b0cb4f2"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JHybridDirectFetchSpec.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "4a24c8a8e78f3ebac7946a09e693f285a9d2f71e6cab4db762e32d8a25ebf727"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/android/c++/JHybridDirectFetchSpec.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "8bf92327c92326c87c30e172c8b81b95b78daac49a5689e9b295c27836f6fab1"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/DirectFetch-Swift-Cxx-Bridge.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "5648d321c062707642937d907b9d59d68cc7168629c7f64e65822f4be191faeb"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/DirectFetch-Swift-Cxx-Bridge.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "7fe8ff9f31bbb1f043daaddac89b67cd778d663eab63b4e685ac645ba0ba47f1"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/DirectFetch-Swift-Cxx-Umbrella.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "3e437a22ef44cb1f4f462cdee24eb0074d3a2bf726163100ff5555017482f359"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/DirectFetchAutolinking.mm",
+        "reasons": ["local-dependency-native"],
+        "hash": "9e85f6daa659185e4db0d504c2a9c1717a544a7fc713b286528fb3b6c6533258"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/DirectFetchAutolinking.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "cec5f32a3ef7c926e149a4ee29eb058be3ced1b733f10e7a4ab1f0b782c11841"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/c++/HybridDirectFetchSpecSwift.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "39f3df1088cbfad8e9218b40be08d9b1cc26027261553a31663d03232e5e1a35"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/c++/HybridDirectFetchSpecSwift.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "a0697e4bac92438c599f7e4381af5feb8792ae72c2e0057a23379e25abb83fb5"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchDownloadRequest.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "83a2f15621854d5832fe956ecb78f32c495d5e3d8b0b324698b110805ad73a13"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchDownloadResponse.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "d2ae536bcc207a28a6eb48a6666bdefe1c45c6a51076adcdbc70851e7bc484f4"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchFormDataPart.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "4f552d7ef1169e710567d32c1788aa116cc965f2aaa0067957f2cd4bf2441bf4"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchRequest.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "70a18140d51ecfb61c53ae3c77b5234fb029840b896208e1b14451684a69b2cd"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchResponse.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "e823d7ce8240d2c3f573446fc4a7c4f6e999019201cd6f86ee87205d355c85e6"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/DirectFetchStreamChunk.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "bba09e372bbb98194b5e8543976a47def2c52e91aba77683c40fe100da43498c"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/Func_void_DirectFetchDownloadResponse.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "350fa3e2ecb2749dfc3ecc73a8115952993c0f3c3a777ba7c74fd4c1a459e3ff"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/Func_void_DirectFetchResponse.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "cbd4133b558832c75519c50a3dce0b41d0d988318dd625f086d6e042114628e3"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/Func_void_DirectFetchStreamChunk.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "b4cee308d6ef60b88872c3547014e451485b312837283695a261213399c46a1b"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/Func_void_std__exception_ptr.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "fdfeb12f1f5e00ddd1c723a6dd156bea5efe3fb048265d431cc0cd44f290cf75"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/HybridDirectFetchSpec.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "e9314c5f8d3ba4bc870b1243e32f8cec17ea09578e49c8c2b780a42c5ef1738c"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/ios/swift/HybridDirectFetchSpec_cxx.swift",
+        "reasons": ["local-dependency-native"],
+        "hash": "78d5bd4f16976dcb4133fa8394bd7e298a8a966771af66b380970faad0be58b4"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchDownloadRequest.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "5d590aed5ca3af02498cc0908d6fedff8f5c5e231608795244a5d03b61f2b024"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchDownloadResponse.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "886c8ecc46ceca0bd5375ee3addcfdb8697bd1e76a46598ddacdaa631b304316"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchFormDataPart.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "aced91831ec5b7114f7c6bb41ee60975a573b62ec899f214374805182a8058c1"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchRequest.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "bd5523d599b91626ddc3872c4b715c6257e59b40f0b4ab80a061187510fcfa45"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchResponse.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "f4386940c358ced7b53819761d9ce197f505a2b0c6e79ad68f997f76aa7536c8"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/DirectFetchStreamChunk.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "6b195541d99a5c1c9f48b03fecc03352a00c5752afc437dc81ab780a7599f56e"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/HybridDirectFetchSpec.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "5eede6199c5b0b85970fd318d2e82ec0437a8df4091c42a4f39687cd805f4f5f"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/nitrogen/generated/shared/c++/HybridDirectFetchSpec.hpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "dd8641378e4a52deded6df64fe65128c81c62585a024a4739ac85ed3359c19a4"
+      },
+      {
+        "type": "file",
+        "filePath": "keys/public-key.pem",
+        "reasons": ["extra-source"],
+        "hash": "f599be90e6a2595c37e140d09a3c5a849295873d90153db92e6303eba92a57fc"
+      }
+    ]
+  },
+  "android": {
+    "engine": "hot-updater/interface@1",
+    "hash": "3376ce162000a1b706a10422d4ea3d9aa1c588eeb943d6beadb4adbb84eaf458",
+    "sources": [
+      {
+        "type": "contents",
+        "id": "dependency:@expo/dom-webview",
+        "contents": "@expo/dom-webview@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "676d724f3edb56e9621dddf9562882406efc13c1cccf8287997516d7af6179bc"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@expo/log-box",
+        "contents": "@expo/log-box@58.0.8",
+        "reasons": ["native-dependency"],
+        "hash": "617ea294bbfa96daaf14af8b63bbc059d813d20f0f6e8fd16f4e867767ec3326"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@expo/ui",
+        "contents": "@expo/ui@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "930e10edbab1c2c44095a702930960c9b0ac1c7fd574f34c4a0afc1d76cb6db0"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@hot-updater/react-native",
+        "contents": "@hot-updater/react-native@1.2.0-rc.44",
+        "reasons": ["native-dependency"],
+        "hash": "f4d3e3f97776d6909e9d53bea2bf17cf5930cfa4f58a244df5f3063dbed40193"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:@react-native-masked-view/masked-view",
+        "contents": "@react-native-masked-view/masked-view@0.3.2",
+        "reasons": ["native-dependency"],
+        "hash": "7e13cc992f97d1911e24fb215d06cf0feb6e87c32567872369ed43b66a2c353c"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo",
+        "contents": "expo@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "7443a1927d3c910ea0d0d51c497fc4a1a1e7e74fd3bfafcb414eb55b2bce87f1"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-application",
+        "contents": "expo-application@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "7b3b33314ab50cd6f6b71adc7744ef1d6bf6ce94f3c9b0b85a12a86aa7b4ff72"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-asset",
+        "contents": "expo-asset@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "f833c7e0ca1d391bb7fc8be9eea150ea9ff2fc820673e9d1a4aa737fb503cd1b"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-camera",
+        "contents": "expo-camera@58.0.7",
+        "reasons": ["native-dependency"],
+        "hash": "04e2ec374d87cb80da7a348b9a7c37979a585d8dd76f2efbaa7e20ec0c94e74d"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-clipboard",
+        "contents": "expo-clipboard@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "bba1484b338d40d579bd1e50bf8a8b8298fe3a806a262e7780ac22451e48b7f8"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-constants",
+        "contents": "expo-constants@58.0.9",
+        "reasons": ["native-dependency"],
+        "hash": "edaab46797c950d687a5daaf8174e4f8b3e26326c3a8dae6879098781bf49db9"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-client",
+        "contents": "expo-dev-client@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "a6eb48b4f434e472be998dd714f122cf4fee531150cfcb9d8e1521bdf57e292e"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-launcher",
+        "contents": "expo-dev-launcher@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "c3d9dc3906acefd719a8e7f2828590b6c4cbff052ac81c22a4d3b67b70140918"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-menu",
+        "contents": "expo-dev-menu@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "cf2806cd5bf57254bda08fd7edddf337d56624da1ed9f207542fc18defcc5bca"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-dev-menu-interface",
+        "contents": "expo-dev-menu-interface@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "ccb86c5bc03ff26eb5f4e78ea63cd7fd1fb2a01d7ecec17997c2e4bda0011b86"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-file-system",
+        "contents": "expo-file-system@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "a439a092194d93e30a565ff71cd1f3e659c3a2d89ac95c27a017bae9b606a550"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-font",
+        "contents": "expo-font@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "6aa5eb3f4eddb1eaf6e74232c910f880f51b76399930562a84114478c3678f12"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-haptics",
+        "contents": "expo-haptics@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "c97e98c3dd81000c169030ff07773e9dba853244f9bbdd5fd9966befd5581f18"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-image",
+        "contents": "expo-image@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "14ae56e3818eef3f7502fab07671c02dea5d0ac3e38278e71521f7e295bd95ef"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-image-loader",
+        "contents": "expo-image-loader@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "fbe5c67ebdbb384d6893be26d84937d100635542f4a17372222613440dd669f7"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-image-picker",
+        "contents": "expo-image-picker@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "722b539910524940658602b36f695aba0c3fdfe985aad8cd79012c39149014ee"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-json-utils",
+        "contents": "expo-json-utils@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "637797e43b557188ebfd41231f2dc39ffd7da68de4cdfa9fdc05fdb27b5fa575"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-keep-awake",
+        "contents": "expo-keep-awake@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "930d8c6fd0d27ccb8bd37052fcce8f8b2229fad985d710d316c00822eacf3614"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-linking",
+        "contents": "expo-linking@58.0.10",
+        "reasons": ["native-dependency"],
+        "hash": "321f80aded5323cd1cbac17fe4bf9693cc3c1a5e21f46771f2db4f825efcdbb7"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-manifests",
+        "contents": "expo-manifests@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "261e2d8f42c2406e51f2fdcbf5a0fd3aadb367741c535848a01ae2bb63596c2a"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-modules-core",
+        "contents": "expo-modules-core@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "900da1b8f560edbda8da5b49e0769a1d5f60308eb063bbdf634d0c7ca109a027"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-notifications",
+        "contents": "expo-notifications@58.0.11",
+        "reasons": ["native-dependency"],
+        "hash": "45d13a5691641976b4acacfc6afe70adc8c3598b985f2b22653c5f202c14c952"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-router",
+        "contents": "expo-router@58.0.12",
+        "reasons": ["native-dependency"],
+        "hash": "594ec3f5964c1c8d56a5cdb35e1526b6d4941d5b2df488929e557d29a0f831c7"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-secure-store",
+        "contents": "expo-secure-store@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "82da81d0207b5322dd4071b1fb78967d2505ff942269766c412018d043c950b8"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-splash-screen",
+        "contents": "expo-splash-screen@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "162ffe083febd8f152fddf33ca4040c2bec4cb5aaaa4a073b28fe659e9323902"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-status-bar",
+        "contents": "expo-status-bar@58.0.3",
+        "reasons": ["native-dependency"],
+        "hash": "f63e0c6aaaf5a175dcfcb93fe2d2777e7564adeacbc59383d3930de331010d6b"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-store-review",
+        "contents": "expo-store-review@58.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "2576c0716ab41bd1965be5fee1a048b0aa4d7e36249a93121b053e83fea263d2"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-system-ui",
+        "contents": "expo-system-ui@58.0.5",
+        "reasons": ["native-dependency"],
+        "hash": "2a6bf5cd48a8e6b280c3e8cbd1f9fedfd59e147a9b3b6813dbaf5e63169260e5"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-updates-interface",
+        "contents": "expo-updates-interface@58.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "48006c85d3feaa45675e44203647d38aa1c9b3daa5bad3a7ad075ca22a514415"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:expo-web-browser",
+        "contents": "expo-web-browser@58.0.4",
+        "reasons": ["native-dependency"],
+        "hash": "91d8cfb101bbe566ff74f7a39977e09dd176e46fb069d3a829b0adc768b20b27"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-arrangement-view",
+        "contents": "react-native-arrangement-view@0.5.0",
+        "reasons": ["native-dependency"],
+        "hash": "16548aaa7b04bab4f924069c1f611ef43251fc386f1709ad4592bec554391160"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-enriched-markdown",
+        "contents": "react-native-enriched-markdown@1.0.2",
+        "reasons": ["native-dependency"],
+        "hash": "dac19dbbde6857628c7af5be4f062e00b6865f7732aea3185d9e2f9a4718effb"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-gesture-handler",
+        "contents": "react-native-gesture-handler@3.2.1",
+        "reasons": ["native-dependency"],
+        "hash": "eaa2f226353aeb4ce576813ca4958b1457745a2b01ad728adcec3041bbcda50b"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-get-random-values",
+        "contents": "react-native-get-random-values@1.11.0",
+        "reasons": ["native-dependency"],
+        "hash": "e5e325c3ae4206d82e4cf80727094d7edc1232b8020a33e742239eea3893d80c"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-keyboard-controller",
+        "contents": "react-native-keyboard-controller@1.22.4",
+        "reasons": ["native-dependency"],
+        "hash": "75763ffb0a8aefc235df5eae6b63b3055da41a27db7c3db1ee62bd0b92513110"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-mmkv",
+        "contents": "react-native-mmkv@4.3.2",
+        "reasons": ["native-dependency"],
+        "hash": "cfa137b4ab26397f8a56d8f0bc777a7a8e37fbfd51ea453ba3ddd8f6a4b12567"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-fetch",
+        "contents": "react-native-nitro-fetch@1.6.3",
+        "reasons": ["native-dependency"],
+        "hash": "ecc1c73536f1a341da0f04c08333d0c3a2cd8743edbc21e7d102f45aa2d48fb9"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-image",
+        "contents": "react-native-nitro-image@0.15.2",
+        "reasons": ["native-dependency"],
+        "hash": "4df0e809610baaa975b4efa8c83b4cf13abf5c135e9fc9d6596876b1a6e9368a"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-modules",
+        "contents": "react-native-nitro-modules@0.37.1",
+        "reasons": ["native-dependency"],
+        "hash": "557f725682df9caec38b27aedc461b2b1e4cd048de67548db87a83ba62c123ac"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-nitro-web-image",
+        "contents": "react-native-nitro-web-image@0.15.2",
+        "reasons": ["native-dependency"],
+        "hash": "14fc7e2262c7fc4b3b57b89786ffe0199b777cd48cc2ec4dac9b80dd36c2cc99"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-reanimated",
+        "contents": "react-native-reanimated@4.7.0",
+        "reasons": ["native-dependency"],
+        "hash": "c07c3c7b03d91b0d38fcfb696c4622e81270375ed8a2d07e56cde5f7bdcf28c4"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-safe-area-context",
+        "contents": "react-native-safe-area-context@5.9.1",
+        "reasons": ["native-dependency"],
+        "hash": "a78e9a4ea131d3c58f7be6761e6c122997e04cee18b1c2b913ce3dd25f170dba"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-screens",
+        "contents": "react-native-screens@4.28.0",
+        "reasons": ["native-dependency"],
+        "hash": "8a179b359b8525f21c1db4766d8aa553521902ef5f61812229a638d8520db652"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-svg",
+        "contents": "react-native-svg@15.15.5",
+        "reasons": ["native-dependency"],
+        "hash": "1ac8060440a95ec65795fd4951e91b0d3f2a8772b55d9178f1490b54edbf3d87"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-unistyles",
+        "contents": "react-native-unistyles@3.3.0",
+        "reasons": ["native-dependency"],
+        "hash": "aef72aef2c5b873c48bf9c3a4c4879ccfd4f350ef6c4a8530af587a5c107f23e"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-webview",
+        "contents": "react-native-webview@14.0.1",
+        "reasons": ["native-dependency"],
+        "hash": "b6e313fdebf1d901e6145efa1f59e14fb8eeabfd40593615382222bbb09ebf9d"
+      },
+      {
+        "type": "contents",
+        "id": "dependency:react-native-worklets",
+        "contents": "react-native-worklets@0.13.0",
+        "reasons": ["native-dependency"],
+        "hash": "2c15fee1dc2024b563f81fedccd66bce660c24a279f3fd12bdb0ee607657d97b"
+      },
+      {
+        "type": "contents",
+        "id": "runtime",
+        "contents": "react-native@0.88.0-rc.3",
+        "reasons": ["runtime"],
+        "hash": "49a54c2e6f87a0e65957d13910177a90d788f98a07dd08d827291e03a5b76da8"
+      },
+      {
+        "type": "contents",
+        "id": "setting:expo.jsEngine",
+        "contents": "hermes",
+        "reasons": ["native-setting"],
+        "hash": "8cfde6efdfc4ed5ab1f6acbbd1ba49bf31932f84d0a4c090eb41c7d151e8b180"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/CMakeLists.txt",
+        "reasons": ["local-dependency-native"],
+        "hash": "7fad64e18b84bf6175288bca1f020b63763d41dad8086e078cf0629c9629a394"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/build.gradle",
+        "reasons": ["local-dependency-native"],
+        "hash": "8f823ee6deeeb83440aab63ad0bc5bc0505aaaf3c99d175f623efd05450ce8af"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/fix-prefab.gradle",
+        "reasons": ["local-dependency-native"],
+        "hash": "fc36f7f33932e507cd8677e2d80bd13f428c83ca47136c891da9cd5dd5a85739"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/src/main/cpp/cpp-adapter.cpp",
+        "reasons": ["local-dependency-native"],
+        "hash": "dc29a6c7320f2dbab8bf8d733c5e81f07f08ec21d3b7e3266983962e528a305e"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/src/main/java/com/directfetch/DirectFetchPackage.kt",
+        "reasons": ["local-dependency-native"],
+        "hash": "89e51833d72349b2b56fc36283995e034b335952a9881d17bd8a29e944bd78b1"
+      },
+      {
+        "type": "file",
+        "filePath": "../../packages/react-native-direct-fetch/android/src/main/java/com/directfetch/HybridDirectFetch.kt",
+        "reasons": ["local-dependency-native"],
+        "hash": "d2dd23ad12fb4d8ea7b455de297294723437b996b4663db782e494b9617d689a"
+      },
+      {
+        "type": "file",
+        "filePath": "keys/public-key.pem",
+        "reasons": ["extra-source"],
+        "hash": "f599be90e6a2595c37e140d09a3c5a849295873d90153db92e6303eba92a57fc"
+      }
+    ]
+  },
+  "inputs": {
+    "adapter": "expo",
+    "extraSources": ["./keys/public-key.pem"]
+  }
+}
