@@ -44,7 +44,7 @@ export function HotUpdaterOtaTestBanner() {
         }}
       >
         <Text style={{ color: "#ffffff", fontSize: 22, fontWeight: "800" }}>
-          OTA TEST · REUSE CHECK
+          OTA TEST · PR PREVIEW
         </Text>
         <Text
           style={{
