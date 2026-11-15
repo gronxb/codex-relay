@@ -1,4 +1,4 @@
-# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.48 from npm, actions/preview at its release commit).
+# Hot Updater 1.2 sandbox QA (Hot Updater 1.2.0-rc.49 from npm, actions/preview at its release commit).
 # The documented parallel preview: three build jobs run at once (Android's sandbox .apk on
 # Linux, the iPhone's ad hoc .ipa and the Simulator .app on macOS), a Linux job deploys the
 # one iOS bundle after both iOS builds, and a last job writes the one comment from every
@@ -77,7 +77,7 @@ jobs:
       - name: Cap the Kotlin daemon's heap
         run: mkdir -p ~/.gradle && echo "kotlin.daemon.jvmargs=-Xmx2g" >> ~/.gradle/gradle.properties
       - id: preview
-        uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+        uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: android
@@ -131,7 +131,7 @@ jobs:
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
       - id: preview
-        uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+        uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
@@ -186,7 +186,7 @@ jobs:
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
       - id: preview
-        uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+        uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
@@ -235,7 +235,7 @@ jobs:
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
       - id: preview
-        uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+        uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           platforms: ios
@@ -254,7 +254,7 @@ jobs:
     if: ${{ !cancelled() && github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+      - uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           mode: comment
@@ -297,7 +297,7 @@ jobs:
           umask 077
           pnpm exec hot-updater secrets pull --only HOT_UPDATER_API_KEY --out .env.hotupdater.rc22 --force < /dev/null
           grep -c '^HOT_UPDATER_API_KEY=.' .env.hotupdater.rc22
-      - uses: gronxb/hot-updater/actions/preview@30dc5abe7db1e22dc7a5c2f880fc74b91c13a646
+      - uses: gronxb/hot-updater/actions/preview@4dcf8fc6e18349eb16d91a54a792f169cd89291b
         with:
           console-url: https://codex-relay.gron-studio.com
           working-directory: apps/mobile
