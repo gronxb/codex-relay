@@ -7,4 +7,3 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     margelo::nitro::directfetch::registerAllNatives();
   });
 }
-// QA only (Hot Updater rc.47 floor check): a comment that moves the native fingerprint; reverted next.

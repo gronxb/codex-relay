@@ -1,7 +1,7 @@
 {
   "ios": {
     "engine": "hot-updater/interface@1",
-    "hash": "ff23a0f1e3b33e70fa75827c6e68d696be61bdf751d9d4f863c901c3ec307702",
+    "hash": "712c10d23a8c73c70f3db1568ba1928e9c0e3ca6dede8408a3f7e1613b3a3258",
     "sources": [
       {
         "type": "contents",
@@ -391,7 +391,7 @@
         "type": "file",
         "filePath": "../../packages/react-native-direct-fetch/android/src/main/cpp/cpp-adapter.cpp",
         "reasons": ["local-dependency-native"],
-        "hash": "a2a8856ec84f042ffa9f7ad7cc7fe3ecc04dbef494186f2182b9783c0b2cc84c"
+        "hash": "dc29a6c7320f2dbab8bf8d733c5e81f07f08ec21d3b7e3266983962e528a305e"
       },
       {
         "type": "file",
@@ -643,7 +643,7 @@
   },
   "android": {
     "engine": "hot-updater/interface@1",
-    "hash": "14691b63ae9e416f572f657a18243b3aec76c01c5301e38e79865ce757bb46e2",
+    "hash": "e0cb423cbe3e5cd3b8f77b578a5a7aab051374b9da03856717b93ba4274c8887",
     "sources": [
       {
         "type": "contents",
@@ -1045,7 +1045,7 @@
         "type": "file",
         "filePath": "../../packages/react-native-direct-fetch/android/src/main/cpp/cpp-adapter.cpp",
         "reasons": ["local-dependency-native"],
-        "hash": "a2a8856ec84f042ffa9f7ad7cc7fe3ecc04dbef494186f2182b9783c0b2cc84c"
+        "hash": "dc29a6c7320f2dbab8bf8d733c5e81f07f08ec21d3b7e3266983962e528a305e"
       },
       {
         "type": "file",
