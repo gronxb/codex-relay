@@ -10,7 +10,7 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
   return {
     name: "Codex Relay",
     slug: "codex-relay",
-    version: "1.6.3",
+    version: "1.7.0",
     orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "codex-relay",
@@ -18,6 +18,8 @@ export default function appConfig(_context: ConfigContext): ExpoConfig {
     ios: {
       icon: "./assets/images/icon.png",
       bundleIdentifier: "com.gronstudio.codexrelay",
+      // Hot Updater 1.2 sandbox QA: the team the TestFlight sandbox build signs with.
+      appleTeamId: "Q3QT4ZF343",
       deploymentTarget: "16.4",
       supportsTablet: true,
       infoPlist: {

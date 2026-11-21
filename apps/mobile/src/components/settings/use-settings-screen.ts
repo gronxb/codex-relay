@@ -120,7 +120,7 @@ export function useSettingsScreen() {
           return;
         }
         const updateInfo = await hotUpdater.checkForUpdate({
-          updateStrategy: "appVersion",
+          updateStrategy: "fingerprint",
         });
 
         if (!isActive) {

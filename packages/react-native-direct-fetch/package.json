@@ -21,6 +21,7 @@
     "android/build.gradle",
     "android/fix-prefab.gradle",
     "android/gradle.properties",
+    "android/proguard-rules.pro",
     "android/CMakeLists.txt",
     "android/src",
     "ios/**/*.h",
