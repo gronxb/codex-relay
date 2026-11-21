@@ -17,6 +17,8 @@ export function HotUpdaterOtaTestBanner() {
     return null;
   }
   const bundleId = hotUpdater.getBundleId();
+  // The running release's label, `vN`; null on the built-in bundle.
+  const label = hotUpdater.getReleaseLabel();
   // The built-in bundle reports the build's minimum bundle ID.
   if (bundleId === hotUpdater.getMinBundleId()) {
     return null;
@@ -54,7 +56,7 @@ export function HotUpdaterOtaTestBanner() {
             marginTop: 2,
           }}
         >
-          {`${hotUpdater.getChannel()} · bundle ${bundleId.slice(-8)}`}
+          {`${hotUpdater.getChannel()} · ${label === null ? "no label" : `v${label}`} · bundle ${bundleId.slice(-8)}`}
         </Text>
         <Text style={{ color: "#fdf4ff", fontSize: 12, marginTop: 2 }}>
           You see this only when the pull request's OTA bundle runs.

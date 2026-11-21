@@ -96,6 +96,7 @@ async function checkForLaunchUpdate() {
       `Default channel: ${hotUpdater.getDefaultChannel()}`,
       `Cohort: ${hotUpdater.getCohort()}`,
       `Bundle: ${hotUpdater.getBundleId()}`,
+      `Release label: ${hotUpdater.getReleaseLabel() ?? "none"}`,
       `Min bundle: ${hotUpdater.getMinBundleId()}`,
     ].join("\n"),
   );
@@ -121,6 +122,7 @@ async function checkForLaunchUpdate() {
     "OTA launch check found update",
     [
       `ID: ${updateInfo.id}`,
+      `Label: ${updateInfo.label == null ? "none" : `v${updateInfo.label}`}`,
       `Status: ${updateInfo.status}`,
       `Force update: ${updateInfo.shouldForceUpdate ? "yes" : "no"}`,
       `Message: ${updateInfo.message}`,
