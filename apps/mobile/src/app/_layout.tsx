@@ -98,6 +98,7 @@ async function checkForLaunchUpdate() {
       `Bundle: ${hotUpdater.getBundleId()}`,
       `Release label: ${hotUpdater.getReleaseLabel() ?? "none"}`,
       `Min bundle: ${hotUpdater.getMinBundleId()}`,
+      "QA marker: link-expiry-1",
     ].join("\n"),
   );
 
