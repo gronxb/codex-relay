@@ -1,0 +1,11 @@
+diff --git a/ios/input/EnrichedMarkdownTextInput.mm b/ios/input/EnrichedMarkdownTextInput.mm
+--- a/ios/input/EnrichedMarkdownTextInput.mm
++++ b/ios/input/EnrichedMarkdownTextInput.mm
+@@ -1575,5 +1575,7 @@
+ - (void)handleTextChanged
+ {
+   if (_editSession.isComposing) {
++    // Marked text is visible even while formatting and change events are deferred.
++    [self updatePlaceholderVisibility];
+     return;
+   }
