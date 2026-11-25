@@ -1,5 +1,12 @@
 # codex-relay
 
+## 1.6.7
+
+### Patch Changes
+
+- bb17502: Use the supported on-request approval policy for auto mode and normalize legacy on-failure options before native thread creation, resume, and turn startup. Keep the selected sandbox and valid explicit approval policies unchanged.
+- 6f6ec62: Update `@openai/codex-sdk` to `0.172.0` and pin its Codex CLI `0.172.0` for app-server compatibility.
+
 ## 1.6.6
 
 ### Patch Changes
