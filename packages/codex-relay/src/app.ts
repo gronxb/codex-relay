@@ -6546,14 +6546,16 @@ function buildThreadOptions(
     ...runtime,
     ...(options.model ? { model: options.model } : {}),
     ...(reasoningEffort.success ? { modelReasoningEffort: reasoningEffort.data } : {}),
-    ...(options.approvalPolicy ? { approvalPolicy: options.approvalPolicy as never } : {}),
+    ...(options.approvalPolicy
+      ? { approvalPolicy: normalizeApprovalPolicy(options.approvalPolicy) as never }
+      : {}),
     ...(options.sandboxMode ? { sandboxMode: options.sandboxMode as never } : {}),
   };
 }
 
 function runtimeMetadataFromOptions(options: RuntimeOptionSubset): Partial<ThreadMetadata> {
   const runtime = options.runtimeMode ? (resolveRuntimeOptions(options.runtimeMode) ?? {}) : {};
-  const approvalPolicy = options.approvalPolicy ?? runtime.approvalPolicy;
+  const approvalPolicy = normalizeApprovalPolicy(options.approvalPolicy ?? runtime.approvalPolicy);
   const sandboxMode = options.sandboxMode ?? runtime.sandboxMode;
   return {
     ...(options.model ? { model: options.model } : {}),
@@ -6589,7 +6591,7 @@ function resolveRuntimeOptions(
   switch (runtimeMode) {
     case "auto":
       return {
-        approvalPolicy: "on-failure",
+        approvalPolicy: "on-request",
         sandboxMode: "workspace-write",
       };
     case "full-access":
@@ -6607,11 +6609,16 @@ function resolveRuntimeOptions(
   }
 }
 
+function normalizeApprovalPolicy(approvalPolicy: string | undefined) {
+  return approvalPolicy === "on-failure" ? "on-request" : approvalPolicy;
+}
+
 function resolveAppServerRuntime(options: RuntimeOptionSubset | undefined, workspacePath: string) {
   const runtime = resolveRuntimeOptions(options?.runtimeMode) ?? {};
   const sandbox = options?.sandboxMode ?? runtime.sandboxMode ?? "workspace-write";
   return {
-    approvalPolicy: options?.approvalPolicy ?? runtime.approvalPolicy ?? "on-request",
+    approvalPolicy:
+      normalizeApprovalPolicy(options?.approvalPolicy ?? runtime.approvalPolicy) ?? "on-request",
     sandbox,
     sandboxPolicy: sandboxPolicyForMode(sandbox, workspacePath),
   };
