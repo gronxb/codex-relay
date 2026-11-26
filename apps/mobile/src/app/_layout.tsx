@@ -98,7 +98,7 @@ async function checkForLaunchUpdate() {
       `Bundle: ${hotUpdater.getBundleId()}`,
       `Release label: ${hotUpdater.getReleaseLabel() ?? "none"}`,
       `Min bundle: ${hotUpdater.getMinBundleId()}`,
-      "QA marker: rc56-ab-red-prep",
+      "QA marker: rc60-pin",
     ].join("\n"),
   );
 
