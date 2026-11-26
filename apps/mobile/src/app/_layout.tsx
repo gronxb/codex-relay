@@ -17,6 +17,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { HotUpdaterOtaTestBanner } from "@/components/hot-updater-ota-test-banner";
 import { useInitialPushNotificationRegistration } from "@/hooks/use-initial-push-notification-registration";
 import { hotUpdater } from "@/lib/hot-updater";
 import {
@@ -95,12 +96,14 @@ async function checkForLaunchUpdate() {
       `Default channel: ${hotUpdater.getDefaultChannel()}`,
       `Cohort: ${hotUpdater.getCohort()}`,
       `Bundle: ${hotUpdater.getBundleId()}`,
+      `Release label: ${hotUpdater.getReleaseLabel() ?? "none"}`,
       `Min bundle: ${hotUpdater.getMinBundleId()}`,
+      "QA marker: rc60-pin",
     ].join("\n"),
   );
 
   const updateInfo = await hotUpdater.checkForUpdate({
-    updateStrategy: "appVersion",
+    updateStrategy: "fingerprint",
     onError: (error) => {
       addHotUpdaterLog(
         "warning",
@@ -120,6 +123,7 @@ async function checkForLaunchUpdate() {
     "OTA launch check found update",
     [
       `ID: ${updateInfo.id}`,
+      `Label: ${updateInfo.label == null ? "none" : `v${updateInfo.label}`}`,
       `Status: ${updateInfo.status}`,
       `Force update: ${updateInfo.shouldForceUpdate ? "yes" : "no"}`,
       `Message: ${updateInfo.message}`,
@@ -252,6 +256,7 @@ function TabLayout() {
                 />
               </Stack>
               <PortalHost />
+              <HotUpdaterOtaTestBanner />
             </BottomSheetModalProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>
